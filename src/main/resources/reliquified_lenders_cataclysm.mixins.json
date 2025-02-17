@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "it.hurts.octostudios.reliquified_lenders_cataclysm.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "reliquified_lenders_cataclysm.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
