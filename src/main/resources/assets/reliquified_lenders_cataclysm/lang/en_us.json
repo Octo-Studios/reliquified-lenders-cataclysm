@@ -1,0 +1,21 @@
+{
+  "item.reliquified_lenders_cataclysm.scouring_eye": "Scouring Eye",
+  "item.reliquified_lenders_cataclysm.void_vortex_in_bottle": "Void Vortex in Bottle",
+
+  "tooltip.relics.scouring_eye.description": "",
+  "tooltip.relics.void_vortex_in_bottle.description": "",
+
+  "tooltip.relics.scouring_eye.ability.glowing_scour": "",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.description": "",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.target": "",
+
+  "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex": "",
+  "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex.description": "",
+  "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex.predicate.target": "",
+
+  "tooltip.relics.scouring_eye.leveling_source.glowing_scour.title": "",
+  "tooltip.relics.scouring_eye.leveling_source.glowing_scour.description": "",
+
+  "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.title": "",
+  "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.description": ""
+}

@@ -7,7 +7,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class EntityRegistry {
-    private static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, ReliquifiedLendersCataclysm.MODID);
+    private static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, ReliquifiedLendersCataclysm.MOD_ID);
 
     public static void register(IEventBus bus) {
         ENTITIES.register(bus);
