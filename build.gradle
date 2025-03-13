@@ -68,6 +68,10 @@ repositories {
         name = "OctoStudios"
         url = uri("https://maven.octo-studios.com/releases")
     }
+    maven {
+        name = "Illusive Soulworks maven"
+        url = "https://maven.theillusivec4.top/"
+    }
     maven { url "https://maven.architectury.dev/" }
     exclusiveContent {
         forRepository {
@@ -86,6 +90,7 @@ dependencies {
 
     implementation 'org.jetbrains:annotations:20.1.0'
 
+    implementation 'top.theillusivec4.curios:curios-neoforge:9.3.1+1.21.1'
     implementation "it.hurts.octostudios.octolib:octolib-neoforge:0.5.0.1+1.21"
 
     implementation "dev.architectury:architectury-neoforge:13.0.6"
