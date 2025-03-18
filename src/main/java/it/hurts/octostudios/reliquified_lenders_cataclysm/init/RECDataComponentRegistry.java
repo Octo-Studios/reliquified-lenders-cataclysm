@@ -16,6 +16,10 @@ public class RECDataComponentRegistry {
             DATA_COMPONENTS.register("target_id", () -> DataComponentType.<Integer>builder()
                     .persistent(Codec.INT)
                     .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VORTEX_ID =
+            DATA_COMPONENTS.register("vortex_id", () -> DataComponentType.<Integer>builder()
+                    .persistent(Codec.INT)
+                    .build());
 
     public static void register(IEventBus bus) {
         DATA_COMPONENTS.register(bus);

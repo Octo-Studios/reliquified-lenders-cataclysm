@@ -16,8 +16,8 @@ public class ItemRegistry {
 
     public static final DeferredHolder<Item, ScouringEyeItem> SCOURING_EYE =
             ITEMS.register("scouring_eye", ScouringEyeItem::new);
-//    public static final DeferredHolder<Item, VoidVortexInBottleItem> VOID_VORTEX_IN_BOTTLE =
-//            ITEMS.register("void_vortex_in_bottle", VoidVortexInBottleItem::new);
+    public static final DeferredHolder<Item, VoidVortexInBottleItem> VOID_VORTEX_IN_BOTTLE =
+            ITEMS.register("void_vortex_in_bottle", VoidVortexInBottleItem::new);
     public static final DeferredHolder<Item, VacuumGloveItem> VACUUM_GLOVE =
             ITEMS.register("vacuum_glove", VacuumGloveItem::new);
 

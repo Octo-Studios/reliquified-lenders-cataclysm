@@ -31,6 +31,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 
+@EventBusSubscriber
 public class ScouringEyeItem extends RelicItem {
     private static final String ABILITY_ID = "glowing_scour";
 
@@ -92,28 +93,25 @@ public class ScouringEyeItem extends RelicItem {
         }
     }
 
-    @EventBusSubscriber
-    static class ItemEvents {
-        @SubscribeEvent
-        public static void onAttackEntity(AttackEntityEvent event) {
-            Player player = event.getEntity();
-            Entity target = event.getTarget();
+    @SubscribeEvent
+    public static void onAttackEntity(AttackEntityEvent event) {
+        Player player = event.getEntity();
+        Entity target = event.getTarget();
 
-            ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.SCOURING_EYE.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.SCOURING_EYE.get());
 
-            if (!(target instanceof LivingEntity livingTarget)
-                    || stack.isEmpty() || livingTarget.isDeadOrDying()) {
-                return;
-            }
+        if (!(target instanceof LivingEntity livingTarget)
+                || livingTarget.isDeadOrDying() || stack.isEmpty()) {
+            return;
+        }
 
-            int livingTargetId = livingTarget.getId();
+        int livingTargetId = livingTarget.getId();
 
-            stack.set(RECDataComponentRegistry.TARGET_ID.get(), livingTargetId);
+        stack.set(RECDataComponentRegistry.TARGET_ID.get(), livingTargetId);
 
-            // no effect
-            if (player instanceof ServerPlayer serverPlayer) {
-                NetworkHandler.sendToClient(new GlowingEffectPacket(livingTargetId), serverPlayer);
-            }
+        // no effect
+        if (player instanceof ServerPlayer serverPlayer) {
+            NetworkHandler.sendToClient(new GlowingEffectPacket(livingTargetId), serverPlayer);
         }
     }
 
@@ -126,16 +124,19 @@ public class ScouringEyeItem extends RelicItem {
 
         // tp behind target's view direction
         if (targetDirection.getAxis().equals(Direction.Axis.X)) {
-            x += targetDirection.getAxisDirection().equals(Direction.AxisDirection.NEGATIVE)
-                    ? 2.0F : -2.0F;
+            x += getBlockBehindDirection(targetDirection);
         } else {
-            z += targetDirection.getAxisDirection().equals(Direction.AxisDirection.NEGATIVE)
-                    ? 2.0F : -2.0F;
+            z += getBlockBehindDirection(targetDirection);
         }
 
         player.teleportTo(x, y, z);
         player.getCommandSenderWorld().playSound(null, x, y, z,
                 SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, 1.0F);
+    }
+
+    private static float getBlockBehindDirection(Direction targetDirection) {
+        return targetDirection.getAxisDirection().equals(Direction.AxisDirection.NEGATIVE)
+                ? 2.0F : -2.0F;
     }
 
     private int getCooldownStat(ItemStack stack) {
