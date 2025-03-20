@@ -76,34 +76,6 @@ public class VoidVortexInBottleItem extends RelicItem {
                 .build();
     }
 
-    @SubscribeEvent
-    public static void onEntityDeath(LivingDeathEvent event) {
-        if (!(event.getSource().getEntity() instanceof Player player)) {
-            return;
-        }
-
-        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_VORTEX_IN_BOTTLE.get());
-
-        if (stack.isEmpty() || !(stack.getItem() instanceof VoidVortexInBottleItem relic)
-                || player.getCooldowns().isOnCooldown(stack.getItem())) {
-            return;
-        }
-
-        Level level = player.getCommandSenderWorld();
-
-        // spawn void vortex
-
-        LivingEntity target = event.getEntity();
-        int lifespanTicks = getTickStat(relic, stack, "lifespan");
-        Entity voidVortexEntity = new Void_Vortex_Entity(level,
-                target.getX(), target.getY(), target.getZ(), target.getYRot(), player, lifespanTicks);
-
-        level.addFreshEntity(voidVortexEntity);
-        stack.set(RECDataComponentRegistry.VORTEX_ID.get(), voidVortexEntity.getId());
-
-        player.getCooldowns().addCooldown(stack.getItem(), getTickStat(relic, stack, "cooldown"));
-    }
-
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         if (stack.isEmpty() || !(slotContext.entity() instanceof Player player)) {
@@ -136,8 +108,29 @@ public class VoidVortexInBottleItem extends RelicItem {
         }
     }
 
-    private static int getTickStat(IRelicItem relic, ItemStack stack, String stat) {
-        return (int) (relic.getStatValue(stack, ABILITY_ID, stat) * 20);
+    @SubscribeEvent
+    public static void onEntityDeath(LivingDeathEvent event) {
+        if (!(event.getSource().getEntity() instanceof Player player)) {
+            return;
+        }
+
+        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_VORTEX_IN_BOTTLE.get());
+
+        if (stack.isEmpty() || !(stack.getItem() instanceof VoidVortexInBottleItem relic)
+                || player.getCooldowns().isOnCooldown(stack.getItem())) {
+            return;
+        }
+
+        Level level = player.getCommandSenderWorld();
+        LivingEntity target = event.getEntity();
+        int lifespanTicks = ItemUtils.getTickStat(relic, stack, ABILITY_ID, "lifespan");
+        Entity voidVortexEntity = new Void_Vortex_Entity(level,
+                target.getX(), target.getY(), target.getZ(), target.getYRot(), player, lifespanTicks);
+
+        level.addFreshEntity(voidVortexEntity);
+        stack.set(RECDataComponentRegistry.VORTEX_ID.get(), voidVortexEntity.getId());
+
+        player.getCooldowns().addCooldown(stack.getItem(), ItemUtils.getTickStat(relic, stack, ABILITY_ID, "cooldown"));
     }
 
     private float getDamageStat(ItemStack stack) {

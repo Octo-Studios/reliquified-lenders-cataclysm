@@ -1,10 +1,12 @@
 {
   "item.reliquified_lenders_cataclysm.scouring_eye": "Scouring Eye",
   "item.reliquified_lenders_cataclysm.void_vortex_in_bottle": "Void Vortex in Bottle",
+  "item.reliquified_lenders_cataclysm.void_cloak": "Void Cloak",
   "item.reliquified_lenders_cataclysm.vacuum_glove": "Vacuum Glove",
 
   "tooltip.relics.scouring_eye.description": "",
   "tooltip.relics.void_vortex_in_bottle.description": "",
+  "tooltip.relics.void_cloak.description": "",
   "tooltip.relics.vacuum_glove.description": "",
 
   "tooltip.relics.scouring_eye.ability.glowing_scour": "",
@@ -15,6 +17,16 @@
   "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex.description": "",
   "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex.predicate.target": "",
 
+  "tooltip.relics.void_cloak.ability.void_invulnerability": "",
+  "tooltip.relics.void_cloak.ability.void_invulnerability.description": "",
+  "tooltip.relics.void_cloak.ability.void_invulnerability.predicate.target": "",
+  "tooltip.relics.void_cloak.ability.void_rune": "",
+  "tooltip.relics.void_cloak.ability.void_rune.description": "",
+  "tooltip.relics.void_cloak.ability.void_rune.predicate.target": "",
+  "tooltip.relics.void_cloak.ability.seismic_zone": "",
+  "tooltip.relics.void_cloak.ability.seismic_zone.description": "",
+  "tooltip.relics.void_cloak.ability.seismic_zone.predicate.target": "",
+
   "tooltip.relics.vacuum_glove.ability.vacuum_slowdown": "",
   "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.description": "",
   "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.predicate.target": "",
@@ -24,6 +36,11 @@
 
   "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.title": "",
   "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.description": "",
+
+  "tooltip.relics.void_cloak.leveling_source.void_rune.title": "",
+  "tooltip.relics.void_cloak.leveling_source.void_rune.description": "",
+  "tooltip.relics.void_cloak.leveling_source.seismic_zone.title": "",
+  "tooltip.relics.void_cloak.leveling_source.seismic_zone.description": "",
 
   "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.title": "",
   "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.description": ""

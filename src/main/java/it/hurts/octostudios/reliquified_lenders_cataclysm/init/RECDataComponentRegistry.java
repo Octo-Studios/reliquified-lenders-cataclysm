@@ -13,13 +13,18 @@ public class RECDataComponentRegistry {
             DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, ReliquifiedLendersCataclysm.MOD_ID);
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TARGET_ID =
-            DATA_COMPONENTS.register("target_id", () -> DataComponentType.<Integer>builder()
-                    .persistent(Codec.INT)
-                    .build());
+            registerIntComponent("target_id");
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VORTEX_ID =
-            DATA_COMPONENTS.register("vortex_id", () -> DataComponentType.<Integer>builder()
-                    .persistent(Codec.INT)
-                    .build());
+            registerIntComponent("vortex_id");
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VOID_RUNE_TIME =
+            registerIntComponent("void_rune_time");
+
+    private static DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> registerIntComponent(String name) {
+        return DATA_COMPONENTS.register(name, () ->
+                DataComponentType.<Integer>builder()
+                .persistent(Codec.INT)
+                .build());
+    }
 
     public static void register(IEventBus bus) {
         DATA_COMPONENTS.register(bus);

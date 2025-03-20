@@ -1,4 +1,4 @@
-package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
+package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
@@ -13,7 +13,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -117,8 +116,6 @@ public class VacuumGloveItem extends RelicItem {
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
         }
     }
-
-    // utils
 
     private List<Mob> getEntitiesInArea(Level level, Player player, float radius) {
         BlockPos playerPos =
