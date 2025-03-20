@@ -61,12 +61,12 @@ public class VoidCloakItem extends RelicItem {
                         .ability(AbilityData.builder("seismic_zone")
                                 .stat(StatData.builder("radius")
                                         .initialValue(2, 3)
-                                        .upgradeModifier(UpgradeOperation.ADD, 1)
+                                        .upgradeModifier(UpgradeOperation.ADD, 0.5)
                                         .formatValue(value -> MathUtils.round(value, 1))
                                         .build())
-                                .stat(StatData.builder("evocations")
+                                .stat(StatData.builder("quakes")
                                         .initialValue(2, 3)
-                                        .upgradeModifier(UpgradeOperation.ADD, 1)
+                                        .upgradeModifier(UpgradeOperation.ADD, 0.5)
                                         .formatValue(value -> MathUtils.round(value, 1))
                                         .build())
                                 .build())
@@ -134,35 +134,35 @@ public class VoidCloakItem extends RelicItem {
     }
 
     private void spawnVoidRuneRow(Level level, Player player, PathfinderMob mob, ItemStack stack) {
-        float deviationRad = (float) (Math.toRadians(mob.yHeadRot - 90));
+        float shiftRad = (float) (Math.toRadians(mob.yHeadRot - 90));
         float damage = getDamageStat(stack);
 
         if (player.getXRot() > 70) {
             for (int i = 0; i < 5; i++) {
-                float yRot = deviationRad + i * (float) Math.PI * 0.4F;
-                double delta = (double) Mth.cos(yRot) * 1.5D;
+                float yRot = shiftRad + i * (float) Math.PI * 0.4F;
+                double shift = (double) Mth.cos(yRot) * 1.5D;
 
                 spawnFang(level, player,
-                        player.getX() + delta, player.getZ() + delta,
+                        player.getX() + shift, player.getZ() + shift,
                         yRot, 0, damage);
             }
 
             for (int i = 0; i < 8; i++) {
-                float yRot = deviationRad + i * (float) Math.PI / 4.0F + 1.2566371F;
-                double delta = (double) Mth.cos(yRot) * 2.5D;
+                float yRot = shiftRad + i * (float) Math.PI / 4.0F + 1.2566371F;
+                double shift = (double) Mth.cos(yRot) * 2.5D;
 
                 spawnFang(level, player,
-                        player.getX() + delta, player.getZ() + delta,
+                        player.getX() + shift, player.getZ() + shift,
                         yRot, 3, damage);
             }
         } else {
             for (int i = 0; i < 10; i++) {
-                double multiplier = 1.25D * (i + 1);
+                double shiftForIndex = 1.25D * (i + 1);
 
                 spawnFang(level, player,
-                        player.getX() + Mth.cos(deviationRad) * multiplier,
-                        player.getZ() + Mth.sin(deviationRad) * multiplier,
-                        deviationRad, i, damage);
+                        player.getX() + Mth.cos(shiftRad) * shiftForIndex,
+                        player.getZ() + Mth.sin(shiftRad) * shiftForIndex,
+                        shiftRad, i, damage);
             }
         }
     }
@@ -226,71 +226,113 @@ public class VoidCloakItem extends RelicItem {
         level.explode(entity, entity.getX(), entity.getY(), entity.getZ(),
                 1.0F, false, Level.ExplosionInteraction.NONE);
 
-        int evocationsNum = (int) relic.getStatValue(stack, "seismic_zone", "evocations");
+        int quakesNum = relic.getQuakesStat(stack);
 
-        for (int i = 0; i < evocationsNum; i++) {
-            relic.spawnSeismicZone(stack, player, entity.position(), i);
+        for (int i = 0; i < quakesNum; i++) {
+            relic.spawnSeismicZone(stack, player, entity, i);
         }
 
-        ScreenShake_Entity.ScreenShake(level, player.position(), 4.0F, 0.3F, 0, 20);
+        ScreenShake_Entity.ScreenShake(level, entity.position(), relic.getRadiusStat(stack),
+                1.0F / quakesNum, quakesNum * 50, 10);
     }
 
-    private void spawnSeismicZone(ItemStack stack, Player player, Vec3 pos, int evocationNum) {
+    private void spawnSeismicZone(ItemStack stack, Player player, LivingEntity dyingEntity, int quakeIndex) {
         Level level = player.getCommandSenderWorld();
+        Vec3 pos = dyingEntity.position();
         float damage = getDamageStat(stack);
 
         // initial 4 fangs (for minimal radius = 1)
         for (int i = 0; i < 4; i++) {
-            double delta = 0.5D;
+            double shift = 0.5D;
 
-            spawnFang(level, player,
-                    pos.x + (i < 2 ? -1 : 1) * delta, pos.z + Math.pow(-1, i) * delta,
-                    i, evocationNum * 50, damage);
+            spawnFang(level, player, dyingEntity,
+                    pos.x + (i < 2 ? 1 : -1) * shift, pos.z + Math.pow(-1, i) * shift,
+                    i, quakeIndex * 50, damage);
         }
 
-        int radius = (int) getStatValue(stack, "seismic_zone", "radius");
+        double shift = 0.5D;
+        int delayTicks = 3;
 
-//        for (int r = 0; r < radius; r++) {
-//            for (int i = 0; i < 8; i++) {
-//                double delta = 0.5D;
-//
-//                spawnFang(level, player,
-//                        pos.x + (i < 2 ? -1 : 1) * delta, pos.z + Math.pow(-1, i) * delta,
-//                        i, 0, damage);
-//            }
-//        }
+        for (int r = 0; r < getRadiusStat(stack); r++) {
+            // xp & xn
+            for (int i = 0; i < 4; i++) {
+                spawnFang(level, player, dyingEntity,
+                        pos.x + getAxisShift(r, i, shift), pos.z + Math.pow(-1, i) * shift,
+                        i, quakeIndex * 50 + delayTicks, damage);
+            }
+
+            // zp & zn
+            for (int i = 0; i < 4; i++) {
+                spawnFang(level, player, dyingEntity,
+                        pos.x + Math.pow(-1, i) * shift, pos.z + getAxisShift(r, i, shift),
+                        i, quakeIndex * 50 + delayTicks, damage);
+            }
+
+            delayTicks += 2;
+        }
+
+        /*
+        scheme of fangs spawn [so far]:
+                zp zp
+              xn # # xp
+              xn # # xp
+                zn zn
+        # - initial fang;
+        xp - fang in positive X direction, xn - negative X;
+        zp - positive Z direction, zn - negative Z;
+        for each r, num of fangs pair on each side increases by 1,
+        so fangs form '+'-shape
+        */
     }
 
-    private static void spawnFang(Level level, Player player, double posX, double posZ,
-                                  float yRot, int delayTicks, float damage) {
-        BlockPos playerBlockPos = BlockPos.containing(posX, player.getY() + 1.0D, posZ);
-        double deltaY = 0.0D;
+    private double getAxisShift(int radiusIndex, int fangIndex, double shift) {
+        double axisShift = shift * (radiusIndex + 2) + 1.0F * (radiusIndex + 1);
+
+        return fangIndex < 2 ? axisShift : -axisShift;
+    }
+
+    private static void spawnFang(Level level, Player player, LivingEntity entity,
+                                  double posX, double posZ, float yRot, int delayTicks, float damage) {
+        BlockPos blockPos = BlockPos.containing(posX, entity.getY() + 1.0D, posZ);
+        double shiftY = 0.0D;
 
         do {
-            BlockPos playerBelowBlockPos = playerBlockPos.below();
-            BlockState belowBlockState = level.getBlockState(playerBelowBlockPos);
+            BlockPos belowBlockPos = blockPos.below();
+            BlockState belowBlockState = level.getBlockState(belowBlockPos);
 
-            if (belowBlockState.isFaceSturdy(level, playerBelowBlockPos, Direction.UP)
-                    && !level.isEmptyBlock(playerBlockPos)) {
-                BlockState blockState = level.getBlockState(playerBlockPos);
-                VoxelShape collisionShape = blockState.getCollisionShape(level, playerBlockPos);
+            if (belowBlockState.isFaceSturdy(level, belowBlockPos, Direction.UP)
+                    && !level.isEmptyBlock(blockPos)) {
+                BlockState blockState = level.getBlockState(blockPos);
+                VoxelShape collisionShape = blockState.getCollisionShape(level, blockPos);
 
                 if (!collisionShape.isEmpty()) {
-                    deltaY = collisionShape.max(Direction.Axis.Y);
+                    shiftY = collisionShape.max(Direction.Axis.Y);
                 }
 
                 break;
             }
 
-            playerBlockPos = playerBlockPos.below();
-        } while (playerBlockPos.getY() >= Math.floor(player.getY() - 1));
+            blockPos = blockPos.below();
+        } while (blockPos.getY() >= Math.floor(entity.getY() - 1));
 
         level.addFreshEntity(new Void_Rune_Entity(level,
-                posX, playerBlockPos.getY() + deltaY, posZ,
-                yRot, delayTicks, damage, player));
+                posX, blockPos.getY() + shiftY, posZ, yRot, delayTicks, damage, player));
+    }
+
+    private static void spawnFang(Level level, Player player,
+                                  double posX, double posZ, float yRot, int delayTicks, float damage) {
+        spawnFang(level, player, player, posX, posZ, yRot, delayTicks, damage);
     }
 
     private float getDamageStat(ItemStack stack) {
         return (float) getStatValue(stack, "void_rune", "damage");
+    }
+
+    private int getQuakesStat(ItemStack stack) {
+        return (int) getStatValue(stack, "seismic_zone", "quakes");
+    }
+
+    private int getRadiusStat(ItemStack stack) {
+        return (int) getStatValue(stack, "seismic_zone", "radius");
     }
 }
