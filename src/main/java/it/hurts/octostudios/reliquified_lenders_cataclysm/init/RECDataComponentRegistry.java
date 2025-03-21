@@ -18,6 +18,8 @@ public class RECDataComponentRegistry {
             registerIntComponent("vortex_id");
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VOID_RUNE_TIME =
             registerIntComponent("void_rune_time");
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> ATTACK_BLOCKS =
+            registerIntComponent("attack_blocks");
 
     private static DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> registerIntComponent(String name) {
         return DATA_COMPONENTS.register(name, () ->

@@ -5,6 +5,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.Void
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands.VacuumGloveItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm.VoidVortexInBottleItem;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.head.VoidBubbleItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
@@ -23,6 +24,8 @@ public class ItemRegistry {
             ITEMS.register("void_cloak", VoidCloakItem::new);
     public static final DeferredHolder<Item, VacuumGloveItem> VACUUM_GLOVE =
             ITEMS.register("vacuum_glove", VacuumGloveItem::new);
+    public static final DeferredHolder<Item, VoidBubbleItem> VOID_BUBBLE =
+            ITEMS.register("void_bubble", VoidBubbleItem::new);
 
     public static void register(IEventBus bus) {
         ITEMS.register(bus);

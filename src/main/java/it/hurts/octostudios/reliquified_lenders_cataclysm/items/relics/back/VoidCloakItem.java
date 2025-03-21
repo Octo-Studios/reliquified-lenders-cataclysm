@@ -55,7 +55,7 @@ public class VoidCloakItem extends RelicItem {
                                 .stat(StatData.builder("damage")
                                         .initialValue(0.75D, 1.0D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.45D)
-                                        .formatValue(value -> MathUtils.round(value, 1))
+                                        .formatValue(value -> MathUtils.round(value * 2, 1))
                                         .build())
                                 .build())
                         .ability(AbilityData.builder("seismic_zone")
@@ -98,7 +98,7 @@ public class VoidCloakItem extends RelicItem {
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         if (stack.isEmpty() || !(slotContext.entity() instanceof Player player)
-                || !(stack.getItem() instanceof VoidCloakItem relic)|| !isAbilityTicking(stack, "void_rune")) {
+                || !(stack.getItem() instanceof VoidCloakItem relic) || !isAbilityTicking(stack, "void_rune")) {
             return;
         }
 
@@ -213,7 +213,8 @@ public class VoidCloakItem extends RelicItem {
 
         ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_CLOAK.get());
 
-        if (stack.isEmpty() || !(stack.getItem() instanceof VoidCloakItem relic)) {
+        if (stack.isEmpty() || !(stack.getItem() instanceof VoidCloakItem relic)
+                || !relic.isAbilityUnlocked(stack, "seismic_zone")) {
             return;
         }
 
