@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public class ItemUtils {
     public static int getTickStat(IRelicItem relic, ItemStack stack, String ability, String stat) {
-        return (int) (relic.getStatValue(stack, ability, stat) * 20);
+        return (int) Math.floor(relic.getStatValue(stack, ability, stat) * 20);
     }
 
     public static List<Mob> getMobsInArea(Level level, AABB area) {

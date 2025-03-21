@@ -17,8 +17,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -30,7 +28,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
-import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.List;
 
@@ -49,7 +46,7 @@ public class VoidBubbleItem extends RelicItem {
                                         .formatValue(value -> (int) MathUtils.round(value, 1))
                                         .build())
                                 .stat(StatData.builder("projectiles")
-                                        .initialValue(2D, 3D)
+                                        .initialValue(2D, 2D)
                                         .upgradeModifier(UpgradeOperation.ADD, 0.5D)
                                         .formatValue(value -> (int) MathUtils.round(value, 1))
                                         .build())
@@ -142,8 +139,6 @@ public class VoidBubbleItem extends RelicItem {
                 new Void_Scatter_Arrow_Entity(ModEntities.VOID_SCATTER_ARROW.get(), level);
         List<Vec3> movementVecs = arrowEntity.getShootVectors(player.getRandom(), 0.0F);
         Vec3 movementVec;
-
-        player.sendSystemMessage(Component.literal(String.valueOf((int) relic.getStatValue(stack, ABILITY_ID, "projectiles"))));
 
         for (int i = 0; i < (int) relic.getStatValue(stack, ABILITY_ID, "projectiles"); i++) {
             movementVec = movementVecs.get(i);
