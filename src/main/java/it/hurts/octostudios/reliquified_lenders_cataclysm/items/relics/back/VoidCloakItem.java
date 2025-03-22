@@ -20,7 +20,6 @@ import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
@@ -126,7 +125,6 @@ public class VoidCloakItem extends RelicItem {
             if (targetEntity != null && targetEntity.is(player)) {
                 spawnVoidRune(level, player, mob, stack);
                 voidRuneTime = ItemUtils.getTickStat(relic, stack, "void_rune", "cooldown");
-                player.sendSystemMessage(Component.literal("cooldown: " + ItemUtils.getTickStat(relic, stack, "void_rune", "cooldown")));
             }
         }
 
@@ -201,13 +199,11 @@ public class VoidCloakItem extends RelicItem {
                 1.0F, false, Level.ExplosionInteraction.NONE);
 
         int quakesNum = relic.getQuakesStat(stack);
-        player.sendSystemMessage(Component.literal("quakes: " + relic.getQuakesStat(stack)));
 
         for (int i = 0; i < quakesNum; i++) {
             relic.spawnSeismicZone(stack, player, entity, i);
         }
 
-        player.sendSystemMessage(Component.literal("radius" + relic.getRadiusStat(stack)));
         ScreenShake_Entity.ScreenShake(level, entity.position(), relic.getRadiusStat(stack),
                 1.0F / quakesNum, quakesNum * 50, 10);
     }
