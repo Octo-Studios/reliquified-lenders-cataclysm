@@ -20,7 +20,7 @@ import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
@@ -48,8 +48,8 @@ public class VoidCloakItem extends RelicItem {
                                         .type(CastType.TOGGLEABLE)
                                         .build())
                                 .stat(StatData.builder("cooldown")
-                                        .initialValue(12, 15)
-                                        .upgradeModifier(UpgradeOperation.ADD, -1)
+                                        .initialValue(12D, 15D)
+                                        .upgradeModifier(UpgradeOperation.ADD, -0.5D)
                                         .formatValue(value -> MathUtils.round(value, 1))
                                         .build())
                                 .stat(StatData.builder("damage")
@@ -60,13 +60,13 @@ public class VoidCloakItem extends RelicItem {
                                 .build())
                         .ability(AbilityData.builder("seismic_zone")
                                 .stat(StatData.builder("radius")
-                                        .initialValue(2, 3)
-                                        .upgradeModifier(UpgradeOperation.ADD, 0.5)
+                                        .initialValue(2D, 3D)
+                                        .upgradeModifier(UpgradeOperation.ADD, 0.5D)
                                         .formatValue(value -> MathUtils.round(value, 1))
                                         .build())
                                 .stat(StatData.builder("quakes")
-                                        .initialValue(2, 3)
-                                        .upgradeModifier(UpgradeOperation.ADD, 0.5)
+                                        .initialValue(2D, 3D)
+                                        .upgradeModifier(UpgradeOperation.ADD, 0.5D)
                                         .formatValue(value -> MathUtils.round(value, 1))
                                         .build())
                                 .build())
@@ -124,47 +124,20 @@ public class VoidCloakItem extends RelicItem {
             LivingEntity targetEntity = mob.getTarget();
 
             if (targetEntity != null && targetEntity.is(player)) {
-                // todo: increase the effectiveness and accuracy
-                spawnVoidRuneRow(level, player, mob, stack);
+                spawnVoidRune(level, player, mob, stack);
                 voidRuneTime = ItemUtils.getTickStat(relic, stack, "void_rune", "cooldown");
+                player.sendSystemMessage(Component.literal("cooldown: " + ItemUtils.getTickStat(relic, stack, "void_rune", "cooldown")));
             }
         }
 
         stack.set(RECDataComponentRegistry.VOID_RUNE_TIME, voidRuneTime);
     }
 
-    private void spawnVoidRuneRow(Level level, Player player, PathfinderMob mob, ItemStack stack) {
-        float shiftRad = (float) (Math.toRadians(mob.yHeadRot - 90));
-        float damage = getDamageStat(stack);
+    private void spawnVoidRune(Level level, Player player, PathfinderMob mob, ItemStack stack) {
+        Vec3 mobMovement = mob.getDeltaMovement();
 
-        if (player.getXRot() > 70) {
-            for (int i = 0; i < 5; i++) {
-                float yRot = shiftRad + i * (float) Math.PI * 0.4F;
-                double shift = (double) Mth.cos(yRot) * 1.5D;
-
-                spawnFang(level, player,
-                        player.getX() + shift, player.getZ() + shift,
-                        yRot, 0, damage);
-            }
-
-            for (int i = 0; i < 8; i++) {
-                float yRot = shiftRad + i * (float) Math.PI / 4.0F + 1.2566371F;
-                double shift = (double) Mth.cos(yRot) * 2.5D;
-
-                spawnFang(level, player,
-                        player.getX() + shift, player.getZ() + shift,
-                        yRot, 3, damage);
-            }
-        } else {
-            for (int i = 0; i < 10; i++) {
-                double shiftForIndex = 1.25D * (i + 1);
-
-                spawnFang(level, player,
-                        player.getX() + Mth.cos(shiftRad) * shiftForIndex,
-                        player.getZ() + Mth.sin(shiftRad) * shiftForIndex,
-                        shiftRad, i, damage);
-            }
-        }
+        spawnFang(level, player, mob, mob.getX() + mobMovement.x, mob.getZ() + mobMovement.z * 3,
+                0, -20, getDamageStat(stack));
     }
 
     /**
@@ -228,11 +201,13 @@ public class VoidCloakItem extends RelicItem {
                 1.0F, false, Level.ExplosionInteraction.NONE);
 
         int quakesNum = relic.getQuakesStat(stack);
+        player.sendSystemMessage(Component.literal("quakes: " + relic.getQuakesStat(stack)));
 
         for (int i = 0; i < quakesNum; i++) {
             relic.spawnSeismicZone(stack, player, entity, i);
         }
 
+        player.sendSystemMessage(Component.literal("radius" + relic.getRadiusStat(stack)));
         ScreenShake_Entity.ScreenShake(level, entity.position(), relic.getRadiusStat(stack),
                 1.0F / quakesNum, quakesNum * 50, 10);
     }
@@ -318,11 +293,6 @@ public class VoidCloakItem extends RelicItem {
 
         level.addFreshEntity(new Void_Rune_Entity(level,
                 posX, blockPos.getY() + shiftY, posZ, yRot, delayTicks, damage, player));
-    }
-
-    private static void spawnFang(Level level, Player player,
-                                  double posX, double posZ, float yRot, int delayTicks, float damage) {
-        spawnFang(level, player, player, posX, posZ, yRot, delayTicks, damage);
     }
 
     private float getDamageStat(ItemStack stack) {
