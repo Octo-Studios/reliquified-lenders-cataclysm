@@ -13,6 +13,7 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
 import net.minecraft.core.BlockPos;
+//import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -43,7 +44,7 @@ public class VacuumGloveItem extends RelicItem {
                 .leveling(LevelingData.builder()
                         .initialCost(100)
                         .step(100)
-                        .maxLevel(10)
+                        .maxLevel(5)
                         .sources(LevelingSourcesData.builder()
                                 .source(LevelingSourceData
                                         .abilityBuilder(ABILITY_ID)
@@ -72,19 +73,14 @@ public class VacuumGloveItem extends RelicItem {
             return;
         }
 
-        List<Mob> entitiesInArea = getEntitiesInArea(level, player, RADIUS);
-
-        if (entitiesInArea.isEmpty()) {
-            return;
-        }
-
         // apply slowdown on mobs inside the area
-        for (Mob mob : entitiesInArea) {
+        for (Mob mob : getMobsInArea(level, player, RADIUS)) {
             EntityUtils.resetAttribute(mob, stack, Attributes.MOVEMENT_SPEED,
                     getModifierValue(stack, mob.getSpeed(), player.distanceTo(mob)),
-                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+                    AttributeModifier.Operation.ADD_VALUE);
 
             // debug
+//            player.sendSystemMessage(Component.literal("slowdown: " + getSlowdownStat(stack)));
 //            player.sendSystemMessage(mob.getDisplayName().copy().append(" ")
 //                    .append(Component.literal(String.valueOf(mob.getSpeed()))));
         }
@@ -104,20 +100,14 @@ public class VacuumGloveItem extends RelicItem {
             return;
         }
 
-        List<Mob> entitiesInArea = getEntitiesInArea(level, player, RADIUS + 4.0F);
-
-        if (entitiesInArea.isEmpty()) {
-            return;
-        }
-
         // remove slowdown
-        for (Mob mob : entitiesInArea) {
+        for (Mob mob : getMobsInArea(level, player, RADIUS + 4.0F)) {
             EntityUtils.removeAttribute(mob, stack, Attributes.MOVEMENT_SPEED,
-                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+                    AttributeModifier.Operation.ADD_VALUE);
         }
     }
 
-    private List<Mob> getEntitiesInArea(Level level, Player player, float radius) {
+    private List<Mob> getMobsInArea(Level level, Player player, float radius) {
         BlockPos playerPos =
                 new BlockPos((int) player.position().x, (int) player.position().y, (int) player.position().z);
         AABB sphereArea = new AABB(playerPos).inflate(radius);
