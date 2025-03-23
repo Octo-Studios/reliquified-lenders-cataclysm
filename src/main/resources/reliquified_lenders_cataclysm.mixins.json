@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "reliquified_lenders_cataclysm.refmap.json",
   "mixins": [
+    "MinecraftMixin"
   ],
   "client": [
   ],
