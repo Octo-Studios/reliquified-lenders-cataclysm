@@ -20,6 +20,7 @@ import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
@@ -47,7 +48,7 @@ public class VoidCloakItem extends RelicItem {
                                         .type(CastType.TOGGLEABLE)
                                         .build())
                                 .stat(StatData.builder("cooldown")
-                                        .initialValue(12D, 15D)
+                                        .initialValue(15D, 12D)
                                         .upgradeModifier(UpgradeOperation.ADD, -0.5D)
                                         .formatValue(value -> MathUtils.round(value, 1))
                                         .build())
@@ -211,56 +212,28 @@ public class VoidCloakItem extends RelicItem {
     private void spawnSeismicZone(ItemStack stack, Player player, LivingEntity dyingEntity, int quakeIndex) {
         Level level = player.getCommandSenderWorld();
         Vec3 pos = dyingEntity.position();
-        float damage = getDamageStat(stack);
 
-        // initial 4 fangs (for minimal radius = 1)
-        for (int i = 0; i < 4; i++) {
-            double shift = 0.5D;
-
-            spawnFang(level, player, dyingEntity,
-                    pos.x + (i < 2 ? 1 : -1) * shift, pos.z + Math.pow(-1, i) * shift,
-                    i, quakeIndex * 50, damage);
-        }
-
-        double shift = 0.5D;
+        float shift = 1.25F; // fangs shift along circle
+        float shiftMultiplier = 2.5F; // distance from center
         int delayTicks = 3;
 
         for (int r = 0; r < getRadiusStat(stack); r++) {
-            // xp & xn
-            for (int i = 0; i < 4; i++) {
+            int fangsNum = 6;
+
+            for (int i = 0; i < fangsNum; i++) {
+                float angle = (float) (i * Math.PI * 2.0F / fangsNum + shift);
+
                 spawnFang(level, player, dyingEntity,
-                        pos.x + getAxisShift(r, i, shift), pos.z + Math.pow(-1, i) * shift,
-                        i, quakeIndex * 50 + delayTicks, damage);
+                        pos.x + (double) Mth.cos(angle) * shiftMultiplier,
+                        pos.z + (double) Mth.sin(angle) * shiftMultiplier,
+                        i, quakeIndex * 50 + delayTicks, getDamageStat(stack));
             }
 
-            // zp & zn
-            for (int i = 0; i < 4; i++) {
-                spawnFang(level, player, dyingEntity,
-                        pos.x + Math.pow(-1, i) * shift, pos.z + getAxisShift(r, i, shift),
-                        i, quakeIndex * 50 + delayTicks, damage);
-            }
+            shift -= shiftMultiplier;
+            shiftMultiplier++;
 
             delayTicks += 2;
         }
-
-        /*
-        scheme of fangs spawn [so far]:
-                zp zp
-              xn # # xp
-              xn # # xp
-                zn zn
-        # - initial fang;
-        xp - fang in positive X direction, xn - negative X;
-        zp - positive Z direction, zn - negative Z;
-        for each r, num of fangs pair on each side increases by 1,
-        so fangs form '+'-shape
-        */
-    }
-
-    private double getAxisShift(int radiusIndex, int fangIndex, double shift) {
-        double axisShift = shift * (radiusIndex + 2) + 1.0F * (radiusIndex + 1);
-
-        return fangIndex < 2 ? axisShift : -axisShift;
     }
 
     private static void spawnFang(Level level, Player player, LivingEntity entity,
