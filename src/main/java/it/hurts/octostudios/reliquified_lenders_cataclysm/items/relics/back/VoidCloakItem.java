@@ -97,7 +97,7 @@ public class VoidCloakItem extends RelicItem {
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         if (stack.isEmpty() || !(slotContext.entity() instanceof Player player)
-                || !(stack.getItem() instanceof VoidCloakItem relic) || !isAbilityTicking(stack, "void_rune")) {
+                || !isAbilityTicking(stack, "void_rune")) {
             return;
         }
 
@@ -124,7 +124,7 @@ public class VoidCloakItem extends RelicItem {
 
             if (targetEntity != null && targetEntity.is(player)) {
                 spawnVoidRune(level, player, mob, stack);
-                voidRuneTime = ItemUtils.getTickStat(relic, stack, "void_rune", "cooldown");
+                voidRuneTime = ItemUtils.getCooldownStat(stack, "void_rune");
             }
         }
 

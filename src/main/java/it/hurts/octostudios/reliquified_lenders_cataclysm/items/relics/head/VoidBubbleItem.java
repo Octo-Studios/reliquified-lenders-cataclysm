@@ -41,12 +41,12 @@ public class VoidBubbleItem extends RelicItem {
                 .abilities(AbilitiesData.builder()
                         .ability(AbilityData.builder(ABILITY_ID)
                                 .stat(StatData.builder("attack_blocks")
-                                        .initialValue(1D, 2D)
+                                        .initialValue(2D, 3D)
                                         .upgradeModifier(UpgradeOperation.ADD, 0.5D)
                                         .formatValue(value -> (int) MathUtils.round(value, 1))
                                         .build())
                                 .stat(StatData.builder("projectiles")
-                                        .initialValue(2D, 2D)
+                                        .initialValue(2D, 3D)
                                         .upgradeModifier(UpgradeOperation.ADD, 0.5D)
                                         .formatValue(value -> (int) MathUtils.round(value, 1))
                                         .build())
@@ -114,9 +114,10 @@ public class VoidBubbleItem extends RelicItem {
 
         Level level = player.getCommandSenderWorld();
         int attackBlocks = stack.getOrDefault(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
+        int attackBlocksStat = relic.getAttackBlocksStat(stack);
 
-        if (attackBlocks < relic.getAttackBlocksStat(stack)) {
-            if (attackBlocks == relic.getAttackBlocksStat(stack) - 1) {
+        if (attackBlocks < attackBlocksStat) {
+            if (attackBlocks == attackBlocksStat - 1) {
                 relic.spawnShards(player, relic, stack);
             }
 
@@ -127,8 +128,7 @@ public class VoidBubbleItem extends RelicItem {
             event.setCanceled(true);
         } else {
             stack.set(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
-            relic.setAbilityCooldown(stack, ABILITY_ID,
-                    ItemUtils.getTickStat(relic, stack, ABILITY_ID, "cooldown"));
+            relic.setAbilityCooldown(stack, ABILITY_ID, ItemUtils.getCooldownStat(stack, ABILITY_ID));
         }
     }
 
