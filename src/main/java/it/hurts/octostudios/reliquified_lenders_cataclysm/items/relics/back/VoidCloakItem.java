@@ -196,7 +196,7 @@ public class VoidCloakItem extends RelicItem {
             return;
         }
 
-        level.explode(entity, entity.getX(), entity.getY(), entity.getZ(),
+        level.explode(player, entity.getX(), entity.getY(), entity.getZ(),
                 1.0F, false, Level.ExplosionInteraction.NONE);
 
         int quakesNum = relic.getQuakesStat(stack);
