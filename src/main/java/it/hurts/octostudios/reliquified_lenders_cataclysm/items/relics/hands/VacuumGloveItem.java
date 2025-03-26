@@ -1,7 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands;
 
+import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
@@ -25,7 +25,7 @@ import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.List;
 
-public class VacuumGloveItem extends RelicItem {
+public class VacuumGloveItem extends RECItem {
     private static final String ABILITY_ID = "vacuum_slowdown";
     private static final float RADIUS = 6.0F;
 

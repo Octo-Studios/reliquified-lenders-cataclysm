@@ -3,8 +3,8 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
 import com.github.L_Ender.cataclysm.entity.effect.Void_Vortex_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
@@ -30,7 +30,7 @@ import top.theillusivec4.curios.api.SlotContext;
 import java.util.List;
 
 @EventBusSubscriber
-public class VoidVortexInBottleItem extends RelicItem {
+public class VoidVortexInBottleItem extends RECItem {
     private static final String ABILITY_ID = "spawn_vortex";
 
     @Override
@@ -49,8 +49,8 @@ public class VoidVortexInBottleItem extends RelicItem {
                                         .formatValue(value -> MathUtils.round(value * 2, 1))
                                         .build())
                                 .stat(StatData.builder("cooldown")
-                                        .initialValue(50, 60)
-                                        .upgradeModifier(UpgradeOperation.ADD, -1)
+                                        .initialValue(60D, 50D)
+                                        .upgradeModifier(UpgradeOperation.ADD, -1D)
                                         .formatValue(value -> MathUtils.round(value, 1))
                                         .build())
                                 .build())

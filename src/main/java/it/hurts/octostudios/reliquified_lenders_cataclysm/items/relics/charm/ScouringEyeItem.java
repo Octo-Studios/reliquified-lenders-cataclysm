@@ -2,8 +2,8 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastStage;
@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 @EventBusSubscriber
-public class ScouringEyeItem extends RelicItem {
+public class ScouringEyeItem extends RECItem {
     private static final String ABILITY_ID = "glowing_scour";
 
     @Override

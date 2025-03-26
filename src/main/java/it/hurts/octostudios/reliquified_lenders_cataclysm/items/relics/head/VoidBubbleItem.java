@@ -5,8 +5,8 @@ import com.github.L_Ender.cataclysm.entity.projectile.Void_Shard_Entity;
 import com.github.L_Ender.cataclysm.init.ModEntities;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
@@ -32,7 +32,7 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import java.util.List;
 
 @EventBusSubscriber
-public class VoidBubbleItem extends RelicItem {
+public class VoidBubbleItem extends RECItem {
     private static final String ABILITY_ID = "protective_bubble";
 
     @Override
