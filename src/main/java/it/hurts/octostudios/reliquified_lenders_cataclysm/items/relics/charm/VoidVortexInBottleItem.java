@@ -5,6 +5,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
@@ -15,6 +16,8 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -22,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -39,19 +43,19 @@ public class VoidVortexInBottleItem extends RECItem {
                 .abilities(AbilitiesData.builder()
                         .ability(AbilityData.builder(ABILITY_ID)
                                 .stat(StatData.builder("lifespan")
-                                        .initialValue(5, 7)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.1F)
-                                        .formatValue(value -> MathUtils.round(value, 1))
+                                        .initialValue(5D, 7D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.12D)
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("damage")
-                                        .initialValue(0.2D, 0.35D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
+                                        .initialValue(0.25D, 0.45D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.2D)
                                         .formatValue(value -> MathUtils.round(value * 2, 1))
                                         .build())
                                 .stat(StatData.builder("cooldown")
-                                        .initialValue(60D, 50D)
-                                        .upgradeModifier(UpgradeOperation.ADD, -1D)
-                                        .formatValue(value -> MathUtils.round(value, 1))
+                                        .initialValue(60D, 55D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.035D)
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .build())
                         .build())
@@ -93,17 +97,37 @@ public class VoidVortexInBottleItem extends RECItem {
         if (voidVortexEntity != null) {
             damageMobsInVortex(level, voidVortexEntity, stack);
         }
+
+        float currentCooldown = player.getCooldowns().getCooldownPercent(stack.getItem(), 0.0F);
+
+        // play sound on cooldown ending
+        if (currentCooldown > 0.0F && currentCooldown <= (float) 1 / ItemUtils.getCooldownStat(stack, ABILITY_ID)) {
+            level.playSound(null, player.blockPosition(),
+                    SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1F, 1.1F);
+        }
     }
 
     private void damageMobsInVortex(Level level, Entity vortex, ItemStack stack) {
-        // variable from the code of void vortex entity
+        double shift = 4.0D; // pull radius
+
+        // variable based on the code of void vortex entity
         AABB vortexArea =
-                new AABB(vortex.getX() - 3.0, vortex.getY(), vortex.getZ() - 3.0,
-                        vortex.getX() + 3.0, vortex.getY() + 15.0, vortex.getZ() + 3.0);
+                new AABB(vortex.getX() - shift, vortex.getY(), vortex.getZ() - shift,
+                        vortex.getX() + shift, vortex.getY() + 15.0, vortex.getZ() + shift);
         List<Mob> mobsInArea = ItemUtils.getMobsInArea(level, vortexArea);
 
         for (Mob mob : mobsInArea) {
+            // increase pull force
+            ItemUtils.resetMovementAttribute(mob, stack, 0.2F);
+
+            Vec3 deltaMovement = mob.position().subtract(vortex.position()).normalize().scale(0.075);
+
+            // pull & hurt mobs in custom radius
+            mob.setDeltaMovement(mob.getDeltaMovement()
+                    .add(0.0, -2.0, 0.0).subtract(deltaMovement));
             mob.hurt(level.damageSources().magic(), getDamageStat(stack));
+
+            ItemUtils.removeMovementAttribute(mob, stack);
         }
     }
 

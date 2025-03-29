@@ -15,7 +15,7 @@
 
   "tooltip.relics.void_vortex_in_bottle.description": "",
   "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex": "",
-  "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex.description": "",
+  "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex.description": "lifespan: %1$s, damage: %2$s, cooldown: %3$s",
   "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.title": "",
   "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.description": "",
 

@@ -10,13 +10,10 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOp
 import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
-import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
 import net.minecraft.core.BlockPos;
 //import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -75,9 +72,7 @@ public class VacuumGloveItem extends RECItem {
 
         // apply slowdown on mobs inside the area
         for (Mob mob : getMobsInArea(level, player, RADIUS)) {
-            EntityUtils.resetAttribute(mob, stack, Attributes.MOVEMENT_SPEED,
-                    getModifierValue(stack, mob.getSpeed(), player.distanceTo(mob)),
-                    AttributeModifier.Operation.ADD_VALUE);
+            ItemUtils.resetMovementAttribute(mob, stack, getModifierValue(stack, mob.getSpeed(), player.distanceTo(mob)));
 
             // debug
 //            player.sendSystemMessage(Component.literal("slowdown: " + getSlowdownStat(stack)));
@@ -102,8 +97,7 @@ public class VacuumGloveItem extends RECItem {
 
         // remove slowdown
         for (Mob mob : getMobsInArea(level, player, RADIUS + 4.0F)) {
-            EntityUtils.removeAttribute(mob, stack, Attributes.MOVEMENT_SPEED,
-                    AttributeModifier.Operation.ADD_VALUE);
+            ItemUtils.removeMovementAttribute(mob, stack);
         }
     }
 

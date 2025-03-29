@@ -3,7 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.MathUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastStage;
@@ -49,12 +49,12 @@ public class ScouringEyeItem extends RECItem {
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(20D, 15D)
                                         .upgradeModifier(UpgradeOperation.ADD, -1D)
-                                        .formatValue(MathUtils::roundInt)
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("glowing_limit")
                                         .initialValue(25D, 30D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
-                                        .formatValue(MathUtils::roundInt)
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .build())
                         .build())

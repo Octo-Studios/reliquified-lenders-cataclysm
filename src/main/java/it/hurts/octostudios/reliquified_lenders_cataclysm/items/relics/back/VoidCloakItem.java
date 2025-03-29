@@ -135,7 +135,7 @@ public class VoidCloakItem extends RECItem {
     private void spawnVoidRune(Level level, Player player, PathfinderMob mob, ItemStack stack) {
         Vec3 mobMovement = mob.getDeltaMovement();
 
-        spawnFang(level, player, mob, mob.getX() + mobMovement.x, mob.getZ() + mobMovement.z * 3,
+        spawnFang(level, player, mob, mob.getX() + mobMovement.x, mob.getZ() + mobMovement.z,
                 0, -20, getDamageStat(stack));
     }
 
