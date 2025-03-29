@@ -12,15 +12,20 @@ public class RECDataComponentRegistry {
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS =
             DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, ReliquifiedLendersCataclysm.MOD_ID);
 
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VORTEX_ID =
-            registerIntComponent("vortex_id");
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> GLOWING_TIME =
+            registerIntComponent("glowing_time");
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VOID_RUNE_TIME =
             registerIntComponent("void_rune_time");
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VORTEX_ID =
+            registerIntComponent("vortex_id");
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> ATTACK_BLOCKS =
             registerIntComponent("attack_blocks");
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> TARGET_UUID =
             registerStringComponent("target_uuid");
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> TP_SAFE =
+            registerBoolComponent("tp_safe");
 
     private static DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> registerIntComponent(String name) {
         return DATA_COMPONENTS.register(name, () ->
@@ -33,6 +38,13 @@ public class RECDataComponentRegistry {
         return DATA_COMPONENTS.register(name, () ->
                 DataComponentType.<String>builder()
                         .persistent(Codec.STRING)
+                        .build());
+    }
+
+    private static DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> registerBoolComponent(String name) {
+        return DATA_COMPONENTS.register(name, () ->
+                DataComponentType.<Boolean>builder()
+                        .persistent(Codec.BOOL)
                         .build());
     }
 

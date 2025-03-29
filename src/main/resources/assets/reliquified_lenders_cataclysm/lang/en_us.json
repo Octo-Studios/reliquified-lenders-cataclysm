@@ -12,8 +12,9 @@
   "tooltip.relics.void_bubble.description": "",
 
   "tooltip.relics.scouring_eye.ability.glowing_scour": "",
-  "tooltip.relics.scouring_eye.ability.glowing_scour.description": "",
-  "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.target": "",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.description": "cooldown: %1$s, glowing time: %2$s",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.target": "Target Exists",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.safe_tp": "Teleport Safe",
 
   "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex": "",
   "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex.description": "",
