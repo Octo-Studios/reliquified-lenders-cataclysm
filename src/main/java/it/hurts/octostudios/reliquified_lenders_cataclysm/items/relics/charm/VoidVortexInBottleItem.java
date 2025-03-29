@@ -15,7 +15,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
-import it.hurts.sskirillss.relics.utils.MathUtils;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -50,7 +49,7 @@ public class VoidVortexInBottleItem extends RECItem {
                                 .stat(StatData.builder("damage")
                                         .initialValue(0.25D, 0.45D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.2D)
-                                        .formatValue(value -> MathUtils.round(value * 2, 1))
+                                        .formatValue(RECMathUtils::roundDamage)
                                         .build())
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(60D, 55D)

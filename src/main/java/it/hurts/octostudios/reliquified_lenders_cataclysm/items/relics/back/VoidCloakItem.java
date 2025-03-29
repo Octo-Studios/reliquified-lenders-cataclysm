@@ -6,6 +6,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastType;
@@ -48,17 +49,18 @@ public class VoidCloakItem extends RECItem {
                                         .type(CastType.TOGGLEABLE)
                                         .build())
                                 .stat(StatData.builder("cooldown")
-                                        .initialValue(15D, 12D)
-                                        .upgradeModifier(UpgradeOperation.ADD, -0.5D)
-                                        .formatValue(value -> MathUtils.round(value, 1))
+                                        .initialValue(20D, 15D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.065D)
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("damage")
-                                        .initialValue(0.75D, 1.0D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.45D)
-                                        .formatValue(value -> MathUtils.round(value * 2, 1))
+                                        .initialValue(1.4D, 1.8D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.5D)
+                                        .formatValue(RECMathUtils::roundDamage)
                                         .build())
                                 .build())
                         .ability(AbilityData.builder("seismic_zone")
+                                .requiredLevel(5)
                                 .stat(StatData.builder("radius")
                                         .initialValue(2D, 3D)
                                         .upgradeModifier(UpgradeOperation.ADD, 0.5D)
@@ -67,14 +69,14 @@ public class VoidCloakItem extends RECItem {
                                 .stat(StatData.builder("quakes")
                                         .initialValue(2D, 3D)
                                         .upgradeModifier(UpgradeOperation.ADD, 0.5D)
-                                        .formatValue(value -> MathUtils.round(value, 1))
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .build())
                         .build())
                 .leveling(LevelingData.builder()
                         .initialCost(100)
                         .step(100)
-                        .maxLevel(5)
+                        .maxLevel(15)
                         .sources(LevelingSourcesData.builder()
                                 .source(LevelingSourceData
                                         .abilityBuilder("void_rune")
