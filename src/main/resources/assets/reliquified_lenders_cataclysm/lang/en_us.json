@@ -6,46 +6,40 @@
   "item.reliquified_lenders_cataclysm.void_bubble": "Void Bubble",
 
   "tooltip.relics.scouring_eye.description": "",
-  "tooltip.relics.void_vortex_in_bottle.description": "",
-  "tooltip.relics.void_cloak.description": "",
-  "tooltip.relics.vacuum_glove.description": "",
-  "tooltip.relics.void_bubble.description": "",
-
   "tooltip.relics.scouring_eye.ability.glowing_scour": "",
   "tooltip.relics.scouring_eye.ability.glowing_scour.description": "cooldown: %1$s, glowing time: %2$s",
   "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.target": "Target Exists",
   "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.safe_tp": "Teleport Safe",
+  "tooltip.relics.scouring_eye.leveling_source.glowing_scour.title": "",
+  "tooltip.relics.scouring_eye.leveling_source.glowing_scour.description": "",
 
+  "tooltip.relics.void_vortex_in_bottle.description": "",
   "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex": "",
   "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex.description": "",
+  "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.title": "",
+  "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.description": "",
 
+  "tooltip.relics.void_cloak.description": "",
   "tooltip.relics.void_cloak.ability.void_invulnerability": "",
   "tooltip.relics.void_cloak.ability.void_invulnerability.description": "",
   "tooltip.relics.void_cloak.ability.void_rune": "",
   "tooltip.relics.void_cloak.ability.void_rune.description": "",
   "tooltip.relics.void_cloak.ability.seismic_zone": "",
   "tooltip.relics.void_cloak.ability.seismic_zone.description": "",
-
-  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown": "",
-  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.description": "",
-
-  "tooltip.relics.void_bubble.ability.protective_bubble": "",
-  "tooltip.relics.void_bubble.ability.protective_bubble.description": "",
-
-  "tooltip.relics.scouring_eye.leveling_source.glowing_scour.title": "",
-  "tooltip.relics.scouring_eye.leveling_source.glowing_scour.description": "",
-
-  "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.title": "",
-  "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.description": "",
-
   "tooltip.relics.void_cloak.leveling_source.void_rune.title": "",
   "tooltip.relics.void_cloak.leveling_source.void_rune.description": "",
   "tooltip.relics.void_cloak.leveling_source.seismic_zone.title": "",
   "tooltip.relics.void_cloak.leveling_source.seismic_zone.description": "",
 
+  "tooltip.relics.vacuum_glove.description": "",
+  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown": "",
+  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.description": "",
   "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.title": "",
   "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.description": "",
 
+  "tooltip.relics.void_bubble.description": "",
+  "tooltip.relics.void_bubble.ability.protective_bubble": "",
+  "tooltip.relics.void_bubble.ability.protective_bubble.description": "",
   "tooltip.relics.void_bubble.leveling_source.protective_bubble.title": "",
   "tooltip.relics.void_bubble.leveling_source.protective_bubble.description": ""
 }
