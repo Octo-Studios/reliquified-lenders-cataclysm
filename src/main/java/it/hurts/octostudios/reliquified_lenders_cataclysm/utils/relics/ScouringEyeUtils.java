@@ -23,6 +23,12 @@ import java.util.UUID;
 public class ScouringEyeUtils {
     public static final String ABILITY_ID = "glowing_scour";
 
+    public static void resetData(ItemStack stack) {
+        setGlowingLimit(stack, getGlowingLimitStat(stack));
+        setTargetUUID(stack, "");
+        setTeleportSafe(stack, false);
+    }
+
     public static void teleportToTarget(Player player, LivingEntity target, BlockPos pos) {
         player.teleportTo(pos.getX(), pos.getY(), pos.getZ());
         player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());

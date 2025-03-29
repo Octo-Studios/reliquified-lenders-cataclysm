@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 
-import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils.getTargetUUID;
+import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils.*;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
@@ -28,11 +28,16 @@ public class MinecraftMixin {
     private void shouldEntityAppearGlowing(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.SCOURING_EYE.get());
 
-        if (stack.isEmpty() || !(stack.getItem() instanceof ScouringEyeItem)) {
+        if (stack.isEmpty() || !(stack.getItem() instanceof ScouringEyeItem)
+                || !(entity instanceof LivingEntity livingEntity)) {
             return;
         }
 
-        cir.setReturnValue(entity instanceof LivingEntity livingEntity && livingEntity.isCurrentlyGlowing()
-                && livingEntity.getUUID().toString().equals(getTargetUUID(stack)));
+        int glowingLimit = getGlowingLimit(stack);
+
+        if (livingEntity.getUUID().toString().equals(getTargetUUID(stack))
+                && glowingLimit >= 0 && glowingLimit < getGlowingLimitStat(stack)) {
+            cir.setReturnValue(true);
+        }
     }
 }

@@ -90,11 +90,8 @@ public class ScouringEyeItem extends RECItem {
             return;
         }
 
-        // reset all data when entity's dead
         if (entity.isDeadOrDying()) {
-            setGlowingLimit(stack, getGlowingLimitStat(stack));
-            setTargetUUID(stack, "");
-            setTeleportSafe(stack, false);
+            resetData(stack);
 
             return;
         }
@@ -106,17 +103,13 @@ public class ScouringEyeItem extends RECItem {
         if (glowingLimit >= 0) {
             glowingLimit--;
 
-            if (glowingLimit > 0) {
-                entity.setGlowingTag(true);
-            } else if (glowingLimit == 0) {
+            if (glowingLimit == 0) {
                 // play sound when limit exceeded
                 player.getCommandSenderWorld().playSound(null, player.blockPosition(),
                         SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.PLAYERS, 1F, 1F);
             }
 
             setGlowingLimit(stack, glowingLimit);
-        } else {
-            entity.setGlowingTag(false);
         }
 
         // safe tp predicate
