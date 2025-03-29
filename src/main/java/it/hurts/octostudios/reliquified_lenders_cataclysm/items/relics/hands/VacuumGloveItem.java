@@ -2,6 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
@@ -10,9 +11,8 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOp
 import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
-import it.hurts.sskirillss.relics.utils.MathUtils;
 import net.minecraft.core.BlockPos;
-//import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +24,6 @@ import java.util.List;
 
 public class VacuumGloveItem extends RECItem {
     private static final String ABILITY_ID = "vacuum_slowdown";
-    private static final float RADIUS = 6.0F;
 
     @Override
     public RelicData constructDefaultRelicData() {
@@ -32,16 +31,21 @@ public class VacuumGloveItem extends RECItem {
                 .abilities(AbilitiesData.builder()
                         .ability(AbilityData.builder(ABILITY_ID)
                                 .stat(StatData.builder("slowdown")
-                                        .initialValue(0.2D, 0.3D)
-                                        .upgradeModifier(UpgradeOperation.ADD, 0.05D)
-                                        .formatValue(value -> MathUtils.round(value * 100, 1))
+                                        .initialValue(0.27D, 0.32D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.17D)
+                                        .formatValue(RECMathUtils::roundPercents)
+                                        .build())
+                                .stat(StatData.builder("radius")
+                                        .initialValue(6D, 6.5D)
+                                        .upgradeModifier(UpgradeOperation.ADD, 0.35D)
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .build())
                         .build())
                 .leveling(LevelingData.builder()
                         .initialCost(100)
                         .step(100)
-                        .maxLevel(5)
+                        .maxLevel(10)
                         .sources(LevelingSourcesData.builder()
                                 .source(LevelingSourceData
                                         .abilityBuilder(ABILITY_ID)
@@ -71,13 +75,13 @@ public class VacuumGloveItem extends RECItem {
         }
 
         // apply slowdown on mobs inside the area
-        for (Mob mob : getMobsInArea(level, player, RADIUS)) {
+        for (Mob mob : getMobsInArea(level, player, getRadiusStat(stack))) {
             ItemUtils.resetMovementAttribute(mob, stack, getModifierValue(stack, mob.getSpeed(), player.distanceTo(mob)));
 
             // debug
-//            player.sendSystemMessage(Component.literal("slowdown: " + getSlowdownStat(stack)));
-//            player.sendSystemMessage(mob.getDisplayName().copy().append(" ")
-//                    .append(Component.literal(String.valueOf(mob.getSpeed()))));
+            player.sendSystemMessage(Component.literal("slowdown: " + getSlowdownStat(stack)));
+            player.sendSystemMessage(mob.getDisplayName().copy().append(" ")
+                    .append(Component.literal(String.valueOf(mob.getSpeed()))));
         }
     }
 
@@ -96,7 +100,7 @@ public class VacuumGloveItem extends RECItem {
         }
 
         // remove slowdown
-        for (Mob mob : getMobsInArea(level, player, RADIUS + 4.0F)) {
+        for (Mob mob : getMobsInArea(level, player, getRadiusStat(stack) + 4.0F)) {
             ItemUtils.removeMovementAttribute(mob, stack);
         }
     }
@@ -110,17 +114,23 @@ public class VacuumGloveItem extends RECItem {
     }
 
     private float getModifierValue(ItemStack stack, float speed, float distance) {
-        if (distance == 0.0F || speed == 0.0F || distance > RADIUS) {
+        float redius = getRadiusStat(stack);
+
+        if (distance == 0.0F || speed == 0.0F || distance > redius) {
             return 0.0F;
         }
 
         float minSpeed = getSlowdownStat(stack) * speed;
-        float slowdownSpeed = minSpeed + (RADIUS - distance) * (speed - minSpeed) / RADIUS;
+        float slowdownSpeed = minSpeed + (redius - distance) * (speed - minSpeed) / redius;
 
         return slowdownSpeed - speed;
     }
 
     private float getSlowdownStat(ItemStack stack) {
         return (float) (1.0F - getStatValue(stack, ABILITY_ID, "slowdown"));
+    }
+
+    private float getRadiusStat(ItemStack stack) {
+        return (float) getStatValue(stack, ABILITY_ID, "radius");
     }
 }

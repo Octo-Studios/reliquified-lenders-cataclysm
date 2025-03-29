@@ -33,7 +33,7 @@
 
   "tooltip.relics.vacuum_glove.description": "",
   "tooltip.relics.vacuum_glove.ability.vacuum_slowdown": "Vacuum Slowdown",
-  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.description": "slowdown: %1$s",
+  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.description": "slowdown: %1$s%, radius: %2$s",
   "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.title": "",
   "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.description": "",
 
