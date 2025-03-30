@@ -7,6 +7,10 @@ public class RECMathUtils {
         return (int) MathUtils.round(value, 0);
     }
 
+    public static double roundOneDigit(double value) {
+        return MathUtils.round(value, 1);
+    }
+
     public static double roundDamage(double value) {
         return MathUtils.round(value / 2, 1);
     }

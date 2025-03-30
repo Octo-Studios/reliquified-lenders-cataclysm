@@ -39,7 +39,7 @@
 
   "tooltip.relics.void_bubble.description": "",
   "tooltip.relics.void_bubble.ability.protective_bubble": "Protective Bubble",
-  "tooltip.relics.void_bubble.ability.protective_bubble.description": "projectiles num: %1$s, cooldown: %2$s",
+  "tooltip.relics.void_bubble.ability.protective_bubble.description": "attack blocks: %1$s, projectiles num: %2$s, cooldown: %3$s",
   "tooltip.relics.void_bubble.leveling_source.protective_bubble.title": "",
   "tooltip.relics.void_bubble.leveling_source.protective_bubble.description": ""
 }

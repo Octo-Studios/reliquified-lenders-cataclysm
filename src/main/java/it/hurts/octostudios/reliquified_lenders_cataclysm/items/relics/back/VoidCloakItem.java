@@ -51,7 +51,7 @@ public class VoidCloakItem extends RECItem {
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(20D, 15D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.065D)
-                                        .formatValue(RECMathUtils::roundInt)
+                                        .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatData.builder("damage")
                                         .initialValue(1.4D, 1.8D)

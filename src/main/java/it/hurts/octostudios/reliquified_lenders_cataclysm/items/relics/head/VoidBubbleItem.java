@@ -7,6 +7,8 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
+import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
@@ -16,7 +18,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
-import it.hurts.sskirillss.relics.utils.MathUtils;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -28,6 +29,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.List;
 
@@ -43,24 +45,24 @@ public class VoidBubbleItem extends RECItem {
                                 .stat(StatData.builder("attack_blocks")
                                         .initialValue(2D, 3D)
                                         .upgradeModifier(UpgradeOperation.ADD, 0.5D)
-                                        .formatValue(value -> (int) MathUtils.round(value, 1))
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("projectiles")
-                                        .initialValue(2D, 3D)
-                                        .upgradeModifier(UpgradeOperation.ADD, 0.5D)
-                                        .formatValue(value -> (int) MathUtils.round(value, 1))
+                                        .initialValue(4D, 4D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.3D)
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("cooldown")
-                                        .initialValue(30D, 35D)
+                                        .initialValue(35D, 30D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.075D)
-                                        .formatValue(value -> (int) MathUtils.round(value, 1))
+                                        .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())
                 .leveling(LevelingData.builder()
                         .initialCost(100)
                         .step(100)
-                        .maxLevel(5)
+                        .maxLevel(10)
                         .sources(LevelingSourcesData.builder()
                                 .source(LevelingSourceData
                                         .abilityBuilder(ABILITY_ID)
@@ -75,6 +77,29 @@ public class VoidBubbleItem extends RECItem {
                                 .build())
                         .build())
                 .build();
+    }
+
+    @Override
+    public void curioTick(SlotContext slotContext, ItemStack stack) {
+        if (!(slotContext.entity() instanceof Player player)
+                || !(stack.getItem() instanceof VoidBubbleItem relic)) {
+            return;
+        }
+
+        Level level = player.getCommandSenderWorld();
+
+        if (level.isClientSide) {
+            return;
+        }
+
+        if (getAttackBlocks(stack) == getAttackBlocksStat(stack)) {
+            stack.set(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
+            setCooldown(relic, stack);
+        }
+
+        if (getAbilityCooldown(stack, ABILITY_ID) == 1) {
+            ItemUtils.playCooldownSound(level, player);
+        }
     }
 
     /**
@@ -113,7 +138,7 @@ public class VoidBubbleItem extends RECItem {
         }
 
         Level level = player.getCommandSenderWorld();
-        int attackBlocks = stack.getOrDefault(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
+        int attackBlocks = getAttackBlocks(stack);
         int attackBlocksStat = relic.getAttackBlocksStat(stack);
 
         if (attackBlocks < attackBlocksStat) {
@@ -126,9 +151,6 @@ public class VoidBubbleItem extends RECItem {
             level.playSound(null, player.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS);
 
             event.setCanceled(true);
-        } else {
-            stack.set(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
-            relic.setAbilityCooldown(stack, ABILITY_ID, ItemUtils.getCooldownStat(stack, ABILITY_ID));
         }
     }
 
@@ -155,7 +177,15 @@ public class VoidBubbleItem extends RECItem {
         level.playSound(null, player.blockPosition(), SoundEvents.GLASS_BREAK, SoundSource.NEUTRAL);
     }
 
+    private static int getAttackBlocks(ItemStack stack) {
+        return stack.getOrDefault(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
+    }
+
     private int getAttackBlocksStat(ItemStack stack) {
         return (int) getStatValue(stack, ABILITY_ID, "attack_blocks");
+    }
+
+    private static void setCooldown(IRelicItem relic, ItemStack stack) {
+        relic.setAbilityCooldown(stack, ABILITY_ID, ItemUtils.getCooldownStat(stack, ABILITY_ID));
     }
 }

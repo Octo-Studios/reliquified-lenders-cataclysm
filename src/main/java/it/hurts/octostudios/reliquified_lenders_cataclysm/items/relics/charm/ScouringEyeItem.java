@@ -49,7 +49,7 @@ public class ScouringEyeItem extends RECItem {
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(20D, 15D)
                                         .upgradeModifier(UpgradeOperation.ADD, -1D)
-                                        .formatValue(RECMathUtils::roundInt)
+                                        .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatData.builder("glowing_limit")
                                         .initialValue(25D, 30D)
@@ -106,7 +106,7 @@ public class ScouringEyeItem extends RECItem {
             if (glowingLimit == 0) {
                 // play sound when limit exceeded
                 player.getCommandSenderWorld().playSound(null, player.blockPosition(),
-                        SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.PLAYERS, 1F, 1F);
+                        SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.PLAYERS);
             }
 
             setGlowingLimit(stack, glowingLimit);

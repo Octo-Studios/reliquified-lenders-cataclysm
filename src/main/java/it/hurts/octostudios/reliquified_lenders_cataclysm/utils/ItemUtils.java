@@ -2,6 +2,8 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.utils;
 
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -22,6 +24,11 @@ public class ItemUtils {
     public static void removeMovementAttribute(LivingEntity entity, ItemStack stack) {
         EntityUtils.removeAttribute(entity, stack, Attributes.MOVEMENT_SPEED,
                 AttributeModifier.Operation.ADD_VALUE);
+    }
+
+    public static void playCooldownSound(Level level, LivingEntity entity) {
+        level.playSound(null, entity.blockPosition(),
+                SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 2.0F, 1F);
     }
 
     public static List<Mob> getMobsInArea(Level level, AABB area) {

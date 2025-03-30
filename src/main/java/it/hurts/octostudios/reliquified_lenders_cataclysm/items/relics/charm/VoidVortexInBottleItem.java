@@ -15,8 +15,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -54,7 +52,7 @@ public class VoidVortexInBottleItem extends RECItem {
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(60D, 55D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.035D)
-                                        .formatValue(RECMathUtils::roundInt)
+                                        .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())
@@ -101,8 +99,7 @@ public class VoidVortexInBottleItem extends RECItem {
 
         // play sound on cooldown ending
         if (currentCooldown > 0.0F && currentCooldown <= (float) 1 / ItemUtils.getCooldownStat(stack, ABILITY_ID)) {
-            level.playSound(null, player.blockPosition(),
-                    SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1F, 1.1F);
+            ItemUtils.playCooldownSound(level, player);
         }
     }
 

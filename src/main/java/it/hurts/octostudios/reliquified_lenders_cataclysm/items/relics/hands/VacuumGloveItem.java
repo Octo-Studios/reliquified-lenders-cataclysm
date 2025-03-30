@@ -12,7 +12,7 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+//import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -79,9 +79,9 @@ public class VacuumGloveItem extends RECItem {
             ItemUtils.resetMovementAttribute(mob, stack, getModifierValue(stack, mob.getSpeed(), player.distanceTo(mob)));
 
             // debug
-            player.sendSystemMessage(Component.literal("slowdown: " + getSlowdownStat(stack)));
-            player.sendSystemMessage(mob.getDisplayName().copy().append(" ")
-                    .append(Component.literal(String.valueOf(mob.getSpeed()))));
+//            player.sendSystemMessage(Component.literal("slowdown: " + getSlowdownStat(stack)));
+//            player.sendSystemMessage(mob.getDisplayName().copy().append(" ")
+//                    .append(Component.literal(String.valueOf(mob.getSpeed()))));
         }
     }
 
