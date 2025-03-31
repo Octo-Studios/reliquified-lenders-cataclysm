@@ -1,6 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
 import it.hurts.sskirillss.relics.init.DataComponentRegistry;
@@ -9,6 +10,8 @@ import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemShape;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
+import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootData;
+import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
@@ -53,6 +56,10 @@ public class VacuumGloveItem extends RECItem {
                                         .gem(GemShape.SQUARE, GemColor.PURPLE)
                                         .build())
                                 .build())
+                        .build())
+                .loot(LootData.builder()
+                        .entry(RECLootEntries.CURSED_PYRAMID,
+                                LootEntries.END_LIKE, LootEntries.THE_END)
                         .build())
                 .style(StyleData.builder()
                         .tooltip(TooltipData.builder()
