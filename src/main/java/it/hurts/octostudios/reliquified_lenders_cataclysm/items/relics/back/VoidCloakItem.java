@@ -80,11 +80,11 @@ public class VoidCloakItem extends RECItem {
                         .sources(LevelingSourcesData.builder()
                                 .source(LevelingSourceData
                                         .abilityBuilder("void_rune")
-                                        .gem(GemShape.SQUARE, GemColor.CYAN)
+                                        .gem(GemShape.SQUARE, GemColor.PURPLE)
                                         .build())
                                 .source(LevelingSourceData
                                         .abilityBuilder("seismic_zone")
-                                        .gem(GemShape.SQUARE, GemColor.CYAN)
+                                        .gem(GemShape.SQUARE, GemColor.ORANGE)
                                         .build())
                                 .build())
                         .build())
@@ -139,6 +139,23 @@ public class VoidCloakItem extends RECItem {
 
         spawnFang(level, player, mob, mob.getX() + mobMovement.x, mob.getZ() + mobMovement.z,
                 0, -20, getDamageStat(stack));
+    }
+
+    // add relic xp on entity damaged by void rune
+    @SubscribeEvent
+    public static void onLivingDamage(LivingIncomingDamageEvent event) {
+        if (!(event.getSource().getDirectEntity() instanceof Void_Rune_Entity voidRuneEntity)
+                || !(voidRuneEntity.getCaster() instanceof Player player)) {
+            return;
+        }
+
+        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_CLOAK.get());
+
+        if (stack.isEmpty() || !(stack.getItem() instanceof VoidCloakItem relic)) {
+            return;
+        }
+
+        relic.spreadRelicExperience(player, stack, 1);
     }
 
     /**
@@ -206,6 +223,8 @@ public class VoidCloakItem extends RECItem {
         for (int i = 0; i < quakesNum; i++) {
             relic.spawnSeismicZone(stack, player, entity, i);
         }
+
+        relic.spreadRelicExperience(player, stack, 5);
 
         ScreenShake_Entity.ScreenShake(level, entity.position(), relic.getRadiusStat(stack),
                 1.0F / quakesNum, quakesNum * 50, 10);

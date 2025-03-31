@@ -3,6 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
+import it.hurts.sskirillss.relics.init.DataComponentRegistry;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
@@ -49,7 +50,7 @@ public class VacuumGloveItem extends RECItem {
                         .sources(LevelingSourcesData.builder()
                                 .source(LevelingSourceData
                                         .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.SQUARE, GemColor.CYAN)
+                                        .gem(GemShape.SQUARE, GemColor.PURPLE)
                                         .build())
                                 .build())
                         .build())
@@ -74,8 +75,10 @@ public class VacuumGloveItem extends RECItem {
             return;
         }
 
+        List<Mob> mobsInArea = getMobsInArea(level, player, getRadiusStat(stack));
+
         // apply slowdown on mobs inside the area
-        for (Mob mob : getMobsInArea(level, player, getRadiusStat(stack))) {
+        for (Mob mob : mobsInArea) {
             ItemUtils.resetMovementAttribute(mob, stack, getModifierValue(stack, mob.getSpeed(), player.distanceTo(mob)));
 
             // debug
@@ -83,6 +86,17 @@ public class VacuumGloveItem extends RECItem {
 //            player.sendSystemMessage(mob.getDisplayName().copy().append(" ")
 //                    .append(Component.literal(String.valueOf(mob.getSpeed()))));
         }
+
+        int ticks = stack.getOrDefault(DataComponentRegistry.TIME, 0);
+
+        System.out.println(ticks);
+
+        // +1 for each 10 s of slowdown, +1 for each 5 slowed mobs
+        if (ticks % 200 == 0) {
+            spreadRelicExperience(player, stack, 1 + (int) Math.floor(mobsInArea.size() / 5D));
+        }
+
+        stack.set(DataComponentRegistry.TIME, ticks + 1);
     }
 
     @Override
@@ -114,14 +128,14 @@ public class VacuumGloveItem extends RECItem {
     }
 
     private float getModifierValue(ItemStack stack, float speed, float distance) {
-        float redius = getRadiusStat(stack);
+        float radius = getRadiusStat(stack);
 
-        if (distance == 0.0F || speed == 0.0F || distance > redius) {
+        if (distance == 0.0F || speed == 0.0F || distance > radius) {
             return 0.0F;
         }
 
         float minSpeed = getSlowdownStat(stack) * speed;
-        float slowdownSpeed = minSpeed + (redius - distance) * (speed - minSpeed) / redius;
+        float slowdownSpeed = minSpeed + (radius - distance) * (speed - minSpeed) / radius;
 
         return slowdownSpeed - speed;
     }

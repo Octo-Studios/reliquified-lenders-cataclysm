@@ -59,13 +59,13 @@ public class ScouringEyeItem extends RECItem {
                                 .build())
                         .build())
                 .leveling(LevelingData.builder()
-                        .initialCost(100)
-                        .step(100)
+                        .initialCost(50)
+                        .step(50)
                         .maxLevel(10)
                         .sources(LevelingSourcesData.builder()
                                 .source(LevelingSourceData
                                         .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.SQUARE, GemColor.CYAN)
+                                        .gem(GemShape.OVAL, GemColor.CYAN)
                                         .build())
                                 .build())
                         .build())
@@ -148,6 +148,8 @@ public class ScouringEyeItem extends RECItem {
 
         teleportToTarget(player, target, teleportPos);
         setAbilityCooldown(stack, ABILITY_ID, ItemUtils.getCooldownStat(stack, ABILITY_ID));
+
+        spreadRelicExperience(player, stack, 1);
     }
 
     /**

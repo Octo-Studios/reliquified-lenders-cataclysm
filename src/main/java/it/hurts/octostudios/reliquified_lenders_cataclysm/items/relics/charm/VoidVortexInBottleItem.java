@@ -45,8 +45,8 @@ public class VoidVortexInBottleItem extends RECItem {
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("damage")
-                                        .initialValue(0.25D, 0.45D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.2D)
+                                        .initialValue(0.8D, 1.0D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.4D)
                                         .formatValue(RECMathUtils::roundDamage)
                                         .build())
                                 .stat(StatData.builder("cooldown")
@@ -63,7 +63,7 @@ public class VoidVortexInBottleItem extends RECItem {
                         .sources(LevelingSourcesData.builder()
                                 .source(LevelingSourceData
                                         .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.SQUARE, GemColor.CYAN)
+                                        .gem(GemShape.SQUARE, GemColor.PURPLE)
                                         .build())
                                 .build())
                         .build())
@@ -91,14 +91,16 @@ public class VoidVortexInBottleItem extends RECItem {
         int vortexId = stack.getOrDefault(RECDataComponentRegistry.VORTEX_ID.get() ,0);
         Entity voidVortexEntity = level.getEntity(vortexId);
 
-        if (voidVortexEntity != null) {
-            damageMobsInVortex(level, voidVortexEntity, stack);
+        if (voidVortexEntity == null) {
+            return;
         }
 
-        float currentCooldown = player.getCooldowns().getCooldownPercent(stack.getItem(), 0.0F);
+        damageMobsInVortex(level, voidVortexEntity, stack);
+
+        float cooldownPercent = player.getCooldowns().getCooldownPercent(stack.getItem(), 0.0F);
 
         // play sound on cooldown ending
-        if (currentCooldown > 0.0F && currentCooldown <= (float) 1 / ItemUtils.getCooldownStat(stack, ABILITY_ID)) {
+        if (cooldownPercent > 0.0F && cooldownPercent <= (float) 1 / ItemUtils.getCooldownStat(stack, ABILITY_ID)) {
             ItemUtils.playCooldownSound(level, player);
         }
     }
@@ -129,17 +131,19 @@ public class VoidVortexInBottleItem extends RECItem {
 
     @SubscribeEvent
     public static void onEntityDeath(LivingDeathEvent event) {
-        if (!(event.getSource().getEntity() instanceof Player player)) {
+        Level level = event.getEntity().level();
+
+        if (level.isClientSide || !(event.getSource().getEntity() instanceof Player player)) {
             return;
         }
 
         ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_VORTEX_IN_BOTTLE.get());
 
-        if (stack.isEmpty() || player.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (stack.isEmpty() || !(stack.getItem() instanceof VoidVortexInBottleItem relic)
+                || player.getCooldowns().isOnCooldown(stack.getItem())) {
             return;
         }
 
-        Level level = player.getCommandSenderWorld();
         LivingEntity target = event.getEntity();
         int lifespanTicks = ItemUtils.getTickStat(stack, ABILITY_ID, "lifespan");
         Entity voidVortexEntity = new Void_Vortex_Entity(level,
@@ -147,6 +151,8 @@ public class VoidVortexInBottleItem extends RECItem {
 
         level.addFreshEntity(voidVortexEntity);
         stack.set(RECDataComponentRegistry.VORTEX_ID.get(), voidVortexEntity.getId());
+
+        relic.spreadRelicExperience(player, stack, 3);
 
         player.getCooldowns().addCooldown(stack.getItem(), ItemUtils.getCooldownStat(stack, ABILITY_ID));
     }

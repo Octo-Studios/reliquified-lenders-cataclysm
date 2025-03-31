@@ -53,20 +53,20 @@ public class VoidBubbleItem extends RECItem {
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("cooldown")
-                                        .initialValue(35D, 30D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.075D)
+                                        .initialValue(30D, 25D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.07D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())
                 .leveling(LevelingData.builder()
-                        .initialCost(100)
+                        .initialCost(50)
                         .step(100)
                         .maxLevel(10)
                         .sources(LevelingSourcesData.builder()
                                 .source(LevelingSourceData
                                         .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.SQUARE, GemColor.CYAN)
+                                        .gem(GemShape.SQUARE, GemColor.PURPLE)
                                         .build())
                                 .build())
                         .build())
@@ -93,8 +93,8 @@ public class VoidBubbleItem extends RECItem {
         }
 
         if (getAttackBlocks(stack) == getAttackBlocksStat(stack)) {
-            stack.set(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
             setCooldown(relic, stack);
+            stack.set(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
         }
 
         if (getAbilityCooldown(stack, ABILITY_ID) == 1) {
@@ -130,31 +130,32 @@ public class VoidBubbleItem extends RECItem {
             return;
         }
 
+        Level level = player.getCommandSenderWorld();
         ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_BUBBLE.get());
 
-        if (stack.isEmpty() || !(stack.getItem() instanceof VoidBubbleItem relic)
+        if (level.isClientSide || stack.isEmpty() || !(stack.getItem() instanceof VoidBubbleItem relic)
                 || relic.isAbilityOnCooldown(stack, ABILITY_ID)) {
             return;
         }
 
-        Level level = player.getCommandSenderWorld();
         int attackBlocks = getAttackBlocks(stack);
         int attackBlocksStat = relic.getAttackBlocksStat(stack);
 
         if (attackBlocks < attackBlocksStat) {
             if (attackBlocks == attackBlocksStat - 1) {
-                relic.spawnShards(player, relic, stack);
+                relic.spawnShards(player, stack);
+                relic.spreadRelicExperience(player, stack, 1);
             }
-
-            stack.set(RECDataComponentRegistry.ATTACK_BLOCKS, attackBlocks + 1);
 
             level.playSound(null, player.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS);
 
             event.setCanceled(true);
+
+            stack.set(RECDataComponentRegistry.ATTACK_BLOCKS, attackBlocks + 1);
         }
     }
 
-    private void spawnShards(Player player, VoidBubbleItem relic, ItemStack stack) {
+    private void spawnShards(Player player, ItemStack stack) {
         Level level = player.getCommandSenderWorld();
 
         Void_Scatter_Arrow_Entity arrowEntity =
@@ -162,7 +163,7 @@ public class VoidBubbleItem extends RECItem {
         List<Vec3> movementVecs = arrowEntity.getShootVectors(player.getRandom(), 0.0F);
         Vec3 movementVec;
 
-        for (int i = 0; i < (int) relic.getStatValue(stack, ABILITY_ID, "projectiles"); i++) {
+        for (int i = 0; i < (int) getStatValue(stack, ABILITY_ID, "projectiles"); i++) {
             movementVec = movementVecs.get(i);
             movementVec = movementVec.scale(0.35D);
 
