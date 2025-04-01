@@ -98,11 +98,9 @@ public class VoidVortexInBottleItem extends RECItem {
         int vortexId = stack.getOrDefault(RECDataComponentRegistry.VORTEX_ID.get() ,0);
         Entity voidVortexEntity = level.getEntity(vortexId);
 
-        if (voidVortexEntity == null) {
-            return;
+        if (voidVortexEntity != null) {
+            damageMobsInVortex(level, voidVortexEntity, stack);
         }
-
-        damageMobsInVortex(level, voidVortexEntity, stack);
 
         float cooldownPercent = player.getCooldowns().getCooldownPercent(stack.getItem(), 0.0F);
 

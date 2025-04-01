@@ -6,7 +6,7 @@ public class RECLootEntries {
     public static final LootEntry CURSED_PYRAMID = LootEntry.builder()
             .dimension("minecraft:overworld")
             .biome(".*")
-            .table("cataclysm:archaeology/cursed_pyramid", "cataclysm:archaeology/cursed_pyramid_necklace")
+            .table("cataclysm:archaeology\\/cursed_pyramid(_necklace)?")
             .weight(500)
             .build();
 
