@@ -20,7 +20,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -53,8 +52,8 @@ public class VoidVortexInBottleItem extends RECItem {
                                         .formatValue(RECMathUtils::roundDamage)
                                         .build())
                                 .stat(StatData.builder("cooldown")
-                                        .initialValue(60D, 55D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.035D)
+                                        .initialValue(60D, 56D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.0375D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
@@ -99,7 +98,7 @@ public class VoidVortexInBottleItem extends RECItem {
         Entity voidVortexEntity = level.getEntity(vortexId);
 
         if (voidVortexEntity != null) {
-            damageMobsInVortex(level, voidVortexEntity, stack);
+            damageEntitiesInVortex(level, player, voidVortexEntity, stack);
         }
 
         float cooldownPercent = player.getCooldowns().getCooldownPercent(stack.getItem(), 0.0F);
@@ -110,27 +109,27 @@ public class VoidVortexInBottleItem extends RECItem {
         }
     }
 
-    private void damageMobsInVortex(Level level, Entity vortex, ItemStack stack) {
+    private void damageEntitiesInVortex(Level level, Player player, Entity vortex, ItemStack stack) {
         double shift = 4.0D; // pull radius
 
         // variable based on the code of void vortex entity
         AABB vortexArea =
                 new AABB(vortex.getX() - shift, vortex.getY(), vortex.getZ() - shift,
                         vortex.getX() + shift, vortex.getY() + 15.0, vortex.getZ() + shift);
-        List<Mob> mobsInArea = ItemUtils.getMobsInArea(level, vortexArea);
+        List<LivingEntity> entitiesInArea = ItemUtils.getEntitiesInArea(player, level, vortexArea);
 
-        for (Mob mob : mobsInArea) {
+        for (LivingEntity entity : entitiesInArea) {
             // increase pull force
-            ItemUtils.resetMovementAttribute(mob, stack, 0.2F);
+            ItemUtils.resetMovementAttribute(entity, stack, 0.2F);
 
-            Vec3 deltaMovement = mob.position().subtract(vortex.position()).normalize().scale(0.075);
+            Vec3 deltaMovement = entity.position().subtract(vortex.position()).normalize().scale(0.075);
 
-            // pull & hurt mobs in custom radius
-            mob.setDeltaMovement(mob.getDeltaMovement()
+            // pull & hurt entities in custom radius
+            entity.setDeltaMovement(entity.getDeltaMovement()
                     .add(0.0, -2.0, 0.0).subtract(deltaMovement));
-            mob.hurt(level.damageSources().magic(), getDamageStat(stack));
+            entity.hurt(level.damageSources().magic(), getDamageStat(stack));
 
-            ItemUtils.removeMovementAttribute(mob, stack);
+            ItemUtils.removeMovementAttribute(entity, stack);
         }
     }
 

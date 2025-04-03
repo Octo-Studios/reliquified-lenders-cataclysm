@@ -16,7 +16,7 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -81,12 +81,12 @@ public class VacuumGloveItem extends RECItem {
             return;
         }
 
-        List<Mob> mobsInArea = getMobsInArea(level, player, getRadiusStat(stack));
+        List<LivingEntity> entitiesInArea = getMobsInArea(level, player, getRadiusStat(stack));
 
         // apply slowdown on mobs inside the area
-        for (Mob mob : mobsInArea) {
-            ItemUtils.resetMovementAttribute(mob, stack,
-                    getModifierValue(stack, mob.getSpeed(), player.distanceTo(mob)));
+        for (LivingEntity entity : entitiesInArea) {
+            ItemUtils.resetMovementAttribute(entity, stack,
+                    getModifierValue(stack, entity.getSpeed(), player.distanceTo(entity)));
 
             // debug
 //            player.sendSystemMessage(Component.literal("slowdown: " + getSlowdownStat(stack)));
@@ -98,7 +98,7 @@ public class VacuumGloveItem extends RECItem {
 
         // +1 for each 10 s of slowdown, +1 for each 5 slowed mobs
         if (ticks % 200 == 0) {
-            spreadRelicExperience(player, stack, 1 + (int) Math.floor(mobsInArea.size() / 5D));
+            spreadRelicExperience(player, stack, 1 + (int) Math.floor(entitiesInArea.size() / 5D));
         }
 
         stack.set(DataComponentRegistry.TIME, ticks + 1);
@@ -119,17 +119,17 @@ public class VacuumGloveItem extends RECItem {
         }
 
         // remove slowdown
-        for (Mob mob : getMobsInArea(level, player, getRadiusStat(stack) + 4.0F)) {
-            ItemUtils.removeMovementAttribute(mob, stack);
+        for (LivingEntity entity : getMobsInArea(level, player, getRadiusStat(stack) + 4.0F)) {
+            ItemUtils.removeMovementAttribute(entity, stack);
         }
     }
 
-    private List<Mob> getMobsInArea(Level level, Player player, float radius) {
+    private List<LivingEntity> getMobsInArea(Level level, Player player, float radius) {
         BlockPos playerPos =
                 new BlockPos((int) player.position().x, (int) player.position().y, (int) player.position().z);
         AABB sphereArea = new AABB(playerPos).inflate(radius);
 
-        return ItemUtils.getMobsInArea(level, sphereArea);
+        return ItemUtils.getEntitiesInArea(player, level, sphereArea);
     }
 
     private float getModifierValue(ItemStack stack, float speed, float distance) {

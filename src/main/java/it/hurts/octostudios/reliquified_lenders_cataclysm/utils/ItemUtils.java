@@ -8,6 +8,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -31,9 +33,12 @@ public class ItemUtils {
                 SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 2.0F, 1F);
     }
 
-    public static List<Mob> getMobsInArea(Level level, AABB area) {
+    public static List<LivingEntity> getEntitiesInArea(Player player, Level level, AABB area) {
         return level.getEntities(null, area).stream()
-                .map(entity -> entity instanceof Mob mob ? mob : null).filter(Objects::nonNull).toList();
+                .map(entity -> entity instanceof LivingEntity livingEntity
+                        && !entity.equals(player) && !(entity instanceof ArmorStand)
+                        ? livingEntity : null)
+                .filter(Objects::nonNull).toList();
     }
 
     private static int getTickStat(IRelicItem relic, ItemStack stack, String ability, String stat) {
