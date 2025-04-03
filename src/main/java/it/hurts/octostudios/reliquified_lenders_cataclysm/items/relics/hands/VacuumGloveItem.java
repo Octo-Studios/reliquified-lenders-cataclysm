@@ -16,7 +16,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import net.minecraft.core.BlockPos;
-//import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -35,8 +34,8 @@ public class VacuumGloveItem extends RECItem {
                 .abilities(AbilitiesData.builder()
                         .ability(AbilityData.builder(ABILITY_ID)
                                 .stat(StatData.builder("slowdown")
-                                        .initialValue(0.27D, 0.32D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.17D)
+                                        .initialValue(0.28D, 0.34D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
                                         .formatValue(RECMathUtils::roundPercents)
                                         .build())
                                 .stat(StatData.builder("radius")
@@ -86,7 +85,8 @@ public class VacuumGloveItem extends RECItem {
 
         // apply slowdown on mobs inside the area
         for (Mob mob : mobsInArea) {
-            ItemUtils.resetMovementAttribute(mob, stack, getModifierValue(stack, mob.getSpeed(), player.distanceTo(mob)));
+            ItemUtils.resetMovementAttribute(mob, stack,
+                    getModifierValue(stack, mob.getSpeed(), player.distanceTo(mob)));
 
             // debug
 //            player.sendSystemMessage(Component.literal("slowdown: " + getSlowdownStat(stack)));
@@ -95,8 +95,6 @@ public class VacuumGloveItem extends RECItem {
         }
 
         int ticks = stack.getOrDefault(DataComponentRegistry.TIME, 0);
-
-        System.out.println(ticks);
 
         // +1 for each 10 s of slowdown, +1 for each 5 slowed mobs
         if (ticks % 200 == 0) {
@@ -110,7 +108,7 @@ public class VacuumGloveItem extends RECItem {
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         super.onUnequip(slotContext, newStack, stack);
 
-        if (newStack.equals(stack) || !(slotContext.entity() instanceof Player player)) {
+        if (newStack.getItem() == stack.getItem() || !(slotContext.entity() instanceof Player player)) {
             return;
         }
 
