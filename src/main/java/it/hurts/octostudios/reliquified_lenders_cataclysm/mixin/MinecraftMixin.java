@@ -2,6 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.mixin;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm.ScouringEyeItem;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -33,10 +34,8 @@ public class MinecraftMixin {
             return;
         }
 
-        int glowingLimit = getGlowingLimit(stack);
-
         if (livingEntity.getUUID().toString().equals(getTargetUUID(stack))
-                && glowingLimit >= 0 && glowingLimit < getGlowingLimitStat(stack)) {
+                && ScouringEyeUtils.isGlowingTimeInBounds(stack)) {
             cir.setReturnValue(true);
         }
     }

@@ -26,6 +26,8 @@ public class RECDataComponentRegistry {
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> TP_SAFE =
             registerBoolComponent("tp_safe");
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> PLAYER_DIED =
+            registerBoolComponent("player_died");
 
     private static DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> registerIntComponent(String name) {
         return DATA_COMPONENTS.register(name, () ->

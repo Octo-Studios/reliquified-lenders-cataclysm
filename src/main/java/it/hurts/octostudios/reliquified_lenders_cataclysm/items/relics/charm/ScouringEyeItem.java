@@ -31,6 +31,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import top.theillusivec4.curios.api.SlotContext;
 
 import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils.*;
@@ -46,15 +47,15 @@ public class ScouringEyeItem extends RECItem {
                                         .type(CastType.INSTANTANEOUS)
                                         .predicate("target", PredicateType.CAST,
                                                 (player, stack) -> !getTargetUUID(stack).isEmpty())
-                                        .predicate("safe_tp", PredicateType.CAST,
-                                                (player, stack) -> isTeleportSafe(stack))
+                                        .predicate("tp_allowed", PredicateType.CAST,
+                                                (player, stack) -> isTeleportAllowed(stack))
                                         .build())
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(20D, 15D)
                                         .upgradeModifier(UpgradeOperation.ADD, -1D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
-                                .stat(StatData.builder("glowing_limit")
+                                .stat(StatData.builder("glowing_time")
                                         .initialValue(25D, 30D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
                                         .formatValue(RECMathUtils::roundInt)
@@ -62,8 +63,8 @@ public class ScouringEyeItem extends RECItem {
                                 .build())
                         .build())
                 .leveling(LevelingData.builder()
-                        .initialCost(50)
-                        .step(50)
+                        .initialCost(100)
+                        .step(100)
                         .maxLevel(10)
                         .sources(LevelingSourcesData.builder()
                                 .source(LevelingSourceData
@@ -103,20 +104,20 @@ public class ScouringEyeItem extends RECItem {
             return;
         }
 
-        // handle glowing time limit
+        // handle glowing time
 
-        int glowingLimit = getGlowingLimit(stack);
+        int glowingTime = getGlowingTime(stack);
 
-        if (glowingLimit >= 0) {
-            glowingLimit--;
+        if (glowingTime >= 0) {
+            glowingTime--;
 
-            if (glowingLimit == 0) {
+            if (glowingTime == 0) {
                 // play sound when limit exceeded
                 player.getCommandSenderWorld().playSound(null, player.blockPosition(),
                         SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.PLAYERS);
             }
 
-            setGlowingLimit(stack, glowingLimit);
+            setGlowingTime(stack, glowingTime);
         }
 
         // safe tp predicate
@@ -167,6 +168,8 @@ public class ScouringEyeItem extends RECItem {
     public static void onPlayerAttack(LivingDamageEvent.Post event) {
         Player player = null;
 
+        System.out.println(event.getSource().getDirectEntity());
+
         if (event.getSource().getEntity() instanceof Projectile projectile
                 && projectile.getOwner() instanceof Player ownerPlayer) {
             player = ownerPlayer;
@@ -182,12 +185,27 @@ public class ScouringEyeItem extends RECItem {
         ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.SCOURING_EYE.get());
         LivingEntity target = event.getEntity();
 
-        if (level.isClientSide || stack.isEmpty() || target.isDeadOrDying()) {
+        if (level.isClientSide || stack.isEmpty() || target.isDeadOrDying() || target.equals(player)) {
             return;
         }
 
-        // set new glowing time limit on each attack
-        setGlowingLimit(stack, getGlowingLimitStat(stack));
+        setGlowingTime(stack, getGlowingTimeStat(stack)); // set new glowing time on each attack
         setTargetUUID(stack, target.getUUID().toString());
+        setPlayerDied(stack, false);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerDeath(LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+
+        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.SCOURING_EYE.get());
+
+        if (player.getCommandSenderWorld().isClientSide || stack.isEmpty()) {
+            return;
+        }
+
+        setPlayerDied(stack, true);
     }
 }

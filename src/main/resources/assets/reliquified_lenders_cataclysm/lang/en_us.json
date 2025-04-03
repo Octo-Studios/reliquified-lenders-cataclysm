@@ -9,7 +9,7 @@
   "tooltip.relics.scouring_eye.ability.glowing_scour": "Glowing Scour",
   "tooltip.relics.scouring_eye.ability.glowing_scour.description": "cooldown: %1$s, glowing time: %2$s",
   "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.target": "Target Exists",
-  "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.safe_tp": "Teleport Safe",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.tp_allowed": "Teleport Allowed",
   "tooltip.relics.scouring_eye.leveling_source.glowing_scour.title": "",
   "tooltip.relics.scouring_eye.leveling_source.glowing_scour.description": "+%1$s for each activation of ability %2$s",
 

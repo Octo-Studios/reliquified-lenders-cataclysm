@@ -24,7 +24,7 @@ public class ScouringEyeUtils {
     public static final String ABILITY_ID = "glowing_scour";
 
     public static void resetData(ItemStack stack) {
-        setGlowingLimit(stack, getGlowingLimitStat(stack));
+        setGlowingTime(stack, getGlowingTimeStat(stack));
         setTargetUUID(stack, "");
         setTeleportSafe(stack, false);
     }
@@ -51,8 +51,7 @@ public class ScouringEyeUtils {
 
         // firstly check initial pos for safety
         if (!isBlockSafe(level, pos)) {
-            // then find nearest safe pos
-            // there may be null if no safe pos found
+            // then find nearest safe pos (there may be null if no safe pos found)
             return getSafePos(level, pos, targetDirection);
         }
 
@@ -85,8 +84,11 @@ public class ScouringEyeUtils {
     public static boolean isBlockSafe(Level level, BlockPos pos) {
         BlockState blockState = level.getBlockState(pos);
         BlockState blockStateBelow = level.getBlockState(pos.below());
+        BlockState blockStateAbove = level.getBlockState(pos.above());
 
-        return blockState.isAir() && blockStateBelow.isSolid() // BlockState.isSolid() - deprecated
+        return blockStateAbove.isAir() // player's head must be in air
+                && (blockState.isAir() || !blockState.isCollisionShapeFullBlock(level, pos))
+                && blockStateBelow.isSolid() // BlockState.isSolid() - deprecated
                 && !(blockStateBelow.getBlock() instanceof LiquidBlock);
     }
 
@@ -107,14 +109,24 @@ public class ScouringEyeUtils {
         return null;
     }
 
-    // getters & setters
+    // simple getters & setters
 
-    public static boolean isTeleportSafe(ItemStack stack) {
-        return stack.getOrDefault(RECDataComponentRegistry.TP_SAFE, false);
+    public static boolean isGlowingTimeInBounds(ItemStack stack) {
+        return getGlowingTime(stack) >= 0 && getGlowingTime(stack) < getGlowingTimeStat(stack);
+    }
+
+    public static boolean isTeleportAllowed(ItemStack stack) {
+        return stack.getOrDefault(RECDataComponentRegistry.TP_SAFE, false)
+                && isGlowingTimeInBounds(stack)
+                && !stack.getOrDefault(RECDataComponentRegistry.PLAYER_DIED, false);
     }
 
     public static void setTeleportSafe(ItemStack stack, boolean value) {
         stack.set(RECDataComponentRegistry.TP_SAFE, value);
+    }
+
+    public static void setPlayerDied(ItemStack stack, boolean value) {
+        stack.set(RECDataComponentRegistry.PLAYER_DIED, value);
     }
 
     public static String getTargetUUID(ItemStack stack) {
@@ -125,15 +137,15 @@ public class ScouringEyeUtils {
         stack.set(RECDataComponentRegistry.TARGET_UUID, value);
     }
 
-    public static int getGlowingLimit(ItemStack stack) {
+    public static int getGlowingTime(ItemStack stack) {
         return stack.getOrDefault(RECDataComponentRegistry.GLOWING_TIME, 0);
     }
 
-    public static int getGlowingLimitStat(ItemStack stack) {
-        return ItemUtils.getTickStat(stack, ABILITY_ID, "glowing_limit");
+    public static int getGlowingTimeStat(ItemStack stack) {
+        return ItemUtils.getTickStat(stack, ABILITY_ID, "glowing_time");
     }
 
-    public static void setGlowingLimit(ItemStack stack, int value) {
+    public static void setGlowingTime(ItemStack stack, int value) {
         stack.set(RECDataComponentRegistry.GLOWING_TIME, value);
     }
 }
