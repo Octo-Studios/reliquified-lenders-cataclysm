@@ -168,8 +168,6 @@ public class ScouringEyeItem extends RECItem {
     public static void onPlayerAttack(LivingDamageEvent.Post event) {
         Player player = null;
 
-        System.out.println(event.getSource().getDirectEntity());
-
         if (event.getSource().getEntity() instanceof Projectile projectile
                 && projectile.getOwner() instanceof Player ownerPlayer) {
             player = ownerPlayer;

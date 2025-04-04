@@ -119,7 +119,7 @@ public class VacuumGloveItem extends RECItem {
         }
 
         // remove slowdown
-        for (LivingEntity entity : getMobsInArea(level, player, getRadiusStat(stack) + 4.0F)) {
+        for (LivingEntity entity : getMobsInArea(level, player, getRadiusStat(stack))) {
             ItemUtils.removeMovementAttribute(entity, stack);
         }
     }

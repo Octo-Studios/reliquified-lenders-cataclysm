@@ -1,8 +1,6 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.head;
 
-import com.github.L_Ender.cataclysm.entity.projectile.Void_Scatter_Arrow_Entity;
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Shard_Entity;
-import com.github.L_Ender.cataclysm.init.ModEntities;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
@@ -22,6 +20,8 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -33,6 +33,7 @@ import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import top.theillusivec4.curios.api.SlotContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @EventBusSubscriber
@@ -50,19 +51,19 @@ public class VoidBubbleItem extends RECItem {
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("projectiles")
-                                        .initialValue(4D, 4D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.3D)
+                                        .initialValue(8D, 10D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.22D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(30D, 25D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.07D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.068D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())
                 .leveling(LevelingData.builder()
-                        .initialCost(50)
+                        .initialCost(100)
                         .step(100)
                         .maxLevel(10)
                         .sources(LevelingSourcesData.builder()
@@ -162,15 +163,12 @@ public class VoidBubbleItem extends RECItem {
 
     private void spawnShards(Player player, ItemStack stack) {
         Level level = player.getCommandSenderWorld();
+        int projectilesNum = getProjectilesStat(stack);
 
-        Void_Scatter_Arrow_Entity arrowEntity =
-                new Void_Scatter_Arrow_Entity(ModEntities.VOID_SCATTER_ARROW.get(), level);
-        List<Vec3> movementVecs = arrowEntity.getShootVectors(player.getRandom(), 0.0F);
-        Vec3 movementVec;
+        List<Vec3> movementVecs = getShootVectors(player.getRandom(), projectilesNum);
 
-        for (int i = 0; i < (int) getStatValue(stack, ABILITY_ID, "projectiles"); i++) {
-            movementVec = movementVecs.get(i);
-            movementVec = movementVec.scale(0.35D);
+        for (int i = 0; i < projectilesNum; i++) {
+            Vec3 movementVec = movementVecs.get(i).scale(0.35D);
 
             Entity shardEntity = new Void_Shard_Entity(level, player,
                     player.getX() + movementVec.x,
@@ -183,12 +181,44 @@ public class VoidBubbleItem extends RECItem {
         level.playSound(null, player.blockPosition(), SoundEvents.GLASS_BREAK, SoundSource.NEUTRAL);
     }
 
+    public List<Vec3> getShootVectors(RandomSource random, float projectilesNum) {
+        List<Vec3> vectors = new ArrayList<>();
+        float turnFraction = (1.0F + Mth.sqrt(5.0F)) / 2.0F; // golden ratio
+
+        for (int i = 1; i <= projectilesNum; i++) {
+            float progress = i / projectilesNum;
+            float inclination = (float) Math.acos(1.0F - 0.85F * progress); // vertical position on the sphere
+            float azimuth = // horizontal rotation around the sphere
+                    (float) ((turnFraction * i + random.nextFloat()) * Math.PI * 2);
+
+            double x = Math.sin(inclination) * Math.cos(azimuth);
+            double y = Math.cos(inclination);
+            double z = Math.sin(inclination) * Math.sin(azimuth);
+
+            Vec3 vec = new Vec3(x, y, z);
+
+            if (i == 1) {
+                vec = vec.add(0.0, 1.0, 0.0).scale(0.5);
+            }
+
+            vectors.add(vec);
+        }
+
+        return vectors;
+    }
+
+    // simple getters & setters
+
     private static int getAttackBlocks(ItemStack stack) {
         return stack.getOrDefault(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
     }
 
     private int getAttackBlocksStat(ItemStack stack) {
-        return (int) getStatValue(stack, ABILITY_ID, "attack_blocks");
+        return (int) Math.round(getStatValue(stack, ABILITY_ID, "attack_blocks"));
+    }
+
+    private int getProjectilesStat(ItemStack stack) {
+        return (int) getStatValue(stack, ABILITY_ID, "projectiles");
     }
 
     private static void setCooldown(IRelicItem relic, ItemStack stack) {
