@@ -88,7 +88,7 @@ public class VoidCloakItem extends RECItem {
                         .build())
                 .loot(LootData.builder()
                         .entry(RECLootEntries.CURSED_PYRAMID, RECLootEntries.FROSTED_PRISON,
-                                LootEntries.END_LIKE, LootEntries.THE_END)
+                                LootEntries.THE_END)
                         .build())
                 .style(StyleData.builder()
                         .tooltip(TooltipData.builder()

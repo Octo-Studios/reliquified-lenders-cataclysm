@@ -74,8 +74,7 @@ public class ScouringEyeItem extends RECItem {
                                 .build())
                         .build())
                 .loot(LootData.builder()
-                        .entry(RECLootEntries.CURSED_PYRAMID,
-                                LootEntries.END_LIKE, LootEntries.THE_END)
+                        .entry(RECLootEntries.CURSED_PYRAMID, LootEntries.THE_END)
                         .build())
                 .style(StyleData.builder()
                         .tooltip(TooltipData.builder()

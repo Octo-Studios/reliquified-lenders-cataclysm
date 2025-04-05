@@ -74,7 +74,7 @@ public class VoidBubbleItem extends RECItem {
                                 .build())
                         .build())
                 .loot(LootData.builder()
-                        .entry(LootEntries.END_LIKE, LootEntries.THE_END)
+                        .entry(LootEntries.THE_END)
                         .build())
                 .style(StyleData.builder()
                         .tooltip(TooltipData.builder()

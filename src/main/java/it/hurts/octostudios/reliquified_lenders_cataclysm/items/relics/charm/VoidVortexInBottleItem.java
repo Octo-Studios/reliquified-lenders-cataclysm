@@ -70,8 +70,7 @@ public class VoidVortexInBottleItem extends RECItem {
                                 .build())
                         .build())
                 .loot(LootData.builder()
-                        .entry(RECLootEntries.FROSTED_PRISON,
-                                LootEntries.END_LIKE, LootEntries.THE_END)
+                        .entry(RECLootEntries.FROSTED_PRISON, LootEntries.THE_END)
                         .build())
                 .style(StyleData.builder()
                         .tooltip(TooltipData.builder()
