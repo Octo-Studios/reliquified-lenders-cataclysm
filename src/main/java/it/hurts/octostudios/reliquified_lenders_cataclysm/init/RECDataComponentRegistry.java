@@ -2,11 +2,15 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.init;
 
 import com.mojang.serialization.Codec;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.List;
+import java.util.UUID;
 
 public class RECDataComponentRegistry {
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS =
@@ -28,6 +32,12 @@ public class RECDataComponentRegistry {
             registerBoolComponent("tp_safe");
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> PLAYER_DIED =
             registerBoolComponent("player_died");
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<List<UUID>>> SLOWED_ENTITIES =
+            DATA_COMPONENTS.register("slowed_entities", () ->
+                    DataComponentType.<List<UUID>>builder()
+                            .persistent(UUIDUtil.CODEC.listOf())
+                            .build());
 
     private static DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> registerIntComponent(String name) {
         return DATA_COMPONENTS.register(name, () ->

@@ -1,5 +1,6 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands;
 
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
@@ -15,7 +16,7 @@ import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
-import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -23,7 +24,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import top.theillusivec4.curios.api.SlotContext;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class VacuumGloveItem extends RECItem {
     private static final String ABILITY_ID = "vacuum_slowdown";
@@ -80,24 +83,40 @@ public class VacuumGloveItem extends RECItem {
             return;
         }
 
-        List<LivingEntity> entitiesInArea = getMobsInArea(level, player, getRadiusStat(stack));
+        ArrayList<UUID> slowedEntities = getSlowedEntities(stack);
+
+        for (int i = 0; i < slowedEntities.size(); i++) {
+            if (!(((ServerLevel) level).getEntity(slowedEntities.get(i)) instanceof LivingEntity entity)) {
+                continue;
+            }
+
+            if (player.distanceTo(entity) > getRadiusStat(stack) || entity.isDeadOrDying()) {
+                ItemUtils.removeMovementAttribute(entity, stack);
+                slowedEntities.remove(slowedEntities.get(i));
+            }
+        }
 
         // apply slowdown on mobs inside the area
-        for (LivingEntity entity : entitiesInArea) {
+        for (LivingEntity entity : getEntitiesInArea(level, player, getRadiusStat(stack))) {
             ItemUtils.resetMovementAttribute(entity, stack,
                     getModifierValue(stack, entity.getSpeed(), player.distanceTo(entity)));
-
-            // debug
-//            player.sendSystemMessage(Component.literal("slowdown: " + getSlowdownStat(stack)));
-//            player.sendSystemMessage(mob.getDisplayName().copy().append(" ")
-//                    .append(Component.literal(String.valueOf(mob.getSpeed()))));
+            slowedEntities.add(entity.getUUID());
         }
+
+        setSlowedEntities(stack, slowedEntities);
+
+        if (player.isDeadOrDying()) {
+            resetSlowedEntities(level, stack);
+        }
+
+        // leveling
 
         int ticks = stack.getOrDefault(DataComponentRegistry.TIME, 0);
 
         // +1 for each 10 s of slowdown, +1 for each 5 slowed mobs
         if (ticks % 200 == 0) {
-            spreadRelicExperience(player, stack, 1 + (int) Math.floor(entitiesInArea.size() / 5D));
+            spreadRelicExperience(player, stack,
+                    1 + (int) Math.floor(slowedEntities.size() / 5D));
         }
 
         stack.set(DataComponentRegistry.TIME, ticks + 1);
@@ -107,31 +126,20 @@ public class VacuumGloveItem extends RECItem {
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         super.onUnequip(slotContext, newStack, stack);
 
-        if (newStack.getItem() == stack.getItem() || !(slotContext.entity() instanceof Player player)) {
+        if (newStack.getItem() == stack.getItem()) {
             return;
         }
 
-        Level level = player.getCommandSenderWorld();
-
-        if (level.isClientSide) {
-            return;
-        }
-
-        // remove slowdown
-        for (LivingEntity entity : getMobsInArea(level, player, getRadiusStat(stack))) {
-            ItemUtils.removeMovementAttribute(entity, stack);
-        }
+        resetSlowedEntities(slotContext.entity().level(), stack);
     }
 
-    private List<LivingEntity> getMobsInArea(Level level, Player player, float radius) {
-        BlockPos playerPos =
-                new BlockPos((int) player.position().x, (int) player.position().y, (int) player.position().z);
-        AABB sphereArea = new AABB(playerPos).inflate(radius);
+    private static List<LivingEntity> getEntitiesInArea(Level level, LivingEntity entityCenter, float radius) {
+        AABB sphereArea = new AABB(entityCenter.blockPosition()).inflate(radius);
 
-        return ItemUtils.getEntitiesInArea(player, level, sphereArea);
+        return ItemUtils.getEntitiesInArea(entityCenter, level, sphereArea);
     }
 
-    private float getModifierValue(ItemStack stack, float speed, float distance) {
+    public float getModifierValue(ItemStack stack, float speed, float distance) {
         float radius = getRadiusStat(stack);
 
         if (distance == 0.0F || speed == 0.0F || distance > radius) {
@@ -148,7 +156,33 @@ public class VacuumGloveItem extends RECItem {
         return (float) (1.0F - getStatValue(stack, ABILITY_ID, "slowdown"));
     }
 
-    private float getRadiusStat(ItemStack stack) {
+    public float getRadiusStat(ItemStack stack) {
         return (float) getStatValue(stack, ABILITY_ID, "radius");
+    }
+
+    public ArrayList<UUID> getSlowedEntities(ItemStack stack) {
+        return new ArrayList<>(stack.getOrDefault(RECDataComponentRegistry.SLOWED_ENTITIES, new ArrayList<>()));
+    }
+
+    public void setSlowedEntities(ItemStack stack, List<UUID> entities) {
+        stack.set(RECDataComponentRegistry.SLOWED_ENTITIES, entities);
+    }
+
+    private void resetSlowedEntities(Level level, ItemStack stack) {
+        if (level.isClientSide) {
+            return;
+        }
+
+        ArrayList<UUID> slowedEntities = getSlowedEntities(stack);
+
+        for (UUID slowedEntity : slowedEntities) {
+            if (!(((ServerLevel) level).getEntity(slowedEntity) instanceof LivingEntity target)) {
+                continue;
+            }
+
+            ItemUtils.removeMovementAttribute(target, stack);
+        }
+
+        stack.set(RECDataComponentRegistry.SLOWED_ENTITIES, new ArrayList<>());
     }
 }
