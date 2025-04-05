@@ -40,6 +40,10 @@ public class ItemUtils {
                 .filter(Objects::nonNull).toList();
     }
 
+    public static int getIntStat(ItemStack stack, String ability, String stat) {
+        return (int) Math.round(((IRelicItem) stack.getItem()).getStatValue(stack, ability, stat));
+    }
+
     private static int getTickStat(IRelicItem relic, ItemStack stack, String ability, String stat) {
         return (int) Math.floor(relic.getStatValue(stack, ability, stat) * 20);
     }

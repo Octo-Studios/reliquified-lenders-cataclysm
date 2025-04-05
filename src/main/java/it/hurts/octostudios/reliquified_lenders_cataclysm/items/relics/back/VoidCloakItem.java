@@ -1,8 +1,6 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back;
 
-import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Rune_Entity;
-import com.github.L_Ender.cataclysm.init.ModSounds;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
@@ -22,11 +20,9 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
-import it.hurts.sskirillss.relics.utils.MathUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -66,9 +62,9 @@ public class VoidCloakItem extends RECItem {
                                 .stat(StatData.builder("radius")
                                         .initialValue(2D, 3D)
                                         .upgradeModifier(UpgradeOperation.ADD, 0.5D)
-                                        .formatValue(value -> MathUtils.round(value, 1))
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
-                                .stat(StatData.builder("quakes")
+                                .stat(StatData.builder("waves")
                                         .initialValue(2D, 3D)
                                         .upgradeModifier(UpgradeOperation.ADD, 0.5D)
                                         .formatValue(RECMathUtils::roundInt)
@@ -116,28 +112,33 @@ public class VoidCloakItem extends RECItem {
             return;
         }
 
-        int voidRuneTime = stack.getOrDefault(RECDataComponentRegistry.VOID_RUNE_TIME, 0);
+        int voidRuneCooldown = stack.getOrDefault(RECDataComponentRegistry.VOID_RUNE_TIME, 0);
 
-        if (voidRuneTime > 0) {
-            voidRuneTime--;
+        if (voidRuneCooldown > 0) {
+            voidRuneCooldown--;
         } else {
-            PathfinderMob mob = level.getNearestEntity(PathfinderMob.class, TargetingConditions.DEFAULT,
+            LivingEntity entity = level.getNearestEntity(LivingEntity.class, TargetingConditions.DEFAULT,
                     player, player.getX(), player.getY(), player.getZ(),
                     player.getBoundingBox().inflate(10.0D));
 
-            if (mob == null) {
+            if (entity == null || entity instanceof ArmorStand) {
                 return;
             }
 
-            LivingEntity targetEntity = mob.getTarget();
+            if (entity instanceof Mob mob) {
+                LivingEntity targetEntity = mob.getTarget();
 
-            if (targetEntity != null && targetEntity.is(player)) {
-                spawnVoidRune(level, player, mob, stack);
-                voidRuneTime = ItemUtils.getCooldownStat(stack, "void_rune");
+                if (targetEntity != null && targetEntity.is(player)) {
+                    spawnVoidRune(level, player, mob, stack);
+                }
+            } else { // if not armor stand or mob, then entity is player
+                spawnVoidRune(level, player, entity, stack);
             }
+
+            voidRuneCooldown = ItemUtils.getCooldownStat(stack, "void_rune");
         }
 
-        stack.set(RECDataComponentRegistry.VOID_RUNE_TIME, voidRuneTime);
+        stack.set(RECDataComponentRegistry.VOID_RUNE_TIME, voidRuneCooldown);
     }
 
     // add relic xp on entity damaged by void rune
@@ -164,6 +165,15 @@ public class VoidCloakItem extends RECItem {
     public static void onPlayerDamage(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof Player player) || player.getCommandSenderWorld().isClientSide) {
             return;
+        }
+
+        // fix damaging player with his seismic zone after the death
+        if (event.getSource().getDirectEntity() instanceof Void_Rune_Entity voidRuneEntity) {
+            LivingEntity caster = voidRuneEntity.getCaster();
+
+            if (caster != null && caster.getUUID().equals(player.getUUID())) {
+                event.setCanceled(true);
+            }
         }
 
         ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_CLOAK.get());
@@ -217,15 +227,8 @@ public class VoidCloakItem extends RECItem {
         level.explode(player, entity.getX(), entity.getY(), entity.getZ(),
                 1.0F, false, Level.ExplosionInteraction.NONE);
 
-        int quakesNum = getQuakesStat(stack);
-
-        for (int i = 0; i < quakesNum; i++) {
-            spawnSeismicZone(stack, player, entity, i);
-        }
+        spawnSeismicZone(level, player, entity, stack);
 
         relic.spreadRelicExperience(player, stack, 5);
-
-        ScreenShake_Entity.ScreenShake(level, entity.position(), getRadiusStat(stack),
-                1.0F / quakesNum, quakesNum * 50, 10);
     }
 }

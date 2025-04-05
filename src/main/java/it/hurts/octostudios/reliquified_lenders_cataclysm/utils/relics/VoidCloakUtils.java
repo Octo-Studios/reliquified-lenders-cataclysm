@@ -1,14 +1,13 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Rune_Entity;
-import com.github.L_Ender.cataclysm.init.ModSounds;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VoidCloakItem;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -17,74 +16,103 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class VoidCloakUtils {
-    public static void spawnVoidRune(Level level, Player player, PathfinderMob mob,
+    public static void spawnVoidRune(Level level, Player player, LivingEntity entity,
                                      ItemStack stack) {
-        Vec3 mobMovement = mob.getDeltaMovement();
+        Vec3 mobMovement = entity.getDeltaMovement();
 
-        spawnFang(level, player, mob, mob.getX() + mobMovement.x, mob.getZ() + mobMovement.z,
+        spawnFang(level, player, entity, entity.getX() + mobMovement.x, entity.getZ() + mobMovement.z,
                 0, -20, getDamageStat(stack));
     }
 
-    public static void spawnSeismicZone(ItemStack stack, Player player, LivingEntity dyingEntity, int quakeIndex) {
+    public static void spawnSeismicZone(Level level, Player player, LivingEntity dyingEntity, ItemStack stack) {
+        int wavesNum = ItemUtils.getIntStat(stack, "seismic_zone", "waves");
+        int layersSpawned = 0;
+
+        for (int i = 0; i < wavesNum; i++) {
+            layersSpawned = spawnQuakeWave(player, dyingEntity, stack, i);
+        }
+
+        if (layersSpawned > 0) {
+            level.addFreshEntity(new ScreenShakeSoundedEntity(level, dyingEntity.position(), getRadiusStat(stack),
+                    layersSpawned, wavesNum, 20));
+        }
+    }
+
+    private static int spawnQuakeWave(Player player, LivingEntity dyingEntity, ItemStack stack, int waveIndex) {
         Level level = player.getCommandSenderWorld();
         Vec3 pos = dyingEntity.position();
 
         float shift = 1.25F; // fangs shift along circle
         float shiftMultiplier = 2.5F; // distance from center
         int delayTicks = 3;
+        int layersSpawned = 0;
 
         for (int r = 0; r < getRadiusStat(stack); r++) {
             int fangsNum = 6;
+            boolean fangSpawned = false;
 
             for (int i = 0; i < fangsNum; i++) {
                 float angle = (float) (i * Math.PI * 2.0F / fangsNum + shift);
 
-                spawnFang(level, player, dyingEntity,
+                if (spawnFang(level, player, dyingEntity,
                         pos.x + (double) Mth.cos(angle) * shiftMultiplier,
                         pos.z + (double) Mth.sin(angle) * shiftMultiplier,
-                        i, quakeIndex * 50 + delayTicks, getDamageStat(stack));
+                        i, waveIndex * 50 + delayTicks, getDamageStat(stack))) {
+                    fangSpawned = true;
+                }
             }
 
             shift -= shiftMultiplier;
             shiftMultiplier++;
 
             delayTicks += 2;
+
+            if (fangSpawned) {
+                layersSpawned++;
+            }
         }
+
+        return layersSpawned;
     }
 
-    public static void spawnFang(Level level, Player player, LivingEntity entity,
+    public static boolean spawnFang(Level level, Player player, LivingEntity entity,
                                   double posX, double posZ, float yRot, int delayTicks, float damage) {
-        BlockPos blockPos = BlockPos.containing(posX, entity.getY() + 1.0D, posZ);
+        BlockPos pos = BlockPos.containing(posX, entity.getY() + 1.0D, posZ);
         double shiftY = 0.0D;
+        boolean canFangSpawn = false;
 
         do {
-            BlockPos belowBlockPos = blockPos.below();
-            BlockState belowBlockState = level.getBlockState(belowBlockPos);
+            BlockPos posBelow = pos.below();
+            BlockState blockStateBelow = level.getBlockState(posBelow);
 
-            if (belowBlockState.isFaceSturdy(level, belowBlockPos, Direction.UP)
-                    && !level.isEmptyBlock(blockPos)) {
-                BlockState blockState = level.getBlockState(blockPos);
-                VoxelShape collisionShape = blockState.getCollisionShape(level, blockPos);
+            if (blockStateBelow.isFaceSturdy(level, posBelow, Direction.UP)) {
+                if (!level.isEmptyBlock(pos)) {
+                    BlockState blockState = level.getBlockState(pos);
+                    VoxelShape collisionShape = blockState.getCollisionShape(level, pos);
 
-                if (!collisionShape.isEmpty()) {
-                    shiftY = collisionShape.max(Direction.Axis.Y);
+                    if (!collisionShape.isEmpty()) {
+                        shiftY = collisionShape.max(Direction.Axis.Y);
+                    }
                 }
+
+                canFangSpawn = true;
 
                 break;
             }
 
-            blockPos = blockPos.below();
-        } while (blockPos.getY() >= Math.floor(entity.getY() - 1));
+            pos = pos.below();
+        } while (pos.getY() >= Math.floor(entity.getY() - 1));
 
-        Void_Rune_Entity voidRuneEntity = new Void_Rune_Entity(level,
-                posX, blockPos.getY() + shiftY, posZ, yRot, delayTicks, damage, player);
+        // spawn rune without sound (the sound is playing with modified screen shake entity)
+        if (canFangSpawn) {
+            Void_Rune_Entity voidRuneEntity = new Void_Rune_Entity(level,
+                    posX, pos.getY() + shiftY, posZ, yRot, delayTicks, damage, player);
 
-        voidRuneEntity.setSilent(true);
-        level.addFreshEntity(voidRuneEntity);
+            voidRuneEntity.setSilent(true);
+            level.addFreshEntity(voidRuneEntity);
+        }
 
-//        level.playSound(null, voidRuneEntity.blockPosition(),
-//                ModSounds.VOID_RUNE_RISING.get(), SoundSource.MASTER,
-//                1.0F, 1.0F);
+        return canFangSpawn;
     }
 
     // simple getters
@@ -93,11 +121,7 @@ public class VoidCloakUtils {
         return (float) ((VoidCloakItem) stack.getItem()).getStatValue(stack, "void_rune", "damage");
     }
 
-    public static int getQuakesStat(ItemStack stack) {
-        return (int) ((VoidCloakItem) stack.getItem()).getStatValue(stack, "seismic_zone", "quakes");
-    }
-
     public static int getRadiusStat(ItemStack stack) {
-        return (int) ((VoidCloakItem) stack.getItem()).getStatValue(stack, "seismic_zone", "radius");
+        return ItemUtils.getIntStat(stack, "seismic_zone", "radius");
     }
 }

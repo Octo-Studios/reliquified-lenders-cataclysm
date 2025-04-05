@@ -163,7 +163,7 @@ public class VoidBubbleItem extends RECItem {
 
     private void spawnShards(Player player, ItemStack stack) {
         Level level = player.getCommandSenderWorld();
-        int projectilesNum = getProjectilesStat(stack);
+        int projectilesNum = ItemUtils.getIntStat(stack, ABILITY_ID, "projectiles");
 
         List<Vec3> movementVecs = getShootVectors(player.getRandom(), projectilesNum);
 
@@ -215,10 +215,6 @@ public class VoidBubbleItem extends RECItem {
 
     private int getAttackBlocksStat(ItemStack stack) {
         return (int) Math.round(getStatValue(stack, ABILITY_ID, "attack_blocks"));
-    }
-
-    private int getProjectilesStat(ItemStack stack) {
-        return (int) getStatValue(stack, ABILITY_ID, "projectiles");
     }
 
     private static void setCooldown(IRelicItem relic, ItemStack stack) {
