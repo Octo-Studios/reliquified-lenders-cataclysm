@@ -4,6 +4,7 @@ import com.github.L_Ender.cataclysm.entity.projectile.Void_Rune_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VoidCloakItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -16,6 +17,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class VoidCloakUtils {
+    @Getter
+    private static final int waveTicks = 30;
+
     public static void spawnVoidRune(Level level, Player player, LivingEntity entity,
                                      ItemStack stack) {
         Vec3 mobMovement = entity.getDeltaMovement();
@@ -34,7 +38,7 @@ public class VoidCloakUtils {
 
         if (layersSpawned > 0) {
             level.addFreshEntity(new ScreenShakeSoundedEntity(level, dyingEntity.position(), getRadiusStat(stack),
-                    layersSpawned, wavesNum, 20));
+                    layersSpawned, wavesNum, 40));
         }
     }
 
@@ -57,7 +61,7 @@ public class VoidCloakUtils {
                 if (spawnFang(level, player, dyingEntity,
                         pos.x + (double) Mth.cos(angle) * shiftMultiplier,
                         pos.z + (double) Mth.sin(angle) * shiftMultiplier,
-                        i, waveIndex * 50 + delayTicks, getDamageStat(stack))) {
+                        i, waveIndex * getWaveTicks() + delayTicks, getDamageStat(stack))) {
                     fangSpawned = true;
                 }
             }

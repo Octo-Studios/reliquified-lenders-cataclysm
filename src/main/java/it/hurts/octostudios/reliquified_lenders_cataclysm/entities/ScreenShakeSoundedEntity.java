@@ -2,6 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.entities;
 
 import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.init.ModSounds;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidCloakUtils;
 import lombok.Getter;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
@@ -16,8 +17,10 @@ public class ScreenShakeSoundedEntity extends ScreenShake_Entity {
         super(type, level);
     }
 
-    public ScreenShakeSoundedEntity(Level level, Vec3 pos, int radius, int layersSpawned, int wavesNum, int fadeDuration) {
-        super(level, pos, radius, 1.0F / wavesNum, wavesNum * 50, fadeDuration);
+    public ScreenShakeSoundedEntity(Level level, Vec3 pos, int radius,
+                                    int layersSpawned, int wavesNum, int fadeDuration) {
+        super(level, pos, radius, 1.0F / wavesNum,
+                wavesNum * VoidCloakUtils.getWaveTicks(), fadeDuration);
 
         this.layersSpawned = layersSpawned;
     }
@@ -31,7 +34,7 @@ public class ScreenShakeSoundedEntity extends ScreenShake_Entity {
         }
 
         for (int i = 0; i < getLayersSpawned(); i++) {
-            int fangLifespan = 50;
+            int fangLifespan = 30;
             int tickCountDecreased = tickCount - fangLifespan * i; // "pure" ticks count
 
             // set an interval to imitate the sound of each layer of fangs (3 ticks so far)
