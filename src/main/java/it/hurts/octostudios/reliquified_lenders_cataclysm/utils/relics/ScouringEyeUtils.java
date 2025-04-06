@@ -2,12 +2,17 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.sskirillss.relics.network.NetworkHandler;
+import it.hurts.sskirillss.relics.network.packets.PacketPlayerMotion;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -16,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -29,9 +35,14 @@ public class ScouringEyeUtils {
         setTeleportSafe(stack, false);
     }
 
-    public static void teleportToTarget(Player player, LivingEntity target, BlockPos pos) {
-        player.teleportTo(pos.getX(), pos.getY(), pos.getZ());
+    public static void teleportToTarget(Player player, LivingEntity target, BlockPos pos, Vec3 motion) {
+        player.teleportTo(pos.getX(), pos.getY() + 1.0D, pos.getZ());
         player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());
+
+        // set player movement
+        NetworkHandler.sendToClient(new PacketPlayerMotion(motion.x, motion.y, motion.z), (ServerPlayer) player);
+
+        target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 30), player);
 
         player.getCommandSenderWorld().playSound(null, pos,
                 SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -46,8 +57,9 @@ public class ScouringEyeUtils {
         Direction targetDirection = target.getNearestViewDirection().getOpposite();
 
         Level level = player.getCommandSenderWorld();
-        BlockPos pos = BlockPos.containing(x + targetDirection.getStepX() * 2, y,
-                z + targetDirection.getStepZ() * 2);
+        double stepMultiplier = 3D;
+        BlockPos pos = BlockPos.containing(x + targetDirection.getStepX() * stepMultiplier, y,
+                z + targetDirection.getStepZ() * stepMultiplier);
 
         // firstly check initial pos for safety
         if (!isBlockSafe(level, pos)) {
@@ -79,6 +91,11 @@ public class ScouringEyeUtils {
         }
 
         return null;
+    }
+
+    public static Vec3 getMovementOnTeleport(BlockPos teleportPos, BlockPos targetPos) {
+        return new Vec3(targetPos.getX(), 0.0D, targetPos.getZ())
+                .subtract(teleportPos.getX(), 0.0D, teleportPos.getZ());
     }
 
     public static boolean isBlockSafe(Level level, BlockPos pos) {

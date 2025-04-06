@@ -28,6 +28,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -56,7 +57,7 @@ public class ScouringEyeItem extends RECItem {
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatData.builder("glowing_time")
-                                        .initialValue(25D, 30D)
+                                        .initialValue(10D, 30D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
@@ -146,14 +147,16 @@ public class ScouringEyeItem extends RECItem {
 
         BlockPos teleportPos = getTeleportPos(player, target);
 
-        // if no safe pos found, reset this predicate
+        // if no safe pos found, reset safe_tp predicate
         if (teleportPos == null) {
             setTeleportSafe(stack, false);
 
             return;
         }
 
-        teleportToTarget(player, target, teleportPos);
+        Vec3 teleportMovement = getMovementOnTeleport(teleportPos, target.blockPosition()).scale(0.12D);
+
+        teleportToTarget(player, target, teleportPos, teleportMovement);
         setAbilityCooldown(stack, ABILITY_ID, ItemUtils.getCooldownStat(stack, ABILITY_ID));
 
         spreadRelicExperience(player, stack, 1);
