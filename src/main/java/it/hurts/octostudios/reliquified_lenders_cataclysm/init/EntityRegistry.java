@@ -2,6 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.init;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidShardModifiedEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -20,6 +21,15 @@ public class EntityRegistry {
                     .noSummon()
                     .build("screen_shake_sounded")
     );
+
+    public static final DeferredHolder<EntityType<?>, EntityType<VoidShardModifiedEntity>> VOID_SHARD_MODIFIED =
+            ENTITIES.register("void_shard_modified", () ->
+                    EntityType.Builder.<VoidShardModifiedEntity>of(VoidShardModifiedEntity::new, MobCategory.MISC)
+                            .sized(0.5F, 0.5F)
+                            .setUpdateInterval(20)
+                            .clientTrackingRange(4)
+                            .build("void_shard_modified")
+            );
 
     public static void register(IEventBus bus) {
         ENTITIES.register(bus);

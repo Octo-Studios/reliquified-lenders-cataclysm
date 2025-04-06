@@ -1,6 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.head;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Shard_Entity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidShardModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
@@ -51,9 +52,14 @@ public class VoidBubbleItem extends RECItem {
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("projectiles")
-                                        .initialValue(8D, 10D)
+                                        .initialValue(16D, 20D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.22D)
                                         .formatValue(RECMathUtils::roundInt)
+                                        .build())
+                                .stat(StatData.builder("damage")
+                                        .initialValue(0.4D, 0.6D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.56D)
+                                        .formatValue(RECMathUtils::roundDamage)
                                         .build())
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(30D, 25D)
@@ -170,11 +176,11 @@ public class VoidBubbleItem extends RECItem {
         for (int i = 0; i < projectilesNum; i++) {
             Vec3 movementVec = movementVecs.get(i).scale(0.35D);
 
-            Entity shardEntity = new Void_Shard_Entity(level, player,
+            Entity shardEntity = new VoidShardModifiedEntity(level, player,
                     player.getX() + movementVec.x,
-                    player.getY() + movementVec.y + 0.25D,
+                    player.getY() + movementVec.y + 1.2D,
                     player.getZ() + movementVec.z,
-                    movementVec, player);
+                    movementVec, player, getDamageStat(stack));
             level.addFreshEntity(shardEntity);
         }
 
@@ -187,7 +193,7 @@ public class VoidBubbleItem extends RECItem {
 
         for (int i = 1; i <= projectilesNum; i++) {
             float progress = i / projectilesNum;
-            float inclination = (float) Math.acos(1.0F - 0.85F * progress); // vertical position on the sphere
+            float inclination = (float) Math.acos(1.0F - 2.0F * progress); // vertical position on the sphere
             float azimuth = // horizontal rotation around the sphere
                     (float) ((turnFraction * i + random.nextFloat()) * Math.PI * 2);
 
@@ -215,6 +221,10 @@ public class VoidBubbleItem extends RECItem {
 
     private int getAttackBlocksStat(ItemStack stack) {
         return (int) Math.round(getStatValue(stack, ABILITY_ID, "attack_blocks"));
+    }
+
+    private float getDamageStat(ItemStack stack) {
+        return (float) getStatValue(stack, ABILITY_ID, "damage");
     }
 
     private static void setCooldown(IRelicItem relic, ItemStack stack) {
