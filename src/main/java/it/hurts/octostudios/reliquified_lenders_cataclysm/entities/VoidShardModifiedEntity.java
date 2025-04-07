@@ -10,7 +10,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class VoidShardModifiedEntity extends Void_Shard_Entity {
-    private float damage = 0.1F;
+    private float damage = 1.0F;
 
     public VoidShardModifiedEntity(EntityType<? extends Void_Shard_Entity> type, Level level) {
         super(type, level);

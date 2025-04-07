@@ -3,6 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.VacuumGloveParticlesPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
 import it.hurts.sskirillss.relics.init.DataComponentRegistry;
@@ -16,12 +17,17 @@ import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
+import it.hurts.sskirillss.relics.network.NetworkHandler;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.ArrayList;
@@ -91,16 +97,39 @@ public class VacuumGloveItem extends RECItem {
             }
 
             if (player.distanceTo(entity) > getRadiusStat(stack) || entity.isDeadOrDying()) {
-                ItemUtils.removeMovementAttribute(entity, stack);
-                slowedEntities.remove(slowedEntities.get(i));
+                removeSlowdown(slowedEntities, entity, stack);
             }
         }
 
         // apply slowdown on mobs inside the area
         for (LivingEntity entity : getEntitiesInArea(level, player, getRadiusStat(stack))) {
-            ItemUtils.resetMovementAttribute(entity, stack,
-                    getModifierValue(stack, entity.getSpeed(), player.distanceTo(entity)));
-            slowedEntities.add(entity.getUUID());
+            Vec3 entityPosCurrent = entity.position();
+            Vec3 directionVector = player.position().subtract(entityPosCurrent);
+            Vec3 entityPosNext = entity.position().add(entity.getDeltaMovement());
+
+            if (entityPosNext.equals(entityPosCurrent)) {
+                continue;
+            }
+
+            double distanceCurrent = directionVector.length();
+            double distanceNext = player.position().subtract(entityPosNext).length();
+
+            float dotProduct = (float) entity.getDeltaMovement().normalize().dot(directionVector.normalize());
+
+            if (dotProduct < 0.0F && distanceNext > distanceCurrent) {
+//                player.sendSystemMessage(Component.literal("do: " + dotProduct));
+
+                ItemUtils.resetMovementAttribute(entity, stack,
+                        getModifierValue(stack, entity.getSpeed(), player.distanceTo(entity), dotProduct));
+                slowedEntities.add(entity.getUUID());
+
+                // particles of circle segment
+                NetworkHandler.sendToClient(
+                        new VacuumGloveParticlesPacket(getRadiusStat(stack), entity.getId()),
+                        (ServerPlayer) player);
+            } else {
+                removeSlowdown(slowedEntities, entity, stack);
+            }
         }
 
         setSlowedEntities(stack, slowedEntities);
@@ -133,13 +162,18 @@ public class VacuumGloveItem extends RECItem {
         resetSlowedEntities(slotContext.entity().level(), stack);
     }
 
+    private static void removeSlowdown(List<UUID> slowedEntities, LivingEntity entity, ItemStack stack) {
+        ItemUtils.removeMovementAttribute(entity, stack);
+        slowedEntities.remove(entity.getUUID());
+    }
+
     private static List<LivingEntity> getEntitiesInArea(Level level, LivingEntity entityCenter, float radius) {
         AABB sphereArea = new AABB(entityCenter.blockPosition()).inflate(radius);
 
         return ItemUtils.getEntitiesInArea(entityCenter, level, sphereArea);
     }
 
-    public float getModifierValue(ItemStack stack, float speed, float distance) {
+    public float getModifierValue(ItemStack stack, float speed, float distance, float dotProduct) {
         float radius = getRadiusStat(stack);
 
         if (distance == 0.0F || speed == 0.0F || distance > radius) {
@@ -149,7 +183,7 @@ public class VacuumGloveItem extends RECItem {
         float minSpeed = getSlowdownStat(stack) * speed;
         float slowdownSpeed = minSpeed + (radius - distance) * (speed - minSpeed) / radius;
 
-        return slowdownSpeed - speed;
+        return (slowdownSpeed - speed) * Math.abs(dotProduct);
     }
 
     private float getSlowdownStat(ItemStack stack) {

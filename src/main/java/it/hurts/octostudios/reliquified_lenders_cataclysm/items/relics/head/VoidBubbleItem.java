@@ -1,6 +1,5 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.head;
 
-import com.github.L_Ender.cataclysm.entity.projectile.Void_Shard_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidShardModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
