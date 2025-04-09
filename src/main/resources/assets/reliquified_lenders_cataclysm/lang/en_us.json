@@ -15,7 +15,7 @@
 
   "tooltip.relics.void_vortex_in_bottle.description": "",
   "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex": "Void Vortex Spawn",
-  "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex.description": "lifespan: %1$s, damage: %2$s, cooldown: %3$s",
+  "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex.description": "height: %1$s, damage: %2$s, cooldown: %3$s",
   "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.title": "",
   "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.description": "+%1$s for each void vortex spawned with ability %2$s",
 
@@ -41,5 +41,7 @@
   "tooltip.relics.void_bubble.ability.protective_bubble": "Protective Bubble",
   "tooltip.relics.void_bubble.ability.protective_bubble.description": "attack blocks: %1$s, projectiles num: %2$s, damage: %3$s, cooldown: %4$s",
   "tooltip.relics.void_bubble.leveling_source.protective_bubble.title": "",
-  "tooltip.relics.void_bubble.leveling_source.protective_bubble.description": "+%1$s for each triggering of ability %2$s"
+  "tooltip.relics.void_bubble.leveling_source.protective_bubble.description": "+%1$s for each triggering of ability %2$s",
+
+  "explosion.sub": "Explosion"
 }

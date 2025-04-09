@@ -4,6 +4,7 @@ import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -31,10 +32,10 @@ public class ItemUtils {
                 SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 2.0F, 1F);
     }
 
-    public static List<LivingEntity> getEntitiesInArea(LivingEntity centerEntity, Level level, AABB area) {
+    public static List<LivingEntity> getEntitiesInArea(LivingEntity caster, Level level, AABB area) {
         return level.getEntities(null, area).stream()
                 .map(entity -> entity instanceof LivingEntity livingEntity
-                        && !entity.equals(centerEntity) && !(entity instanceof ArmorStand)
+                        && !entity.equals(caster) && !(entity instanceof ArmorStand)
                         ? livingEntity : null)
                 .filter(Objects::nonNull).toList();
     }

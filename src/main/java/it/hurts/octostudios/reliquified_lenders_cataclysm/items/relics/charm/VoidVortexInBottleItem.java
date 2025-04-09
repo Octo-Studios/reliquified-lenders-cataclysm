@@ -1,8 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
 
-import com.github.L_Ender.cataclysm.entity.effect.Void_Vortex_Entity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidVortexModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
@@ -24,13 +23,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.List;
+import java.util.Objects;
 
 @EventBusSubscriber
 public class VoidVortexInBottleItem extends RECItem {
@@ -41,19 +40,19 @@ public class VoidVortexInBottleItem extends RECItem {
         return RelicData.builder()
                 .abilities(AbilitiesData.builder()
                         .ability(AbilityData.builder(ABILITY_ID)
-                                .stat(StatData.builder("lifespan")
-                                        .initialValue(5D, 7D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.12D)
+                                .stat(StatData.builder("height")
+                                        .initialValue(3D, 4D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.075D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("damage")
-                                        .initialValue(0.8D, 1.0D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.4D)
+                                        .initialValue(6.0D, 8.0D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
                                         .formatValue(RECMathUtils::roundDamage)
                                         .build())
                                 .stat(StatData.builder("cooldown")
-                                        .initialValue(60D, 56D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.0375D)
+                                        .initialValue(30D, 25D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.06D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
@@ -93,42 +92,11 @@ public class VoidVortexInBottleItem extends RECItem {
             return;
         }
 
-        int vortexId = stack.getOrDefault(RECDataComponentRegistry.VORTEX_ID.get() ,0);
-        Entity voidVortexEntity = level.getEntity(vortexId);
-
-        if (voidVortexEntity != null) {
-            damageEntitiesInVortex(level, player, voidVortexEntity, stack);
-        }
-
         float cooldownPercent = player.getCooldowns().getCooldownPercent(stack.getItem(), 0.0F);
 
         // play sound on cooldown ending
         if (cooldownPercent > 0.0F && cooldownPercent <= (float) 1 / ItemUtils.getCooldownStat(stack, ABILITY_ID)) {
             ItemUtils.playCooldownSound(level, player);
-        }
-    }
-
-    private void damageEntitiesInVortex(Level level, Player player, Entity vortex, ItemStack stack) {
-        double shift = 4.0D; // pull radius
-
-        // variable based on the code of void vortex entity
-        AABB vortexArea =
-                new AABB(vortex.getX() - shift, vortex.getY(), vortex.getZ() - shift,
-                        vortex.getX() + shift, vortex.getY() + 15.0, vortex.getZ() + shift);
-        List<LivingEntity> entitiesInArea = ItemUtils.getEntitiesInArea(player, level, vortexArea);
-
-        for (LivingEntity entity : entitiesInArea) {
-            // increase pull force
-            ItemUtils.resetMovementAttribute(entity, stack, 0.2F);
-
-            Vec3 deltaMovement = entity.position().subtract(vortex.position()).normalize().scale(0.075);
-
-            // pull & hurt entities in custom radius
-            entity.setDeltaMovement(entity.getDeltaMovement()
-                    .add(0.0, -2.0, 0.0).subtract(deltaMovement));
-            entity.hurt(level.damageSources().magic(), getDamageStat(stack));
-
-            ItemUtils.removeMovementAttribute(entity, stack);
         }
     }
 
@@ -148,15 +116,24 @@ public class VoidVortexInBottleItem extends RECItem {
         }
 
         LivingEntity target = event.getEntity();
-        int lifespanTicks = ItemUtils.getTickStat(stack, ABILITY_ID, "lifespan");
-        Entity voidVortexEntity = new Void_Vortex_Entity(level,
-                target.getX(), target.getY(), target.getZ(), target.getYRot(), player, lifespanTicks);
+        VoidVortexModifiedEntity voidVortexEntity = new VoidVortexModifiedEntity(level,
+                target.getX(), target.getY(), target.getZ(), player.getYRot(), player, 100,
+                ItemUtils.getIntStat(stack, ABILITY_ID, "height"), relic.getDamageStat(stack));
+
+        // get vortices colliding with target
+        AABB targetBox = target.getBoundingBox();
+        List<Entity> vorticesIntersecting = level.getEntities(target, targetBox, entityOther ->
+                targetBox.intersects(entityOther.getBoundingBox())).stream()
+                .map(entity -> entity instanceof VoidVortexModifiedEntity ? entity : null).filter(Objects::nonNull)
+                .toList();
+
+        // if target is in vortex, don't spawn vortex (else it's dup)
+        if (!vorticesIntersecting.isEmpty()) {
+            return;
+        }
 
         level.addFreshEntity(voidVortexEntity);
-        stack.set(RECDataComponentRegistry.VORTEX_ID.get(), voidVortexEntity.getId());
-
         relic.spreadRelicExperience(player, stack, 3);
-
         player.getCooldowns().addCooldown(stack.getItem(), ItemUtils.getCooldownStat(stack, ABILITY_ID));
     }
 

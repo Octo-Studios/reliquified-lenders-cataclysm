@@ -3,6 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.init;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidShardModifiedEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidVortexModifiedEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -28,7 +29,18 @@ public class EntityRegistry {
                             .sized(0.5F, 0.5F)
                             .setUpdateInterval(20)
                             .clientTrackingRange(4)
+                            .noSummon()
                             .build("void_shard_modified")
+            );
+
+    public static final DeferredHolder<EntityType<?>, EntityType<VoidVortexModifiedEntity>> VOID_VORTEX_MODIFIED =
+            ENTITIES.register("void_vortex_modified", () ->
+                    EntityType.Builder.<VoidVortexModifiedEntity>of(VoidVortexModifiedEntity::new, MobCategory.MISC)
+                            .sized(2.5F, 0.5F)
+                            .fireImmune()
+                            .setUpdateInterval(Integer.MAX_VALUE)
+                            .clientTrackingRange(10)
+                            .build("void_vortex_modified")
             );
 
     public static void register(IEventBus bus) {
