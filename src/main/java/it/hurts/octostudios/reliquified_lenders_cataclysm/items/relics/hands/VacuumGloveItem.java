@@ -111,11 +111,14 @@ public class VacuumGloveItem extends RECItem {
                 continue;
             }
 
+            double distanceCurrent = directionVector.length();
+            double distanceNext = player.position().subtract(entityPosNext).length();
+
             float dotProduct = (float) entity.getDeltaMovement().normalize().dot(directionVector.normalize());
 
-            if (dotProduct < 0.0F) {
+            if (dotProduct < 0.0F && distanceNext > distanceCurrent) {
                 ItemUtils.resetMovementAttribute(entity, stack,
-                        getModifierValue(stack, entity.getSpeed(), player.distanceTo(entity), dotProduct));
+                        getModifierValue(stack, entity.getSpeed(), player.distanceTo(entity)));
                 slowedEntities.add(entity.getUUID());
 
                 // particles of circle segment
@@ -168,7 +171,7 @@ public class VacuumGloveItem extends RECItem {
         return ItemUtils.getEntitiesInArea(entityCenter, level, sphereArea);
     }
 
-    public float getModifierValue(ItemStack stack, float speed, float distance, float dotProduct) {
+    public float getModifierValue(ItemStack stack, float speed, float distance) {
         float radius = getRadiusStat(stack);
 
         if (distance == 0.0F || speed == 0.0F || distance > radius) {
@@ -178,7 +181,7 @@ public class VacuumGloveItem extends RECItem {
         float minSpeed = getSlowdownStat(stack) * speed;
         float slowdownSpeed = minSpeed + (radius - distance) * (speed - minSpeed) / radius;
 
-        return (slowdownSpeed - speed) * Math.abs(dotProduct);
+        return (slowdownSpeed - speed);
     }
 
     private float getSlowdownStat(ItemStack stack) {

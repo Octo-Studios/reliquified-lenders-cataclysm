@@ -51,7 +51,7 @@ public class VoidVortexInBottleItem extends RECItem {
                                         .formatValue(RECMathUtils::roundDamage)
                                         .build())
                                 .stat(StatData.builder("cooldown")
-                                        .initialValue(2D, 1D) // TODO: CHANGE THIS!!!1111!!!
+                                        .initialValue(30D, 25D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.06D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
@@ -119,7 +119,7 @@ public class VoidVortexInBottleItem extends RECItem {
 
         LivingEntity target = event.getEntity();
         VoidVortexModifiedEntity voidVortexEntity = new VoidVortexModifiedEntity(level,
-                target.getX(), target.getY(), target.getZ(), player.getYRot(), player, 200,
+                target.getX(), target.getY(), target.getZ(), player.getYRot(), player, 100,
                 ItemUtils.getIntStat(stack, ABILITY_ID, "height"), relic.getDamageStat(stack));
 
         // get vortices colliding with target

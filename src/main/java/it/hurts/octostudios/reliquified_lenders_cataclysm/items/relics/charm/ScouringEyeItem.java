@@ -82,7 +82,7 @@ public class ScouringEyeItem extends RECItem {
                                 .build())
                         .beams(BeamsData.builder()
                                 .startColor(0xFF1B001D)
-                                .endColor(0x00550E5B)
+                                .endColor(0x00B461C8)
                                 .build())
                         .build())
                 .build();
