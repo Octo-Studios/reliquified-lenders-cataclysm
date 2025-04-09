@@ -51,7 +51,7 @@ public class VoidVortexInBottleItem extends RECItem {
                                         .formatValue(RECMathUtils::roundDamage)
                                         .build())
                                 .stat(StatData.builder("cooldown")
-                                        .initialValue(30D, 25D)
+                                        .initialValue(2D, 1D) // TODO: CHANGE THIS!!!1111!!!
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.06D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
@@ -75,6 +75,8 @@ public class VoidVortexInBottleItem extends RECItem {
                         .tooltip(TooltipData.builder()
                                 .build())
                         .beams(BeamsData.builder()
+                                .startColor(0xFF6D22AD)
+                                .endColor(0x00A356C5)
                                 .build())
                         .build())
                 .build();
@@ -117,7 +119,7 @@ public class VoidVortexInBottleItem extends RECItem {
 
         LivingEntity target = event.getEntity();
         VoidVortexModifiedEntity voidVortexEntity = new VoidVortexModifiedEntity(level,
-                target.getX(), target.getY(), target.getZ(), player.getYRot(), player, 100,
+                target.getX(), target.getY(), target.getZ(), player.getYRot(), player, 200,
                 ItemUtils.getIntStat(stack, ABILITY_ID, "height"), relic.getDamageStat(stack));
 
         // get vortices colliding with target
@@ -127,12 +129,13 @@ public class VoidVortexInBottleItem extends RECItem {
                 .map(entity -> entity instanceof VoidVortexModifiedEntity ? entity : null).filter(Objects::nonNull)
                 .toList();
 
-        // if target is in vortex, don't spawn vortex (else it's dup)
+        // if target is in vortex, don't spawn vortex (it's a dup)
         if (!vorticesIntersecting.isEmpty()) {
             return;
         }
 
         level.addFreshEntity(voidVortexEntity);
+
         relic.spreadRelicExperience(player, stack, 3);
         player.getCooldowns().addCooldown(stack.getItem(), ItemUtils.getCooldownStat(stack, ABILITY_ID));
     }

@@ -18,11 +18,9 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -72,6 +70,8 @@ public class VacuumGloveItem extends RECItem {
                         .tooltip(TooltipData.builder()
                                 .build())
                         .beams(BeamsData.builder()
+                                .startColor(0xFF550E5B)
+                                .endColor(0x00CC4AD5)
                                 .build())
                         .build())
                 .build();
@@ -111,14 +111,9 @@ public class VacuumGloveItem extends RECItem {
                 continue;
             }
 
-            double distanceCurrent = directionVector.length();
-            double distanceNext = player.position().subtract(entityPosNext).length();
-
             float dotProduct = (float) entity.getDeltaMovement().normalize().dot(directionVector.normalize());
 
-            if (dotProduct < 0.0F && distanceNext > distanceCurrent) {
-//                player.sendSystemMessage(Component.literal("do: " + dotProduct));
-
+            if (dotProduct < 0.0F) {
                 ItemUtils.resetMovementAttribute(entity, stack,
                         getModifierValue(stack, entity.getSpeed(), player.distanceTo(entity), dotProduct));
                 slowedEntities.add(entity.getUUID());

@@ -81,6 +81,8 @@ public class ScouringEyeItem extends RECItem {
                         .tooltip(TooltipData.builder()
                                 .build())
                         .beams(BeamsData.builder()
+                                .startColor(0xFF1B001D)
+                                .endColor(0x00550E5B)
                                 .build())
                         .build())
                 .build();

@@ -35,7 +35,5 @@ public class VoidShardModifiedEntity extends Void_Shard_Entity {
             entity.hurt(this.damageSources().indirectMagic(this, this.getOwner()), damage);
             entity.invulnerableTime = 0;
         }
-
-        System.out.println(damage);
     }
 }

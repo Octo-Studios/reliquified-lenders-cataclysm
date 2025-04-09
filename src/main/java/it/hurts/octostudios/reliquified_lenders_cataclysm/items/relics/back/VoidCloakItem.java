@@ -94,6 +94,8 @@ public class VoidCloakItem extends RECItem {
                         .tooltip(TooltipData.builder()
                                 .build())
                         .beams(BeamsData.builder()
+                                .startColor(0xFFB4863A)
+                                .endColor(0x00F8E096)
                                 .build())
                         .build())
                 .build();

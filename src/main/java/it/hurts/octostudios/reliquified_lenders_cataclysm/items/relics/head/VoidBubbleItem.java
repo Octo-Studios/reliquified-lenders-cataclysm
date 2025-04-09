@@ -85,6 +85,8 @@ public class VoidBubbleItem extends RECItem {
                         .tooltip(TooltipData.builder()
                                 .build())
                         .beams(BeamsData.builder()
+                                .startColor(0xFFD565CA)
+                                .endColor(0x004A00A5)
                                 .build())
                         .build())
                 .build();
