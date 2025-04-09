@@ -47,10 +47,10 @@ public record VacuumGloveParticlesPacket(double radius, int targetId) implements
 
             // (111, 24, 157) * light purple | (108, 22, 123) ~ magenta
             //    (69, 2, 78) - dark magenta |    (48, 2, 55) - dark purple
-//            RECParticleUtils.createCircleSegment(
-//                    ParticleUtils.constructSimpleSpark(new Color(111, 24, 157),
-//                    0.5F, 2, 1.0F),
-//                    level, player.position(), entity.position(), radius, 0.4F);
+            RECParticleUtils.createCircleSegment(
+                    ParticleUtils.constructSimpleSpark(new Color(111, 24, 157),
+                    0.5F, 1, 0.9F),
+                    level, player.position(), entity.position(), radius, 0.3F);
         });
     }
 }
