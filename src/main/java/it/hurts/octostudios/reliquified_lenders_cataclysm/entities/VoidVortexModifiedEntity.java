@@ -4,16 +4,22 @@ import com.github.L_Ender.cataclysm.client.particle.Options.StormParticleOptions
 import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.init.ModSounds;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.EntityRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.VoidVortexParticlesPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.PacketPlayerMotion;
+import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -22,13 +28,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -48,7 +55,7 @@ public class VoidVortexModifiedEntity extends Entity {
     private boolean madeOpenNoise;
     private boolean madeCloseNoise;
 
-    private UUID ownerId;
+    private UUID ownerUUID;
     private LivingEntity ownerEntity;
 
     public VoidVortexModifiedEntity(EntityType<?> type, Level level) {
@@ -108,54 +115,54 @@ public class VoidVortexModifiedEntity extends Entity {
             }
         }
 
-        if (getLifespan() > 0) {
+        if (getLifespan() > 0 && !level().isClientSide) {
             AABB screamBox = new AABB(getX() - getHeight(), getY(), getZ() - getHeight(),
                     getX() + getHeight(), getY() + getHeight(), getZ() + getHeight());
 
             for (Entity entity : getEntitiesInArea(screamBox)) {
-                if (!level().isClientSide) {
-                    if (entity instanceof LivingEntity livingEntity) {
-                        if (livingEntity.isDeadOrDying()) {
-                            continue;
-                        }
-                    }
-
-                    float distanceToEntity = entity.distanceTo(this);
-                    double scaleMax = 0.15D;
-                    double movementScale = scaleMax - 0.5D * scaleMax * distanceToEntity / getHeight();
-                    Vec3 direction = entity.position().subtract(position()).normalize().scale(movementScale);
-                    Vec3 motion = entity.getDeltaMovement().subtract(direction);
-
-                    if (entity instanceof ServerPlayer player && !player.equals(getOwner())) {
-                        NetworkHandler.sendToClient(new PacketPlayerMotion(motion.x, motion.y, motion.z), player);
-                    } else {
-                        entity.setDeltaMovement(motion);
-                    }
-
-                    if (entity instanceof VoidVortexModifiedEntity vortexOther
-                            && getHeight() > vortexOther.getHeight()) {
-                        entity.move(MoverType.SELF, entity.getDeltaMovement());
-
-                        AABB vortexOtherBox = vortexOther.getBoundingBox();
-
-                        // if vortices collide, remove the smaller one and upgrade parameters of bigger vertex
-                        if (vortexOtherBox.intersects(getBoundingBox())
-                                && vortexOtherBox.getBottomCenter().distanceTo(getBoundingBox().getBottomCenter()) <= 1.5D) {
-                            setLifespan(getLifespan() + vortexOther.getLifespan());
-                            setHeight(getHeight() + vortexOther.getHeight());
-                            setDamage(getDamage() + vortexOther.getDamage());
-
-                            vortexOther.remove(RemovalReason.DISCARDED);
-
-                            level().playSound(null, blockPosition(),
-                                    SoundEvents.BEACON_ACTIVATE, SoundSource.NEUTRAL);
-                        }
+                if (entity instanceof LivingEntity livingEntity) {
+                    if (livingEntity.isDeadOrDying()) {
+                        continue;
                     }
                 }
 
-                if (level().isClientSide) {
-                    spawnPullParticles(entity);
+                float distanceToEntity = entity.distanceTo(this);
+                double scaleMax = 0.15D;
+                double movementScale = scaleMax - 0.5D * scaleMax * distanceToEntity / getHeight();
+                Vec3 direction = entity.position().subtract(position()).normalize().scale(movementScale);
+                Vec3 motion = entity.getDeltaMovement().subtract(direction);
+
+                if (entity instanceof ServerPlayer player && !player.equals(getOwner())) {
+                    NetworkHandler.sendToClient(new PacketPlayerMotion(motion.x, motion.y, motion.z), player);
+                } else {
+                    // move vortices slower than other entities
+                    entity.setDeltaMovement(entity instanceof LivingEntity
+                            ? motion : motion.scale(0.75D));
                 }
+
+                if (entity instanceof VoidVortexModifiedEntity vortexOther
+                        && getHeight() > vortexOther.getHeight()) {
+                    entity.move(MoverType.SELF, entity.getDeltaMovement());
+
+                    AABB vortexOtherBox = vortexOther.getBoundingBox();
+
+                    // if vortices collide, remove the smaller one and upgrade parameters of bigger vertex
+                    if (vortexOtherBox.intersects(getBoundingBox())
+                            && vortexOtherBox.getBottomCenter().distanceTo(getBoundingBox().getBottomCenter()) <= 1.5D) {
+                        setLifespan(getLifespan() + vortexOther.getLifespan());
+                        setHeight(getHeight() + vortexOther.getHeight());
+                        setDamage(getDamage() + vortexOther.getDamage());
+
+                        vortexOther.remove(RemovalReason.DISCARDED);
+
+                        level().playSound(null, blockPosition(),
+                                SoundEvents.BEACON_ACTIVATE, SoundSource.NEUTRAL);
+                    }
+                }
+
+                // spawn pulling particles
+                NetworkHandler.sendToClientsTrackingEntityAndSelf(
+                        new VoidVortexParticlesPacket(getId(), entity.getId(), 0), entity);
             }
         }
 
@@ -170,7 +177,9 @@ public class VoidVortexModifiedEntity extends Entity {
         }
 
         if (getLifespan() <= 0) {
-            damageMobs(getMaxCircleRadius());
+            if (!level().isClientSide) {
+                damageMobs(getMaxCircleRadius());
+            }
 
             remove(RemovalReason.DISCARDED);
         }
@@ -183,60 +192,7 @@ public class VoidVortexModifiedEntity extends Entity {
         setLifespan(getLifespan() - 1);
     }
 
-    private void spawnPullParticles(Entity entity) {
-        if (!level().isClientSide || entity instanceof Player) {
-            return;
-        }
-
-        Vec3 entityPos = entity.position();
-        Vec3 direction = position().subtract(entityPos).normalize();
-        double step = 0.3F;
-
-        for (int i = 0; i < 8; i++) {
-            Vec3 pos = entityPos.add(direction.scale(i * step));
-
-            level().addParticle(ParticleTypes.PORTAL, pos.x, pos.y + 0.5D, pos.z,
-                    0, 0, 0);
-        }
-    }
-
-    private void spawnExplodeParticles() {
-        for (int i = 0; i < getHeight(); i++) {
-            for (int j = 0; j < 12; j++) {
-                double xMax = 0.3D * (getRandom().nextDouble() * 2.0D - 1.0D);
-                double yMax = 0.3D + getRandom().nextDouble() * 0.3D;
-                double zMax = 0.3D * (getRandom().nextDouble() * 2.0D - 1.0D);
-
-                level().addParticle(ParticleTypes.DRAGON_BREATH,
-                        getX(), getY() + i + 0.1D, getZ(),
-                        xMax, yMax, zMax);
-            }
-        }
-    }
-
-    private void damageMobs(float radius) {
-        AABB damageBox = new AABB(getX() - radius, getY(), getZ() - radius,
-                getX() + radius, getY() + getHeight(), getZ() + radius);
-
-        for (LivingEntity entity : ItemUtils.getEntitiesInArea(getOwner(), level(), damageBox)) {
-            Vec3 deltaMovement = position().subtract(entity.position()).normalize();
-
-            if (!level().isClientSide) {
-                Vec3 motion = entity.getDeltaMovement().subtract(deltaMovement);
-
-                if (entity instanceof ServerPlayer player && !player.equals(getOwner())) {
-                    NetworkHandler.sendToClient(new PacketPlayerMotion(motion.x, motion.y, motion.z), player);
-                } else {
-                    entity.setDeltaMovement(motion);
-                }
-            }
-
-            entity.hurt(damageSources().magic(), getDamage());
-        }
-
-        level().playSound(null, blockPosition(),
-                ModSounds.EXPLOSION.get(), SoundSource.NEUTRAL);
-    }
+    // utils
 
     private List<Entity> getEntitiesInArea(AABB area) {
         return level().getEntitiesOfClass(Entity.class, area).stream()
@@ -246,30 +202,100 @@ public class VoidVortexModifiedEntity extends Entity {
                 .filter(Objects::nonNull).toList();
     }
 
+    private void damageMobs(float radius) {
+        AABB damageBox = new AABB(getX() - radius, getY(), getZ() - radius,
+                getX() + radius, getY() + getHeight(), getZ() + radius);
+
+        for (LivingEntity entity : ItemUtils.getEntitiesInArea(getOwner(), level(), damageBox)) {
+            Vec3 deltaMovement = position().subtract(entity.position()).normalize();
+            Vec3 motion = entity.getDeltaMovement().subtract(deltaMovement);
+
+            if (entity instanceof ServerPlayer player && !player.equals(getOwner())) {
+                NetworkHandler.sendToClient(new PacketPlayerMotion(motion.x, motion.y, motion.z), player);
+            } else {
+                entity.setDeltaMovement(motion);
+            }
+
+            entity.hurt(damageSources().magic(), getDamage());
+        }
+
+        // spawn damage particles
+//        NetworkHandler.sendToClientsTrackingEntityAndSelf(
+//                new VoidVortexParticlesPacket(getId(), -1, 1), this);
+
+        level().playSound(null, blockPosition(),
+                ModSounds.EXPLOSION.get(), SoundSource.NEUTRAL);
+    }
+
+    private void spawnExplodeParticles() {
+        for (int i = 0; i < getHeight(); i++) {
+            for (int j = 0; j < 16; j++) {
+                double xMax = 0.25D * (randomized(1.5D) - 1.0D);
+                double yMax = 0.05D + randomized(0.1D);
+                double zMax = 0.25D * (randomized(1.5D) - 1.0D);
+
+                level().addParticle(getParticle(new Color(61, 0, 135)),
+                        getX() + Math.pow(-1, i) * randomized(2.0D),
+                        getY() + i + randomized(0.4D),
+                        getZ() + Math.pow(-1, i) * randomized(2.0D),
+                        xMax, yMax, zMax);
+            }
+        }
+    }
+
+    public ParticleOptions getParticle(Color color) {
+        return ParticleUtils.constructSimpleSpark(color,
+                0.4F + randomized(0.2F),
+                40 + randomized(10),
+                0.8F + randomized(0.1F));
+    }
+
+    public float randomized(float value) {
+        return value * getRandom().nextFloat();
+    }
+
+    public double randomized(double value) {
+        return value * getRandom().nextDouble();
+    }
+
+    public int randomized(int value) {
+        return value * getRandom().nextInt();
+    }
+
+    // entity data
+
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder entityDataBuilder) {
         entityDataBuilder.define(DAMAGE, 20F);
         entityDataBuilder.define(HEIGHT, 7);
         entityDataBuilder.define(LIFESPAN, 300);
     }
 
+    @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
         setDamage(tag.getFloat("Damage"));
         setHeight(tag.getInt("Height"));
         setLifespan(tag.getInt("Lifespan"));
 
         if (tag.hasUUID("Owner")) {
-            this.ownerId = tag.getUUID("Owner");
+            this.ownerUUID = tag.getUUID("Owner");
         }
     }
 
+    @Override
     protected void addAdditionalSaveData(CompoundTag tag) {
         tag.putFloat("Damage", getDamage());
         tag.putInt("Height", getHeight());
         tag.putInt("Lifespan", getLifespan());
 
-        if (this.ownerId != null) {
-            tag.putUUID("Owner", this.ownerId);
+        if (this.ownerUUID != null) {
+            tag.putUUID("Owner", this.ownerUUID);
         }
+    }
+
+    @Override
+    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket(@NotNull ServerEntity entity) {
+        return new ClientboundAddEntityPacket(this, entity);
     }
 
     public float getDamage() {
@@ -298,19 +324,23 @@ public class VoidVortexModifiedEntity extends Entity {
 
     @Nullable
     public LivingEntity getOwner() {
-        if (ownerEntity == null && ownerId != null && level() instanceof ServerLevel serverLevel) {
-            Entity entity = serverLevel.getEntity(ownerId);
+        if (ownerEntity != null && !ownerEntity.isRemoved()) {
+            return ownerEntity;
+        } else if (ownerUUID != null && level() instanceof ServerLevel serverlevel) {
+            this.ownerEntity = (LivingEntity) serverlevel.getEntity(ownerUUID);
 
-            if (entity instanceof LivingEntity livingEntity) {
-                ownerEntity = livingEntity;
-            }
+            return ownerEntity;
         }
 
-        return ownerEntity;
+        return null;
     }
 
     public void setOwner(@Nullable LivingEntity ownerEntity) {
-        this.ownerId = ownerEntity == null ? null : ownerEntity.getUUID();
+        if (ownerEntity == null) {
+            return;
+        }
+
+        this.ownerUUID = ownerEntity.getUUID();
         this.ownerEntity = ownerEntity;
     }
 }

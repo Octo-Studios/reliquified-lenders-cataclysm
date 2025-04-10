@@ -51,7 +51,7 @@ public class VoidVortexInBottleItem extends RECItem {
                                         .formatValue(RECMathUtils::roundDamage)
                                         .build())
                                 .stat(StatData.builder("cooldown")
-                                        .initialValue(30D, 25D)
+                                        .initialValue(2D, 1D) // TODO: CHANGE THIS!1!!!!!!1 (30D, 25D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.06D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
@@ -84,21 +84,21 @@ public class VoidVortexInBottleItem extends RECItem {
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
-        if (stack.isEmpty() || !(slotContext.entity() instanceof Player player)) {
+        LivingEntity entity = slotContext.entity();
+
+        if (stack.isEmpty()) {
             return;
         }
 
-        Level level = player.getCommandSenderWorld();
+        Level level = entity.getCommandSenderWorld();
 
         if (level.isClientSide) {
             return;
         }
 
-        float cooldownPercent = player.getCooldowns().getCooldownPercent(stack.getItem(), 0.0F);
-
         // play sound on cooldown ending
-        if (cooldownPercent > 0.0F && cooldownPercent <= (float) 1 / ItemUtils.getCooldownStat(stack, ABILITY_ID)) {
-            ItemUtils.playCooldownSound(level, player);
+        if (getAbilityCooldown(stack, ABILITY_ID) == 1) {
+            ItemUtils.playCooldownSound(level, entity);
         }
     }
 
@@ -113,14 +113,15 @@ public class VoidVortexInBottleItem extends RECItem {
         ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_VORTEX_IN_BOTTLE.get());
 
         if (stack.isEmpty() || !(stack.getItem() instanceof VoidVortexInBottleItem relic)
-                || player.getCooldowns().isOnCooldown(stack.getItem())) {
+                || relic.isAbilityOnCooldown(stack, ABILITY_ID)) {
             return;
         }
 
         LivingEntity target = event.getEntity();
         VoidVortexModifiedEntity voidVortexEntity = new VoidVortexModifiedEntity(level,
-                target.getX(), target.getY(), target.getZ(), player.getYRot(), player, 100,
+                target.getX(), target.getY(), target.getZ(), player.getYRot(), player, 200,
                 ItemUtils.getIntStat(stack, ABILITY_ID, "height"), relic.getDamageStat(stack));
+        voidVortexEntity.setOwner(player);
 
         // get vortices colliding with target
         AABB targetBox = target.getBoundingBox();
@@ -137,7 +138,7 @@ public class VoidVortexInBottleItem extends RECItem {
         level.addFreshEntity(voidVortexEntity);
 
         relic.spreadRelicExperience(player, stack, 3);
-        player.getCooldowns().addCooldown(stack.getItem(), ItemUtils.getCooldownStat(stack, ABILITY_ID));
+        relic.addAbilityCooldown(stack, ABILITY_ID, ItemUtils.getCooldownStat(stack, ABILITY_ID));
     }
 
     private float getDamageStat(ItemStack stack) {
