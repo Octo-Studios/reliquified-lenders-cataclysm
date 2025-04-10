@@ -57,8 +57,8 @@ public class ScouringEyeItem extends RECItem {
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatData.builder("glowing_time")
-                                        .initialValue(10D, 30D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
+                                        .initialValue(10D, 12D)
+                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.525D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .build())
@@ -70,7 +70,7 @@ public class ScouringEyeItem extends RECItem {
                         .sources(LevelingSourcesData.builder()
                                 .source(LevelingSourceData
                                         .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.OVAL, GemColor.CYAN)
+                                        .gem(GemShape.SQUARE, GemColor.PURPLE)
                                         .build())
                                 .build())
                         .build())
@@ -81,8 +81,8 @@ public class ScouringEyeItem extends RECItem {
                         .tooltip(TooltipData.builder()
                                 .build())
                         .beams(BeamsData.builder()
-                                .startColor(0xFF1B001D)
-                                .endColor(0x00B461C8)
+                                .startColor(0xFF460357)
+                                .endColor(0x00A827C6)
                                 .build())
                         .build())
                 .build();
@@ -90,40 +90,60 @@ public class ScouringEyeItem extends RECItem {
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
-        if (!(slotContext.entity() instanceof Player player) ) {
+        LivingEntity entity = slotContext.entity();
+        Level level = entity.level();
+
+        if (level.isClientSide) {
             return;
         }
 
-        LivingEntity entity = getEntityFromStack(player.getCommandSenderWorld(), stack);
+        LivingEntity target = getEntityFromStack(level, stack);
 
-        if (entity == null) {
+        if (target == null) {
             return;
         }
 
-        if (entity.isDeadOrDying()) {
+        if (target.isDeadOrDying()) {
             resetData(stack);
 
             return;
         }
 
+        // safe tp predicate
+        setTeleportSafe(stack, getTeleportPos(entity, target) != null);
+
         // handle glowing time
 
         int glowingTime = getGlowingTime(stack);
 
-        if (glowingTime >= 0) {
-            glowingTime--;
-
-            if (glowingTime == 0) {
-                // play sound when limit exceeded
-                player.getCommandSenderWorld().playSound(null, player.blockPosition(),
-                        SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.PLAYERS);
-            }
-
-            setGlowingTime(stack, glowingTime);
+        if (glowingTime <= 0) {
+            return;
         }
 
-        // safe tp predicate
-        setTeleportSafe(stack, getTeleportPos(player, entity) != null);
+        int stackTime = getStackTime(stack);
+
+        // play sound when limit exceeded
+        if (glowingTime == 1) {
+            level.playSound(null, entity.blockPosition(),
+                    SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.PLAYERS);
+        }
+
+        int gameTime = (int) level.getGameTime();
+
+        if (stackTime == 0) {
+            stackTime = gameTime;
+            glowingTime -= 1;
+        } else {
+            int deltaTime = gameTime - stackTime;
+
+            if (deltaTime > 0) {
+                stackTime += deltaTime;
+                glowingTime -= deltaTime;
+            }
+        }
+
+        setStackTime(stack, stackTime);
+        setGlowingTime(stack, glowingTime);
     }
 
     /**
@@ -191,6 +211,7 @@ public class ScouringEyeItem extends RECItem {
             return;
         }
 
+        setStackTime(stack, (int) level.getGameTime());
         setGlowingTime(stack, getGlowingTimeStat(stack)); // set new glowing time on each attack
         setTargetUUID(stack, target.getUUID().toString());
         setPlayerDied(stack, false);

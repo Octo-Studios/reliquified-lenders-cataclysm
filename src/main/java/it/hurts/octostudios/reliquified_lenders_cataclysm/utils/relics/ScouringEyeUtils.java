@@ -2,6 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.sskirillss.relics.init.DataComponentRegistry;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.PacketPlayerMotion;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -36,7 +37,8 @@ public class ScouringEyeUtils {
     }
 
     public static void teleportToTarget(Player player, LivingEntity target, BlockPos pos, Vec3 motion) {
-        player.teleportTo(pos.getX(), pos.getY() + 1.0D, pos.getZ());
+        Vec3 posCenter = pos.getBottomCenter();
+        player.teleportTo(posCenter.x, pos.getY() + 1.0D, posCenter.z);
         player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());
 
         // set player movement
@@ -49,14 +51,14 @@ public class ScouringEyeUtils {
     }
 
     @Nullable
-    public static BlockPos getTeleportPos(Player player, LivingEntity target) {
+    public static BlockPos getTeleportPos(LivingEntity entity, LivingEntity target) {
         double x = target.getX();
         double y = target.getY();
         double z = target.getZ();
 
         Direction targetDirection = target.getNearestViewDirection().getOpposite();
 
-        Level level = player.getCommandSenderWorld();
+        Level level = entity.getCommandSenderWorld();
         double stepMultiplier = 3D;
         BlockPos pos = BlockPos.containing(x + targetDirection.getStepX() * stepMultiplier, y,
                 z + targetDirection.getStepZ() * stepMultiplier);
@@ -129,7 +131,11 @@ public class ScouringEyeUtils {
     // simple getters & setters
 
     public static boolean isGlowingTimeInBounds(ItemStack stack) {
-        return getGlowingTime(stack) >= 0 && getGlowingTime(stack) < getGlowingTimeStat(stack);
+        return getGlowingTime(stack) > 0 && getGlowingTime(stack) <= getGlowingTimeStat(stack);
+    }
+
+    public static boolean isGlowingTimeTicking(ItemStack stack, Level level) {
+        return isGlowingTimeInBounds(stack) && getStackTime(stack) >= level.getGameTime() - 1;
     }
 
     public static boolean isTeleportAllowed(ItemStack stack) {
@@ -154,15 +160,23 @@ public class ScouringEyeUtils {
         stack.set(RECDataComponentRegistry.TARGET_UUID, value);
     }
 
+    public static int getStackTime(ItemStack stack) {
+        return stack.getOrDefault(DataComponentRegistry.TIME, 0);
+    }
+
+    public static void setStackTime(ItemStack stack, int value) {
+        stack.set(DataComponentRegistry.TIME, value);
+    }
+
     public static int getGlowingTime(ItemStack stack) {
         return stack.getOrDefault(RECDataComponentRegistry.GLOWING_TIME, 0);
     }
 
-    public static int getGlowingTimeStat(ItemStack stack) {
-        return ItemUtils.getTickStat(stack, ABILITY_ID, "glowing_time");
-    }
-
     public static void setGlowingTime(ItemStack stack, int value) {
         stack.set(RECDataComponentRegistry.GLOWING_TIME, value);
+    }
+
+    public static int getGlowingTimeStat(ItemStack stack) {
+        return ItemUtils.getTickStat(stack, ABILITY_ID, "glowing_time");
     }
 }
