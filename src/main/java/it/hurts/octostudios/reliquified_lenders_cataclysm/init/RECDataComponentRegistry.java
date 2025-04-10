@@ -20,8 +20,6 @@ public class RECDataComponentRegistry {
             registerIntComponent("glowing_time");
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VOID_RUNE_TIME =
             registerIntComponent("void_rune_time");
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VORTEX_ID =
-            registerIntComponent("vortex_id");
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> ATTACK_BLOCKS =
             registerIntComponent("attack_blocks");
 

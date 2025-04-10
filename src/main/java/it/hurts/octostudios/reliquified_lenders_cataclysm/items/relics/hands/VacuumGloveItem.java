@@ -19,9 +19,8 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -29,11 +28,14 @@ import net.minecraft.world.phys.Vec3;
 import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 public class VacuumGloveItem extends RECItem {
     private static final String ABILITY_ID = "vacuum_slowdown";
+
+    private final HashMap<UUID, Vec3> positionsPrev = new HashMap<>();
 
     @Override
     public RelicData constructDefaultRelicData() {
@@ -79,11 +81,8 @@ public class VacuumGloveItem extends RECItem {
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
-        if (stack.isEmpty() || !(slotContext.entity() instanceof Player player)) {
-            return;
-        }
-
-        Level level = player.getCommandSenderWorld();
+        LivingEntity entity = slotContext.entity();
+        Level level = entity.getCommandSenderWorld();
 
         if (level.isClientSide) {
             return;
@@ -92,47 +91,46 @@ public class VacuumGloveItem extends RECItem {
         ArrayList<UUID> slowedEntities = getSlowedEntities(stack);
 
         for (int i = 0; i < slowedEntities.size(); i++) {
-            if (!(((ServerLevel) level).getEntity(slowedEntities.get(i)) instanceof LivingEntity entity)) {
+            if (!(((ServerLevel) level).getEntity(slowedEntities.get(i)) instanceof LivingEntity entitySlowed)) {
                 continue;
             }
 
-            if (player.distanceTo(entity) > getRadiusStat(stack) || entity.isDeadOrDying()) {
-                removeSlowdown(slowedEntities, entity, stack);
+            if (entity.distanceTo(entitySlowed) > getRadiusStat(stack) || entitySlowed.isDeadOrDying()) {
+                removeSlowdown(slowedEntities, entitySlowed, stack);
             }
         }
 
         // apply slowdown on mobs inside the area
-        for (LivingEntity entity : getEntitiesInArea(level, player, getRadiusStat(stack))) {
-            Vec3 entityPosCurrent = entity.position();
-            Vec3 directionVector = player.position().subtract(entityPosCurrent);
-            Vec3 entityPosNext = entity.position().add(entity.getDeltaMovement());
+        for (LivingEntity entityOther : getEntitiesInArea(level, entity, getRadiusStat(stack))) {
+            UUID id = entityOther.getUUID();
+            Vec3 posPrev = positionsPrev.getOrDefault(id, entityOther.position());
+            positionsPrev.put(id, entityOther.position());
 
-            if (entityPosNext.equals(entityPosCurrent)) {
-                continue;
-            }
+            Vec3 motion = entityOther.position().subtract(posPrev);
+            Vec3 directionVector = entityOther.position().subtract(entity.position()).normalize();
 
             double distanceCurrent = directionVector.length();
-            double distanceNext = player.position().subtract(entityPosNext).length();
+            double distanceNext = entity.position().subtract(entityOther.position().add(motion)).length();
 
-            float dotProduct = (float) entity.getDeltaMovement().normalize().dot(directionVector.normalize());
+            double dotProduct = motion.normalize().dot(directionVector);
 
-            if (dotProduct < 0.0F && distanceNext > distanceCurrent) {
-                ItemUtils.resetMovementAttribute(entity, stack,
-                        getModifierValue(stack, entity.getSpeed(), player.distanceTo(entity)));
-                slowedEntities.add(entity.getUUID());
+            if (dotProduct > 0.0D && distanceNext > distanceCurrent) {
+                ItemUtils.resetMovementAttribute(entityOther, stack,
+                        getModifierValue(stack, (float) entityOther.getAttributeBaseValue(Attributes.MOVEMENT_SPEED), entity.distanceTo(entityOther)));
+                slowedEntities.add(entityOther.getUUID());
 
                 // particles of circle segment
-                NetworkHandler.sendToClient(
-                        new VacuumGloveParticlesPacket(getRadiusStat(stack), entity.getId()),
-                        (ServerPlayer) player);
+                NetworkHandler.sendToClientsTrackingEntityAndSelf(
+                        new VacuumGloveParticlesPacket(getRadiusStat(stack), entityOther.getId(),
+                                entity.getX(), entity.getY(), entity.getZ()), entityOther);
             } else {
-                removeSlowdown(slowedEntities, entity, stack);
+                removeSlowdown(slowedEntities, entityOther, stack);
             }
         }
 
         setSlowedEntities(stack, slowedEntities);
 
-        if (player.isDeadOrDying()) {
+        if (entity.isDeadOrDying()) {
             resetSlowedEntities(level, stack);
         }
 
@@ -142,7 +140,7 @@ public class VacuumGloveItem extends RECItem {
 
         // +1 for each 10 s of slowdown, +1 for each 5 slowed mobs
         if (ticks % 200 == 0) {
-            spreadRelicExperience(player, stack,
+            spreadRelicExperience(entity, stack,
                     1 + (int) Math.floor(slowedEntities.size() / 5D));
         }
 

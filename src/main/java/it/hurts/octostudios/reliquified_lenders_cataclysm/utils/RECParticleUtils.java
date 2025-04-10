@@ -26,20 +26,26 @@ public class RECParticleUtils {
         }
 
         double distanceToCircle = radius - target.distanceTo(center);
+
+        if (distanceToCircle < 0D) {
+            return;
+        }
+
         double distanceFrac = distanceToCircle / radius;
 
-        int circlePointsNum = (int) Math.ceil(2 * Math.PI * radius / step); // whole circle length
-        int segmentPointsNum = (int) (circlePointsNum / (4 + 20 * distanceFrac)); // segment length
-
         double arcMin = Math.PI / 12, arcMax = 2 * Math.PI / 3;
-        double arcWidth = Mth.clamp(1.0D - Math.clamp(distanceFrac, 0.0D, 1.0D), arcMin, arcMax);
+        double arcWidth = Math.clamp(1.0D - Math.clamp(distanceFrac, 0.0D, 1.0D), arcMin, arcMax);
         double targetAngle = Math.atan2(target.z - center.z, target.x - center.x);
+
+        int n = (int) (Math.abs(targetAngle) * 180 / Math.PI); // arc degree measure
+        int arcLength = (int) (Math.PI * radius * (360 - n) / (180));
+        int segmentPointsNum = (int) (target.distanceTo(center) * arcLength / radius);
 
         int maxTries = (int) Math.ceil(radius * 2.0D);
 
         for (int i = 0; i < segmentPointsNum; i++) {
-            double t = (double) i / segmentPointsNum;
-            double angle = Mth.lerp(t, targetAngle - arcWidth / 2, targetAngle + arcWidth / 2);
+            double pointsFrac = (double) i / segmentPointsNum;
+            double angle = Mth.lerp(pointsFrac, targetAngle - arcWidth / 2, targetAngle + arcWidth / 2);
 
             double x = center.x() + radius * Math.cos(angle);
             double y = center.y();

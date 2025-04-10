@@ -10,12 +10,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
-public record VacuumGloveParticlesPacket(double radius, int targetId) implements CustomPacketPayload {
+public record VacuumGloveParticlesPacket(double radius, int targetId, double x,  double y, double z)
+        implements CustomPacketPayload {
     public static final StreamCodec<ByteBuf, VacuumGloveParticlesPacket> STREAM_CODEC =
             StreamCodec.ofMember(VacuumGloveParticlesPacket::encode, VacuumGloveParticlesPacket::decode);
     public static final Type<VacuumGloveParticlesPacket> TYPE =
@@ -28,12 +30,16 @@ public record VacuumGloveParticlesPacket(double radius, int targetId) implements
     }
 
     public static VacuumGloveParticlesPacket decode(ByteBuf buf) {
-        return new VacuumGloveParticlesPacket(buf.readDouble(), buf.readInt());
+        return new VacuumGloveParticlesPacket(buf.readDouble(), buf.readInt(),
+                buf.readDouble(), buf.readDouble(), buf.readDouble());
     }
 
     public void encode(ByteBuf buf) {
         buf.writeDouble(radius);
         buf.writeInt(targetId);
+        buf.writeDouble(x);
+        buf.writeDouble(y);
+        buf.writeDouble(z);
     }
 
     public void handle(IPayloadContext ctx) {
@@ -49,8 +55,8 @@ public record VacuumGloveParticlesPacket(double radius, int targetId) implements
             //    (69, 2, 78) - dark magenta |    (48, 2, 55) - dark purple
             RECParticleUtils.createCircleSegment(
                     ParticleUtils.constructSimpleSpark(new Color(111, 24, 157),
-                    0.5F, 1, 0.9F),
-                    level, player.position(), entity.position(), radius, 0.3F);
+                    0.3F, 1, 0.8F),
+                    level, new Vec3(x, y, z), entity.position(), radius, 0.3F);
         });
     }
 }
