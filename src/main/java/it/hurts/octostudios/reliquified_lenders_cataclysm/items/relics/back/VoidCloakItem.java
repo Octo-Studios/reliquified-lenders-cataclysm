@@ -21,7 +21,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -94,6 +93,9 @@ public class VoidCloakItem extends RECItem {
                         .build())
                 .style(StyleData.builder()
                         .tooltip(TooltipData.builder()
+                                .borderTop(0xFFB98FD2)
+                                .borderBottom(0xFF895DA4)
+                                .textured(true)
                                 .build())
                         .beams(BeamsData.builder()
                                 .startColor(0xFFB4863A)
