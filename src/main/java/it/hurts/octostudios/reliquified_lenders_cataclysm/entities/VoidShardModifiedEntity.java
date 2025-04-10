@@ -1,6 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.entities;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Shard_Entity;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,7 +32,7 @@ public class VoidShardModifiedEntity extends Void_Shard_Entity {
         if (shooter == null) {
             entity.hurt(this.damageSources().magic(), damage);
             entity.invulnerableTime = 0;
-        } else if (entity != shooter && !shooter.isAlliedTo(entity)) {
+        } else if (entity != shooter && !EntityUtils.isAlliedTo(shooter, entity)) {
             entity.hurt(this.damageSources().indirectMagic(this, this.getOwner()), damage);
             entity.invulnerableTime = 0;
         }

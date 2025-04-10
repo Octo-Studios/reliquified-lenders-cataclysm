@@ -37,9 +37,9 @@ public class EntityRegistry {
             ENTITIES.register("void_vortex_modified", () ->
                     EntityType.Builder.<VoidVortexModifiedEntity>of(VoidVortexModifiedEntity::new, MobCategory.MISC)
                             .sized(2.5F, 0.5F)
-                            .fireImmune()
                             .setUpdateInterval(Integer.MAX_VALUE)
                             .clientTrackingRange(10)
+                            .fireImmune()
                             .build("void_vortex_modified")
             );
 

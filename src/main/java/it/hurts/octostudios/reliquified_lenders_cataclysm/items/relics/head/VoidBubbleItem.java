@@ -23,6 +23,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -168,24 +169,25 @@ public class VoidBubbleItem extends RECItem {
         }
     }
 
-    private void spawnShards(Player player, ItemStack stack) {
-        Level level = player.getCommandSenderWorld();
+    private void spawnShards(LivingEntity caster, ItemStack stack) {
+        Level level = caster.getCommandSenderWorld();
         int projectilesNum = ItemUtils.getIntStat(stack, ABILITY_ID, "projectiles");
 
-        List<Vec3> movementVecs = getShootVectors(player.getRandom(), projectilesNum);
+        List<Vec3> movementVecs = getShootVectors(caster.getRandom(), projectilesNum);
 
         for (int i = 0; i < projectilesNum; i++) {
             Vec3 movementVec = movementVecs.get(i).scale(0.35D);
 
-            Entity shardEntity = new VoidShardModifiedEntity(level, player,
-                    player.getX() + movementVec.x,
-                    player.getY() + movementVec.y + 1.2D,
-                    player.getZ() + movementVec.z,
-                    movementVec, player, getDamageStat(stack));
+            Entity shardEntity = new VoidShardModifiedEntity(level, caster,
+                    caster.getX() + movementVec.x,
+                    caster.getY() + movementVec.y + 1.2D,
+                    caster.getZ() + movementVec.z,
+                    movementVec, caster, getDamageStat(stack));
+
             level.addFreshEntity(shardEntity);
         }
 
-        level.playSound(null, player.blockPosition(), SoundEvents.GLASS_BREAK, SoundSource.NEUTRAL);
+        level.playSound(null, caster.blockPosition(), SoundEvents.GLASS_BREAK, SoundSource.NEUTRAL);
     }
 
     public List<Vec3> getShootVectors(RandomSource random, float projectilesNum) {

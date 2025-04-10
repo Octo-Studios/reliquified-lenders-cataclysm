@@ -4,6 +4,7 @@ import com.github.L_Ender.cataclysm.entity.projectile.Void_Rune_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VoidCloakItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,9 +21,12 @@ public class VoidCloakUtils {
     @Getter
     private static final int waveTicks = 30;
 
-    public static void spawnVoidRune(Level level, Player player, LivingEntity entity,
-                                     ItemStack stack) {
+    public static void spawnVoidRune(Level level, Player player, LivingEntity entity, ItemStack stack) {
         Vec3 mobMovement = entity.getDeltaMovement();
+
+        if (EntityUtils.isAlliedTo(player, entity)) {
+            return;
+        }
 
         spawnFang(level, player, entity, entity.getX() + mobMovement.x, entity.getZ() + mobMovement.z,
                 0, -20, getDamageStat(stack));
@@ -79,8 +83,8 @@ public class VoidCloakUtils {
         return layersSpawned;
     }
 
-    public static boolean spawnFang(Level level, Player player, LivingEntity entity,
-                                  double posX, double posZ, float yRot, int delayTicks, float damage) {
+    public static boolean spawnFang(Level level, LivingEntity caster, LivingEntity entity,
+                                  double posX, double posZ, float yRot, int delayTicks, float damage, boolean silent) {
         BlockPos pos = BlockPos.containing(posX, entity.getY() + 1.0D, posZ);
         double shiftY = 0.0D;
         boolean canFangSpawn = false;
@@ -110,13 +114,19 @@ public class VoidCloakUtils {
         // spawn rune without sound (the sound is playing with modified screen shake entity)
         if (canFangSpawn) {
             Void_Rune_Entity voidRuneEntity = new Void_Rune_Entity(level,
-                    posX, pos.getY() + shiftY, posZ, yRot, delayTicks, damage, player);
+                    posX, pos.getY() + shiftY, posZ, yRot, delayTicks, damage, caster);
+            voidRuneEntity.setSilent(silent);
+            voidRuneEntity.setCaster(caster);
 
-            voidRuneEntity.setSilent(true);
             level.addFreshEntity(voidRuneEntity);
         }
 
         return canFangSpawn;
+    }
+
+    public static boolean spawnFang(Level level, LivingEntity caster, LivingEntity entity,
+                                    double posX, double posZ, float yRot, int delayTicks, float damage) {
+        return spawnFang(level, caster, entity, posX, posZ, yRot, delayTicks, damage, false);
     }
 
     // simple getters

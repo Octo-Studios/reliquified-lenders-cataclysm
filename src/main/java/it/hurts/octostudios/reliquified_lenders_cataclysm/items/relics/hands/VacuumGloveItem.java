@@ -113,10 +113,12 @@ public class VacuumGloveItem extends RECItem {
             double distanceNext = entity.position().subtract(entityOther.position().add(motion)).length();
 
             double dotProduct = motion.normalize().dot(directionVector);
+            float entityBaseSpeed = (float) entityOther.getAttributeBaseValue(Attributes.MOVEMENT_SPEED);
 
             if (dotProduct > 0.0D && distanceNext > distanceCurrent) {
-                ItemUtils.resetMovementAttribute(entityOther, stack,
-                        getModifierValue(stack, (float) entityOther.getAttributeBaseValue(Attributes.MOVEMENT_SPEED), entity.distanceTo(entityOther)));
+                float modifier = getModifierValue(stack, entityBaseSpeed, entity.distanceTo(entityOther));
+
+                ItemUtils.resetMovementAttribute(entityOther, stack, modifier);
                 slowedEntities.add(entityOther.getUUID());
 
                 // particles of circle segment

@@ -32,6 +32,8 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import top.theillusivec4.curios.api.SlotContext;
 
+import java.util.List;
+
 import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidCloakUtils.*;
 
 @EventBusSubscriber
@@ -119,25 +121,37 @@ public class VoidCloakItem extends RECItem {
         if (voidRuneCooldown > 0) {
             voidRuneCooldown--;
         } else {
-            LivingEntity entity = level.getNearestEntity(LivingEntity.class, TargetingConditions.DEFAULT,
-                    player, player.getX(), player.getY(), player.getZ(),
+            List<LivingEntity> entitiesInArea = ItemUtils.getEntitiesInArea(player, level,
                     player.getBoundingBox().inflate(10.0D));
 
-            if (entity == null || entity instanceof ArmorStand) {
-                return;
-            }
+            boolean runeSpawned = false;
 
-            if (entity instanceof Mob mob) {
-                LivingEntity targetEntity = mob.getTarget();
-
-                if (targetEntity != null && targetEntity.is(player)) {
-                    spawnVoidRune(level, player, mob, stack);
+            for (LivingEntity entity : entitiesInArea) {
+                if (entity == null || entity.equals(player)
+                        || entity instanceof ArmorStand || EntityUtils.isAlliedTo(player, entity)) {
+                    continue;
                 }
-            } else { // if not armor stand or mob, then entity is player
-                spawnVoidRune(level, player, entity, stack);
+
+                if (entity instanceof Mob mob) {
+                    LivingEntity targetEntity = mob.getTarget();
+
+                    if (targetEntity != null && targetEntity.is(player)) {
+                        spawnVoidRune(level, player, mob, stack);
+                        runeSpawned = true;
+
+                        break;
+                    }
+                } else {
+                    spawnVoidRune(level, player, entity, stack);
+                    runeSpawned = true;
+
+                    break;
+                }
             }
 
-            voidRuneCooldown = ItemUtils.getCooldownStat(stack, "void_rune");
+            if (runeSpawned) {
+                voidRuneCooldown = ItemUtils.getCooldownStat(stack, "void_rune");
+            }
         }
 
         stack.set(RECDataComponentRegistry.VOID_RUNE_TIME, voidRuneCooldown);

@@ -56,7 +56,7 @@ public class ScouringEyeUtils {
         double y = target.getY();
         double z = target.getZ();
 
-        Direction targetDirection = target.getNearestViewDirection().getOpposite();
+        Direction targetDirection = target.getMotionDirection().getOpposite();
 
         Level level = entity.getCommandSenderWorld();
         double stepMultiplier = 3D;
