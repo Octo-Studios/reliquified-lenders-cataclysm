@@ -98,7 +98,7 @@ public class VoidCloakItem extends RECItem {
                                 .textured(true)
                                 .build())
                         .beams(BeamsData.builder()
-                                .startColor(0xFFB4863A)
+                                .startColor(0xFFB98FD2)
                                 .endColor(0x00F8E096)
                                 .build())
                         .build())

@@ -130,8 +130,8 @@ public class VoidVortexInBottleItem extends RECItem {
         AABB targetBox = target.getBoundingBox();
         List<Entity> vorticesIntersecting = level.getEntities(target, targetBox, entityOther ->
                 targetBox.intersects(entityOther.getBoundingBox())).stream()
-                .map(entity -> entity instanceof VoidVortexModifiedEntity ? entity : null).filter(Objects::nonNull)
-                .toList();
+                .map(entity -> entity instanceof VoidVortexModifiedEntity ? entity : null)
+                .filter(Objects::nonNull).toList();
 
         // if target is in vortex, don't spawn vortex (it's a dup)
         if (!vorticesIntersecting.isEmpty()) {
