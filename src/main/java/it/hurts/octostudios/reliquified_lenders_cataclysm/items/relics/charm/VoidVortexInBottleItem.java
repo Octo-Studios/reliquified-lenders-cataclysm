@@ -114,13 +114,13 @@ public class VoidVortexInBottleItem extends RECItem {
         }
 
         ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_VORTEX_IN_BOTTLE.get());
+        LivingEntity target = event.getEntity();
 
         if (stack.isEmpty() || !(stack.getItem() instanceof VoidVortexInBottleItem relic)
                 || relic.isAbilityOnCooldown(stack, ABILITY_ID)) {
             return;
         }
 
-        LivingEntity target = event.getEntity();
         VoidVortexModifiedEntity voidVortexEntity = new VoidVortexModifiedEntity(level,
                 target.getX(), target.getY(), target.getZ(), player.getYRot(), player, 100,
                 ItemUtils.getIntStat(stack, ABILITY_ID, "height"), relic.getDamageStat(stack));

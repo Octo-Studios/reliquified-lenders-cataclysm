@@ -34,8 +34,8 @@ public class ItemUtils {
     public static List<LivingEntity> getEntitiesInArea(LivingEntity caster, Level level, AABB area) {
         return level.getEntities(null, area).stream()
                 .map(entity -> entity instanceof LivingEntity livingEntity
-                        && !entity.equals(caster) && !(entity instanceof ArmorStand)
-                        ? livingEntity : null)
+                        && !entity.equals(caster) && !(EntityUtils.isAlliedTo(entity, caster))
+                        && !(entity instanceof ArmorStand) ? livingEntity : null)
                 .filter(Objects::nonNull).toList();
     }
 

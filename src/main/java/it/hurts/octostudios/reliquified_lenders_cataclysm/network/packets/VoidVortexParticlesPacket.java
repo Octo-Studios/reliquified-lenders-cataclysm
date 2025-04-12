@@ -56,7 +56,7 @@ public record VoidVortexParticlesPacket(int vortexId, int targetId, int particle
 
                     spawnPullParticles(level, entity, vortex);
                 }
-                case 1 -> spawnDamageParticles(level, vortex);
+                case 1 -> spawnMergeParticles(level, vortex);
             }
         });
     }
@@ -67,11 +67,11 @@ public record VoidVortexParticlesPacket(int vortexId, int targetId, int particle
         }
 
         Vec3 entityPos = entity.position();
-        double step = 0.3F;
+        double step = 0.4F + 0.05F * (vortex.getHeight() - 1);
 
         // if entity in vortex, draw a ring around entity, else draw a "line" towards the vortex
-        if (entity.getBoundingBox().intersects(vortex.getBoundingBox())) {
-            float radius = 0.7F;
+        if (entity.distanceTo(vortex) <= 0.5D) {
+            float radius = 0.5F;
             int particlesNum = (int) (2 * Math.PI * radius / step);
             double angleIncrement = 2 * Math.PI / particlesNum;
 
@@ -79,10 +79,10 @@ public record VoidVortexParticlesPacket(int vortexId, int targetId, int particle
                 double angle = i * angleIncrement;
 
                 double x = entityPos.x + radius * Math.cos(angle);
-                double y = entityPos.y + 0.5D + (vortex.randomized(2.0D) - 1.0D);
+                double y = entityPos.y + 0.1D + vortex.randomized(entity.getBoundingBox().getYsize());
                 double z = entityPos.z + radius * Math.sin(angle);
 
-                level.addParticle(vortex.getParticle(new Color(105, 0, 229)),
+                level.addParticle(vortex.getParticle(new Color(105, 0, 229), 0.15F),
                         x, y, z, 0, 0, 0);
             }
         } else {
@@ -91,27 +91,34 @@ public record VoidVortexParticlesPacket(int vortexId, int targetId, int particle
             for (int i = 0; i < 8; i++) {
                 Vec3 pos = entityPos.add(direction.scale(i * step));
 
-                double y = pos.y;
+                double y = pos.y + 0.1D;
+                float diameterMin = 0.2F;
 
-                // if entity is another vortex, draw line with a height of vortex, else a common line
+                // if entity is another vortex, draw line with a height of vortex, else with Y size of entity
                 if (entity instanceof VoidVortexModifiedEntity voidVortexEntity) {
                     y += voidVortexEntity.getHeight() * vortex.randomized(1.0D);
+                    diameterMin += 0.5F;
                 } else {
-                    y += 0.4D + vortex.randomized(0.7D);
+                    y += vortex.randomized(entity.getBoundingBox().getYsize());
                 }
 
-                level.addParticle(vortex.getParticle(new Color(112, 0, 156)),
-                        pos.x + vortex.randomized(0.8D), y, pos.z + vortex.randomized(0.8D),
+                level.addParticle(vortex.getParticle(new Color(112, 0, 156), diameterMin),
+                        pos.x + vortex.randomized(entity.getBoundingBox().getXsize()), y,
+                        pos.z + vortex.randomized(entity.getBoundingBox().getZsize()),
                         0, 0, 0);
             }
         }
     }
 
-    // todo
-    private void spawnDamageParticles(Level level, VoidVortexModifiedEntity vortex) {
-//        int particlesNum;
-//
-//        for (int j = 0; j < particlesNum; j++) {
-//        }
+    private static void spawnMergeParticles(Level level, VoidVortexModifiedEntity vortex) {
+        for (int i = 0; i < vortex.getHeight(); i++) {
+            for (int j = 0; j < 24; j++) {
+                level.addParticle(vortex.getParticle(new Color(61, 0, 135), 0.4F),
+                        vortex.getX() + Math.pow(-1, i) * vortex.randomized(2.0D),
+                        vortex.getY() + 0.1D + i + vortex.randomized(0.4D),
+                        vortex.getZ() + Math.pow(-1, i) * vortex.randomized(2.0D),
+                        0, 0, 0);
+            }
+        }
     }
 }

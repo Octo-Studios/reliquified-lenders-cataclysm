@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidVortexModifiedEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -34,41 +35,39 @@ public class VoidVortexModifiedRenderer extends EntityRenderer<VoidVortexModifie
 
     @Override
     public void render(@NotNull VoidVortexModifiedEntity entity, float entityYaw, float partialTicks,
-                       @NotNull PoseStack matrixStack, @NotNull MultiBufferSource buffer, int packedLight) {
-        super.render(entity, entityYaw, partialTicks, matrixStack, buffer, packedLight);
-
-        matrixStack.pushPose();
-        matrixStack.translate(0.0, 0.001, 0.0);
+                       @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight) {
+        poseStack.pushPose();
+        poseStack.translate(0.0D, 0.001D, 0.0D);
 
         ResourceLocation texture;
 
         if (entity.getLifespan() < 16) {
-            texture = this.getGrowingTexture((int)((float)entity.getLifespan() * 0.5F % 20.0F));
+            texture = this.getGrowingTexture((int)(entity.getLifespan() * 0.5F % 20.0F));
         } else if (entity.tickCount < 16) {
             texture = this.getGrowingTexture((int)((float)entity.tickCount * 0.5F % 20.0F));
         } else {
             texture = this.getIdleTexture(entity.tickCount % 9);
         }
 
-        matrixStack.scale(3.0F, 3.0F, 3.0F);
-        renderArc(matrixStack, buffer, texture);
-        matrixStack.popPose();
+        poseStack.scale(3.0F, 3.0F, 3.0F);
+        renderArc(poseStack, buffer, texture);
+        poseStack.popPose();
 
-        super.render(entity, entityYaw, partialTicks, matrixStack, buffer, packedLight);
+        super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
     }
 
-    private void renderArc(PoseStack matrixStack, MultiBufferSource buffer, ResourceLocation texture) {
-        matrixStack.pushPose();
+    private void renderArc(PoseStack poseStack, MultiBufferSource buffer, ResourceLocation texture) {
+        poseStack.pushPose();
         VertexConsumer vertexBuilder = buffer.getBuffer(CMRenderTypes.getfullBright(texture));
 
-        PoseStack.Pose lastPose = matrixStack.last();
+        PoseStack.Pose lastPose = poseStack.last();
 
         drawVertex(lastPose, vertexBuilder, -1, 0, -1, 0.0F, 0.0F, 1, 0, 1, 240);
         drawVertex(lastPose, vertexBuilder, -1, 0, 1, 0.0F, 1.0F, 1, 0, 1, 240);
         drawVertex(lastPose, vertexBuilder, 1, 0, 1, 1.0F, 1.0F, 1, 0, 1, 240);
         drawVertex(lastPose, vertexBuilder, 1, 0, -1, 1.0F, 0.0F, 1, 0, 1, 240);
 
-        matrixStack.popPose();
+        poseStack.popPose();
     }
 
     public @NotNull ResourceLocation getTextureLocation(@NotNull VoidVortexModifiedEntity entity) {
