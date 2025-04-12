@@ -7,7 +7,6 @@ import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.PacketPlayerMotion;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -39,10 +38,11 @@ public class ScouringEyeUtils {
     public static void teleportToTarget(Player player, LivingEntity target, BlockPos pos, Vec3 motion) {
         Vec3 posCenter = pos.getBottomCenter();
         player.teleportTo(posCenter.x, pos.getY() + 1.0D, posCenter.z);
-        player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());
+        player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition().add(0D, 0.5D, 0D));
 
         // set player movement
         NetworkHandler.sendToClient(new PacketPlayerMotion(motion.x, motion.y, motion.z), (ServerPlayer) player);
+
 
         target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 30), player);
 
@@ -52,36 +52,29 @@ public class ScouringEyeUtils {
 
     @Nullable
     public static BlockPos getTeleportPos(LivingEntity entity, LivingEntity target) {
-        double x = target.getX();
-        double y = target.getY();
-        double z = target.getZ();
-
-        Direction targetDirection = target.getMotionDirection().getOpposite();
-
         Level level = entity.getCommandSenderWorld();
-        double stepMultiplier = 3D;
-        BlockPos pos = BlockPos.containing(x + targetDirection.getStepX() * stepMultiplier, y,
-                z + targetDirection.getStepZ() * stepMultiplier);
+
+        Vec3 pos = target.position().add(target.getViewVector(1.0F).scale(-3.0F));
+        BlockPos blockPos = BlockPos.containing(pos.x, pos.y, pos.z);
 
         // firstly check initial pos for safety
-        if (!isBlockSafe(level, pos)) {
+        if (!isBlockSafe(level, blockPos)) {
             // then find nearest safe pos (there may be null if no safe pos found)
-            return getSafePos(level, pos, targetDirection);
+            return getSafePos(level, blockPos);
         }
 
-        return pos;
+        return blockPos;
     }
 
     @Nullable
-    public static BlockPos getSafePos(Level level, BlockPos initialPos, Direction direction) {
+    public static BlockPos getSafePos(Level level, BlockPos initialPos) {
         for (int i = 1; i <= 4; i++) {
             for (int j = 1; j <= 4; j++) {
                 double initialY = initialPos.getY();
 
                 // get the nearest blocks at the same height in opposite to target's view direction
                 BlockPos pos = BlockPos.containing(
-                        initialPos.getX() + direction.getStepX() * i, initialY,
-                        initialPos.getZ() + direction.getStepZ() * i);
+                        initialPos.getX() + i, initialY, initialPos.getZ() + i);
 
                 BlockPos newPos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos);
 

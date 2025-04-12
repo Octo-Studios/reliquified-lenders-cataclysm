@@ -67,7 +67,7 @@ public record VoidVortexParticlesPacket(int vortexId, int targetId, int particle
         }
 
         Vec3 entityPos = entity.position();
-        double step = 0.4F + 0.05F * (vortex.getHeight() - 1);
+        double step = 0.4F;
 
         // if entity in vortex, draw a ring around entity, else draw a "line" towards the vortex
         if (entity.distanceTo(vortex) <= 0.5D) {
@@ -89,7 +89,7 @@ public record VoidVortexParticlesPacket(int vortexId, int targetId, int particle
             Vec3 direction = vortex.position().subtract(entityPos).normalize();
 
             for (int i = 0; i < 8; i++) {
-                Vec3 pos = entityPos.add(direction.scale(i * step));
+                Vec3 pos = entityPos.add(direction.scale(i * (step + 0.001F * vortex.getHeight())));
 
                 double y = pos.y + 0.1D;
                 float diameterMin = 0.2F;

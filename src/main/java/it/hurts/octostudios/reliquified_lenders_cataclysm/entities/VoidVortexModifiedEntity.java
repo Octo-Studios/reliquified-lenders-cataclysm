@@ -265,13 +265,13 @@ public class VoidVortexModifiedEntity extends Entity {
     public void spawnExplodeParticles() {
         for (int i = 0; i < getHeight(); i++) {
             for (int j = 0; j < 32; j++) {
-                double xMax = 0.25D * (randomized(1.5D) - 1.0D);
+                double xMax = 0.25D * (randomized(2.0D) - 1.0D);
                 double yMax = 0.05D + randomized(0.1D);
-                double zMax = 0.25D * (randomized(1.5D) - 1.0D);
+                double zMax = 0.25D * (randomized(2.0D) - 1.0D);
 
                 level().addParticle(getParticle(new Color(61, 0, 135), 0.7F),
                         getX() + Math.pow(-1, i) * randomized(2.0D),
-                        getY() + i + randomized(0.4D),
+                        getY() + 0.1D * randomized(0.5D) + i,
                         getZ() + Math.pow(-1, i) * randomized(2.0D),
                         xMax, yMax, zMax);
             }

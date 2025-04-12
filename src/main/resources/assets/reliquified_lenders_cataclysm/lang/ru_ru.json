@@ -31,7 +31,7 @@
   "item.reliquified_lenders_cataclysm.vacuum_glove": "Вакуумная перчатка",
   "tooltip.relics.vacuum_glove.description": "Одно из самых грязных приспособлений, которым владели отнюдь не воины и маги, но \"мясники\". Своей аурой эта перчатка разжижает воздух вокруг, сковывая движения и разум.",
   "tooltip.relics.vacuum_glove.ability.vacuum_slowdown": "Грань",
-  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.description": "Формирует вокруг игрока область радиусом %2$s блоков, которая замедляет все цели, пытающиеся из неё сбежать, на %1$s%% на своей грани. Замедление действует тем сильнее, чем ближе к границе области находится цель.",
+  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.description": "Формирует вокруг игрока область радиусом %2$s блоков, которая замедляет все цели, пытающихся из неё сбежать, на %1$s%% на своей грани. Замедление действует тем сильнее, чем ближе к границе области находится цель.",
   "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.title": "Грань",
   "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.description": "+%1$s единиц опыта за каждые 10 секунд работы замедления от способности %2$s.",
 

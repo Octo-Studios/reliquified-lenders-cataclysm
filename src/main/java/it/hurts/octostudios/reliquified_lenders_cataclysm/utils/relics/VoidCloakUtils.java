@@ -29,7 +29,7 @@ public class VoidCloakUtils {
         }
 
         spawnFang(level, player, entity, entity.getX() + mobMovement.x, entity.getZ() + mobMovement.z,
-                0, -20, getDamageStat(stack));
+                0, -20, getRuneDamageStat(stack));
     }
 
     public static void spawnSeismicZone(Level level, Player player, LivingEntity dyingEntity, ItemStack stack) {
@@ -65,7 +65,7 @@ public class VoidCloakUtils {
                 if (spawnFang(level, player, dyingEntity,
                         pos.x + (double) Mth.cos(angle) * shiftMultiplier,
                         pos.z + (double) Mth.sin(angle) * shiftMultiplier,
-                        i, waveIndex * getWaveTicks() + delayTicks, getDamageStat(stack))) {
+                        i, waveIndex * getWaveTicks() + delayTicks, getZoneDamageStat(stack))) {
                     fangSpawned = true;
                 }
             }
@@ -131,8 +131,12 @@ public class VoidCloakUtils {
 
     // simple getters
 
-    private static float getDamageStat(ItemStack stack) {
+    private static float getRuneDamageStat(ItemStack stack) {
         return (float) ((VoidCloakItem) stack.getItem()).getStatValue(stack, "void_rune", "damage");
+    }
+
+    private static float getZoneDamageStat(ItemStack stack) {
+        return (float) ((VoidCloakItem) stack.getItem()).getStatValue(stack, "seismic_zone", "damage");
     }
 
     public static int getRadiusStat(ItemStack stack) {
