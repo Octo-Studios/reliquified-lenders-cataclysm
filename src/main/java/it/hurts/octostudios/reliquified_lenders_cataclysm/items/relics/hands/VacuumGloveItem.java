@@ -143,10 +143,9 @@ public class VacuumGloveItem extends RECItem {
 
         int ticks = stack.getOrDefault(DataComponentRegistry.TIME, 0);
 
-        // +1 for each 10 s of slowdown, +1 for each 5 slowed mobs
+        // +1 for each 10 s of slowdown
         if (ticks % 200 == 0) {
-            spreadRelicExperience(entity, stack,
-                    1 + (int) Math.floor(slowedEntities.size() / 5D));
+            spreadRelicExperience(entity, stack, 1);
         }
 
         stack.set(DataComponentRegistry.TIME, ticks + 1);

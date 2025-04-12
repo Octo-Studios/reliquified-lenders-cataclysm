@@ -161,9 +161,9 @@ public class VoidBubbleItem extends RECItem {
         if (attackBlocks < attackBlocksStat) {
             if (attackBlocks == attackBlocksStat - 1) {
                 relic.spawnShards(player, stack);
-                relic.spreadRelicExperience(player, stack, 1);
             }
 
+            relic.spreadRelicExperience(player, stack, 1);
             level.playSound(null, player.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS);
 
             event.setCanceled(true);
