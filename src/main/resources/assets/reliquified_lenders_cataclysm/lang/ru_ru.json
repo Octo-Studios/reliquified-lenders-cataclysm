@@ -1,0 +1,47 @@
+{
+  "item.reliquified_lenders_cataclysm.scouring_eye": "Рыщущее око",
+  "item.reliquified_lenders_cataclysm.void_vortex_in_bottle": "Эндер-вихрь в бутылке",
+  "item.reliquified_lenders_cataclysm.void_cloak": "Пустотный плащ",
+  "item.reliquified_lenders_cataclysm.vacuum_glove": "Вакуумная перчатка",
+  "item.reliquified_lenders_cataclysm.void_bubble": "Пустотный пузырь",
+
+  "tooltip.relics.scouring_eye.description": "",
+  "tooltip.relics.scouring_eye.ability.glowing_scour": "Подсвеченный след",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.description": "",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.target": "Цель существует",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.tp_allowed": "Телепорт разрешён",
+  "tooltip.relics.scouring_eye.leveling_source.glowing_scour.title": "",
+  "tooltip.relics.scouring_eye.leveling_source.glowing_scour.description": "+%1$s единиц опыта за каждую активацию способности %2$s.",
+
+  "tooltip.relics.void_vortex_in_bottle.description": "",
+  "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex": "Эндер-вихрь",
+  "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex.description": "",
+  "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.title": "",
+  "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.description": "+%1$s единиц опыта за каждый вихрь, появившийся при помощи способности %2$s.",
+
+  "tooltip.relics.void_cloak.description": "",
+  "tooltip.relics.void_cloak.ability.void_invulnerability": "Неуязвимость к пустоте",
+  "tooltip.relics.void_cloak.ability.void_invulnerability.description": "",
+  "tooltip.relics.void_cloak.ability.void_rune": "Пустотная руна",
+  "tooltip.relics.void_cloak.ability.void_rune.description": "",
+  "tooltip.relics.void_cloak.ability.seismic_zone": "Сейсмическая зона",
+  "tooltip.relics.void_cloak.ability.seismic_zone.description": "",
+  "tooltip.relics.void_cloak.leveling_source.void_rune.title": "",
+  "tooltip.relics.void_cloak.leveling_source.void_rune.description": "+%1$s за каждое попадание пустотной руны, появившейся при помощи способности %2$s.",
+  "tooltip.relics.void_cloak.leveling_source.seismic_zone.title": "",
+  "tooltip.relics.void_cloak.leveling_source.seismic_zone.description": "+%1$s единиц опыта за каждое срабатывание способности %2$s.",
+
+  "tooltip.relics.vacuum_glove.description": "",
+  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown": "Вакуумное замедление",
+  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.description": "",
+  "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.title": "",
+  "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.description": "+%1$s единиц опыта за каждые 10 секунд замедления от способности %2$s, +%1$s за каждых 5 замедленных сущностей.",
+
+  "tooltip.relics.void_bubble.description": "",
+  "tooltip.relics.void_bubble.ability.protective_bubble": "Защитный пузырь",
+  "tooltip.relics.void_bubble.ability.protective_bubble.description": "",
+  "tooltip.relics.void_bubble.leveling_source.protective_bubble.title": "",
+  "tooltip.relics.void_bubble.leveling_source.protective_bubble.description": "+%1$s единиц опыта за каждое срабатывание способности %2$s.",
+
+  "explosion.sub": "Взрыв"
+}
