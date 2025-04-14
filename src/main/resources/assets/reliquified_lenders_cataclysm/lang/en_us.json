@@ -42,5 +42,12 @@
   "tooltip.relics.void_bubble.leveling_source.protective_bubble.title": "Protective Bubble",
   "tooltip.relics.void_bubble.leveling_source.protective_bubble.description": "+%1$s XP for each attack blocked by the %2$s ability.",
 
+  "item.reliquified_lenders_cataclysm.ring_of_the_flame_kindler": "Ring of the Flame Kindler",
+  "tooltip.relics.ring_of_the_flame_kindler.description": "",
+  "tooltip.relics.ring_of_the_flame_kindler.ability.flame_summon": "",
+  "tooltip.relics.ring_of_the_flame_kindler.ability.flame_summon.description": "flame jets max num: %1$s, damage: %2$s, chance: %3$s%",
+  "tooltip.relics.ring_of_the_flame_kindler.leveling_source.flame_summon.title": "",
+  "tooltip.relics.ring_of_the_flame_kindler.leveling_source.flame_summon.description": "",
+
   "explosion.sub": "Explosion"
 }
