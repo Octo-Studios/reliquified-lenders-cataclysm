@@ -5,6 +5,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.Void
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands.VacuumGloveItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm.VoidVortexInBottleItem;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.head.MaskOfRageItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.head.VoidBubbleItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.ring.FlameKindlerRingItem;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,6 +31,8 @@ public class ItemRegistry {
 
     public static final DeferredHolder<Item, FlameKindlerRingItem> FLAME_KINDLER_RING =
             ITEMS.register("ring_of_the_flame_kindler", FlameKindlerRingItem::new);
+    public static final DeferredHolder<Item, MaskOfRageItem> MASK_OF_RAGE =
+            ITEMS.register("mask_of_rage", MaskOfRageItem::new);
 
     public static void register(IEventBus bus) {
         ITEMS.register(bus);

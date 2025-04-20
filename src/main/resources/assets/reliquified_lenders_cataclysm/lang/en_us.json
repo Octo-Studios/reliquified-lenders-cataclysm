@@ -49,5 +49,13 @@
   "tooltip.relics.ring_of_the_flame_kindler.leveling_source.flame_summon.title": "",
   "tooltip.relics.ring_of_the_flame_kindler.leveling_source.flame_summon.description": "",
 
+  "item.reliquified_lenders_cataclysm.mask_of_rage": "Mask of Rage",
+  "tooltip.relics.mask_of_rage.description": "",
+  "tooltip.relics.mask_of_rage.ability.ram_mode": "",
+  "tooltip.relics.mask_of_rage.ability.ram_mode.description": "threshold speed: %1$s blocks/sec, damage: %2$s, effect duration: %3$s sec",
+  "tooltip.relics.mask_of_rage.leveling_source.ram_mode.title": "",
+  "tooltip.relics.mask_of_rage.leveling_source.ram_mode.description": "",
+
+
   "explosion.sub": "Explosion"
 }
