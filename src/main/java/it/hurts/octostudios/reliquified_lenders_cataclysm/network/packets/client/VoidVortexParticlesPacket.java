@@ -1,4 +1,4 @@
-package it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets;
+package it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client;
 
 import io.netty.buffer.ByteBuf;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;

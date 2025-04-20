@@ -4,7 +4,7 @@ import com.github.L_Ender.cataclysm.client.particle.Options.StormParticleOptions
 import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.init.ModSounds;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.EntityRegistry;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.VoidVortexParticlesPacket;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VoidVortexParticlesPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.PacketPlayerMotion;
