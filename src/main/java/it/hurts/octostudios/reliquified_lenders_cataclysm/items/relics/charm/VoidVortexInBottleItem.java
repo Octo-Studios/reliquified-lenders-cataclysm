@@ -44,7 +44,7 @@ public class VoidVortexInBottleItem extends RECItem {
                                 .stat(StatData.builder("damage")
                                         .initialValue(6.0D, 8.0D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
-                                        .formatValue(RECMathUtils::roundDamage)
+                                        .formatValue(RECMathUtils::roundHP)
                                         .build())
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(30D, 25D)
@@ -55,7 +55,7 @@ public class VoidVortexInBottleItem extends RECItem {
                         .build())
                 .leveling(LevelingData.builder()
                         .initialCost(100)
-                            .step(100)
+                        .step(100)
                         .maxLevel(10)
                         .sources(LevelingSourcesData.builder()
                                 .source(LevelingSourceData

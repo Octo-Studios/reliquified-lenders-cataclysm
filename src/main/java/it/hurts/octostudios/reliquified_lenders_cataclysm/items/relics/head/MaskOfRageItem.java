@@ -60,7 +60,7 @@ public class MaskOfRageItem extends RECItem {
                                 .stat(StatData.builder("damage")
                                         .initialValue(4D, 5D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.1D)
-                                        .formatValue(RECMathUtils::roundDamage)
+                                        .formatValue(RECMathUtils::roundHP)
                                         .build())
                                 .stat(StatData.builder("effect_duration")
                                         .initialValue(5D, 7D)

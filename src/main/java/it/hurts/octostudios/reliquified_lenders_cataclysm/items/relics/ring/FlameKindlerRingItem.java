@@ -45,7 +45,7 @@ public class FlameKindlerRingItem extends RECItem {
                                 .stat(StatData.builder("damage")
                                         .initialValue(3D, 4D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.1D)
-                                        .formatValue(RECMathUtils::roundDamage)
+                                        .formatValue(RECMathUtils::roundHP)
                                         .build())
                                 .stat(StatData.builder("chance")
                                         .initialValue(0.25D, 0.3D)

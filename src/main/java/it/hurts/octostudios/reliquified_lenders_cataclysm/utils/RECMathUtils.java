@@ -11,7 +11,7 @@ public class RECMathUtils {
         return MathUtils.round(value, 1);
     }
 
-    public static double roundDamage(double value) {
+    public static double roundHP(double value) {
         return MathUtils.round(value / 2, 1);
     }
 
