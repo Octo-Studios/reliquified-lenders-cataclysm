@@ -1,6 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.init;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.IgnitedShieldEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidShardModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidVortexModifiedEntity;
@@ -41,6 +42,15 @@ public class EntityRegistry {
                             .clientTrackingRange(10)
                             .fireImmune()
                             .build("void_vortex_modified")
+            );
+
+    public static final DeferredHolder<EntityType<?>, EntityType<IgnitedShieldEntity>> IGNITED_SHIELD =
+            ENTITIES.register("ignited_shield", () ->
+                    EntityType.Builder.<IgnitedShieldEntity>of(IgnitedShieldEntity::new, MobCategory.MISC)
+                            .sized(1.0F, 2.0F)
+                            .noSummon()
+                            .fireImmune()
+                            .build("ignited_shield")
             );
 
     public static void register(IEventBus bus) {

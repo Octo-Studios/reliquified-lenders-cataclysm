@@ -2,6 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.init;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VoidCloakItem;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm.FirePlateItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands.VacuumGloveItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm.VoidVortexInBottleItem;
@@ -33,6 +34,8 @@ public class ItemRegistry {
             ITEMS.register("ring_of_the_flame_kindler", FlameKindlerRingItem::new);
     public static final DeferredHolder<Item, MaskOfRageItem> MASK_OF_RAGE =
             ITEMS.register("mask_of_rage", MaskOfRageItem::new);
+    public static final DeferredHolder<Item, FirePlateItem> FIRE_PLATE =
+            ITEMS.register("fire_plate", FirePlateItem::new);
 
     public static void register(IEventBus bus) {
         ITEMS.register(bus);

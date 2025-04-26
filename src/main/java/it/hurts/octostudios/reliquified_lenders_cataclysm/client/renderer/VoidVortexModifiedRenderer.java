@@ -69,6 +69,7 @@ public class VoidVortexModifiedRenderer extends EntityRenderer<VoidVortexModifie
         poseStack.popPose();
     }
 
+    @Override
     public @NotNull ResourceLocation getTextureLocation(@NotNull VoidVortexModifiedEntity entity) {
         return TEXTURE_1;
     }

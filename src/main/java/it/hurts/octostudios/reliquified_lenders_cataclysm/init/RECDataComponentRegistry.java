@@ -16,17 +16,19 @@ public class RECDataComponentRegistry {
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS =
             DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, ReliquifiedLendersCataclysm.MOD_ID);
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> COOLDOWN =
+            registerIntComponent("cooldown");
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> GLOWING_TIME =
             registerIntComponent("glowing_time");
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VOID_RUNE_TIME =
             registerIntComponent("void_rune_time");
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> COOLDOWN =
-            registerIntComponent("cooldown");
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> ATTACK_BLOCKS =
             registerIntComponent("attack_blocks");
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> TARGET_UUID =
             registerStringComponent("target_uuid");
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> SHIELD_UUID =
+            registerStringComponent("shield_uuid");
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> TP_SAFE =
             registerBoolComponent("tp_safe");
@@ -34,10 +36,7 @@ public class RECDataComponentRegistry {
             registerBoolComponent("player_died");
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<List<UUID>>> SLOWED_ENTITIES =
-            DATA_COMPONENTS.register("slowed_entities", () ->
-                    DataComponentType.<List<UUID>>builder()
-                            .persistent(UUIDUtil.CODEC.listOf())
-                            .build());
+            registerUUIDListComponent("slowed_entities");
 
     private static DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> registerIntComponent(String name) {
         return DATA_COMPONENTS.register(name, () ->
@@ -57,6 +56,13 @@ public class RECDataComponentRegistry {
         return DATA_COMPONENTS.register(name, () ->
                 DataComponentType.<Boolean>builder()
                         .persistent(Codec.BOOL)
+                        .build());
+    }
+
+    private static DeferredHolder<DataComponentType<?>, DataComponentType<List<UUID>>> registerUUIDListComponent(String name) {
+        return DATA_COMPONENTS.register(name, () ->
+                DataComponentType.<List<UUID>>builder()
+                        .persistent(UUIDUtil.CODEC.listOf())
                         .build());
     }
 

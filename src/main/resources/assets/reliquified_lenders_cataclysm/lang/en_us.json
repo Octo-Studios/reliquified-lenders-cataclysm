@@ -56,6 +56,14 @@
   "tooltip.relics.mask_of_rage.leveling_source.ram_mode.title": "",
   "tooltip.relics.mask_of_rage.leveling_source.ram_mode.description": "",
 
+  "item.reliquified_lenders_cataclysm.fire_plate": "Fire Plate",
+  "tooltip.relics.fire_plate.description": "",
+  "tooltip.relics.fire_plate.ability.spawn_shield": "",
+  "tooltip.relics.fire_plate.ability.spawn_shield.description": "health: %1$s, regeneration time: %2$s sec, projectiles num: %3$s, damage: %4$s",
+  "tooltip.relics.fire_plate.leveling_source.spawn_shield.title": "",
+  "tooltip.relics.fire_plate.leveling_source.spawn_shield.description": "",
+
+  "entity.reliquified_lenders_cataclysm.ignited_shield": "Ignited Shield",
 
   "explosion.sub": "Explosion"
 }
