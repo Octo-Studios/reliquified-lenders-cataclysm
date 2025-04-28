@@ -3,8 +3,9 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.VolcanoEnergyPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathUtils;
 import it.hurts.sskirillss.relics.api.events.common.ContainerSlotClickEvent;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
@@ -16,30 +17,32 @@ import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
+import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
+import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
-import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LavaCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
@@ -47,12 +50,13 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
-import top.theillusivec4.curios.api.SlotContext;
+import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
+
+import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathRandomUtils.*;
 
 @EventBusSubscriber
 public class VolcanoItem extends RECItem {
@@ -66,17 +70,17 @@ public class VolcanoItem extends RECItem {
                                 .stat(StatData.builder("speed")
                                         .initialValue(2D, 2.5D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.18D)
-                                        .formatValue(RECMathUtils::roundOneDigit)
+                                        .formatValue(MathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatData.builder("consumption")
                                         .initialValue(0.5D, 0.4D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.0875D)
-                                        .formatValue(RECMathUtils::roundThousands)
+                                        .formatValue(MathUtils::roundThousands)
                                         .build())
                                 .stat(StatData.builder("capacity")
                                         .initialValue(3D, 4D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.4D)
-                                        .formatValue(RECMathUtils::roundThousands)
+                                        .formatValue(MathUtils::roundThousands)
                                         .build())
                                 .build())
                         .build())
@@ -104,10 +108,15 @@ public class VolcanoItem extends RECItem {
     }
 
     @Override
-    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
-        if (newStack.getItem() == stack.getItem()) {
-            return;
-        }
+    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext tooltip,
+                                @NotNull List<Component> components, @NotNull TooltipFlag flag) {
+        super.appendHoverText(stack, tooltip, components, flag);
+
+        components.add(
+                Component.translatable("tooltip.reliquified_lenders_cataclysm.volcano").withStyle(ChatFormatting.GOLD)
+                .append(Component.literal(VolcanoItem.getEnergy(stack) + " mB").withStyle(ChatFormatting.YELLOW)));
+
+        components.add(Component.empty());
     }
 
     @SubscribeEvent
@@ -126,17 +135,18 @@ public class VolcanoItem extends RECItem {
             return;
         }
 
-        System.out.println(stacksEquipped);
-
         ItemStack stack = stacksEquipped.getFirst();
-        Iterator<ItemStack> stacksItr = stacksEquipped.iterator();
-        boolean isStackInvalid = stack.isEmpty() || getEnergy(stack) <= 0;
+        Iterator<ItemStack> stacksIterator = stacksEquipped.iterator();
 
-        while (isStackInvalid && stacksItr.hasNext()) {
-            stack = stacksItr.next();
+        while (!isStackValid(stack) && stacksIterator.hasNext()) {
+            stack = stacksIterator.next();
+
+            if (isStackValid(stack)) {
+                break;
+            }
         }
 
-        if (isStackInvalid) {
+        if (!isStackValid(stack)) {
             return;
         }
 
@@ -147,20 +157,32 @@ public class VolcanoItem extends RECItem {
 
         // consume relic energy after each sec of flying
         if (player.tickCount % 20 == 0) {
-            consumeEnergy(stack);
-        }
+            NetworkHandler.sendToServer(new VolcanoEnergyPacket(stacksEquipped.indexOf(stack)));
 
-        player.displayClientMessage(
-                Component.translatable("tooltip.reliquified_lenders_cataclysm.volcano")
-                        .withStyle(ChatFormatting.GOLD)
-                        .append(Component.literal(getEnergy(stack) + " mB")
-                                .withStyle(ChatFormatting.YELLOW)), true);
-
-        if (player.tickCount % 10 == 0) {
             player.playSound(SoundEvents.FIRECHARGE_USE);
         }
 
-        // todo: spawn particles under the player
+        // display amount of remaining lava above hotbar
+//        player.displayClientMessage(
+//                Component.translatable("tooltip.reliquified_lenders_cataclysm.volcano").withStyle(ChatFormatting.GOLD)
+//                        .append(Component.literal(getEnergy(stack) + " mB").withStyle(ChatFormatting.YELLOW)), true);
+
+        spawnVolcanoParticles(player);
+    }
+
+    private static void spawnVolcanoParticles(Player player) {
+        RandomSource random = player.getRandom();
+        Color color = new Color(255, 255 * (int) random.nextFloat(), 0); // somewhere between red & yellow
+
+        player.getCommandSenderWorld()
+                .addParticle(ParticleUtils.constructSimpleSpark(color,
+                0.4F,
+                20 + randomized(random, 10),
+                0.8F + randomized(random, 0.1F)),
+                        player.getX() + randomized(random, 0.5D),
+                        player.getY() + 0.1D,
+                        player.getZ() + randomized(random, 0.5D),
+                        0, 0, 0);
     }
 
     @SubscribeEvent
@@ -169,18 +191,56 @@ public class VolcanoItem extends RECItem {
         Level level = player.getCommandSenderWorld();
         ItemStack stack = event.getItemStack();
 
-        if (level.isClientSide || !(stack.getItem() instanceof VolcanoItem relic)) {
+        if (level.isClientSide || !(stack.getItem() instanceof VolcanoItem) || !player.isCrouching()) {
             return;
         }
 
-        int energy = 0;
-        BlockState state = level.getBlockState(event.getPos());
+        HitResult hitResult = player.pick(8D, 0F, false);
 
-        if (state.is(Blocks.LAVA) || state.getBlock() instanceof LavaCauldronBlock) {
-            energy = 1000;
+        if (!hitResult.getType().equals(HitResult.Type.BLOCK)) {
+            return;
         }
 
-        addEnergy(player, stack, energy);
+        BlockPos lavaPos = getLavaPos(level, (BlockHitResult) hitResult);
+
+        if (lavaPos != null) {
+            if (addEnergy(player, stack, 1000)) {
+                Block blockNew = Blocks.AIR;
+
+                if (level.getBlockState(lavaPos).getBlock() instanceof LavaCauldronBlock) {
+                    blockNew = Blocks.CAULDRON;
+                }
+
+                level.setBlock(lavaPos, blockNew.defaultBlockState(), Block.UPDATE_ALL);
+
+                event.setCanceled(true);
+                event.setCancellationResult(InteractionResult.FAIL);
+
+                level.playSound(null, player.blockPosition(), SoundEvents.LAVA_POP, SoundSource.PLAYERS);
+            }
+        }
+    }
+
+    @Nullable
+    private static BlockPos getLavaPos(Level level, BlockHitResult hitResult) {
+        BlockPos blockPos = hitResult.getBlockPos();
+        List<BlockPos> blockPoses =
+                List.of(blockPos, blockPos.above(), blockPos.below(), blockPos.east(), blockPos.west());
+
+        for (BlockPos blockPosCurrent : blockPoses) {
+            if (isLavaContainerBlock(level, blockPosCurrent)) {
+                return blockPosCurrent;
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean isLavaContainerBlock(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+
+        return state.is(Blocks.LAVA) || state.getFluidState().is(Fluids.LAVA)
+                || state.getBlock() instanceof LavaCauldronBlock;
     }
 
     @SubscribeEvent
@@ -202,8 +262,18 @@ public class VolcanoItem extends RECItem {
             return;
         }
 
-        if (isLavaBucket) {
-            addEnergy(player, slotStack, 1000);
+        if (isLavaBucket && addEnergy(player, slotStack, 1000)) {
+            heldStack.shrink(1);
+
+            ItemStack stackNew = new ItemStack(Items.BUCKET);
+
+            if (!player.getInventory().add(stackNew)) {
+                player.drop(stackNew, false);
+
+                return;
+            }
+
+            event.setCanceled(true);
 
             return;
         }
@@ -213,9 +283,16 @@ public class VolcanoItem extends RECItem {
         for (int i = 0; i < fluidHandlerItem.getTanks(); i++) {
             FluidStack fluidStack = fluidHandlerItem.getFluidInTank(i);
 
-            addEnergy(player, slotStack, fluidStack.getAmount());
-            fluidStack.setAmount(0);
+            if (addEnergy(player, slotStack, fluidStack.getAmount())) {
+                fluidStack.setAmount(0);
+            }
         }
+    }
+
+    // getters & setters
+
+    private static boolean isStackValid(ItemStack stack) {
+        return !stack.isEmpty() && getEnergy(stack) > 0;
     }
 
     private static boolean isItemStoringLava(IFluidHandlerItem item) {
@@ -228,75 +305,34 @@ public class VolcanoItem extends RECItem {
         return false;
     }
 
-    private static void consumeEnergy(ItemStack stack) {
-        stack.set(RECDataComponentRegistry.ENERGY,
-                Math.max(0, getEnergy(stack) - ((VolcanoItem) stack.getItem()).getConsumptionStat(stack)));
-    }
+    private static boolean addEnergy(Player player, ItemStack stack, int value) {
+        int capacity = getCapacityForItem(stack), energy = getEnergy(stack);
 
-    private static void addEnergy(Player player, ItemStack stack, int value) {
-        stack.set(RECDataComponentRegistry.ENERGY, Math.min(getCapacityForItem(stack), getEnergy(stack) + value));
+        if (capacity <= energy) {
+            return false;
+        }
+
+        stack.set(RECDataComponentRegistry.VOLCANO_ENERGY,
+                Math.min(capacity, energy + value));
 
         player.playSound(SoundEvents.LAVA_POP);
+
+        return true;
     }
 
-    private static int getEnergy(ItemStack stack) {
-        return stack.getOrDefault(RECDataComponentRegistry.ENERGY, getCapacityForItem(stack));
+    public static int getEnergy(ItemStack stack) {
+        return stack.getOrDefault(RECDataComponentRegistry.VOLCANO_ENERGY, getCapacityForItem(stack));
     }
 
     private static int getCapacityForItem(ItemStack stack) {
         return ((VolcanoItem) stack.getItem()).getCapacityStat(stack);
     }
 
-    private int getConsumptionStat(ItemStack stack) {
-        return (int) getStatValue(stack, ABILITY_ID, "consumption") * 1000;
+    public int getConsumptionStat(ItemStack stack) {
+        return (int) (getStatValue(stack, ABILITY_ID, "consumption") * 1000);
     }
 
     private int getCapacityStat(ItemStack stack) {
-        return (int) getStatValue(stack, ABILITY_ID, "capacity") * 1000;
+        return (int) (getStatValue(stack, ABILITY_ID, "capacity") * 1000);
     }
-
-//    @Override
-//    public @NotNull Optional<TooltipComponent> getTooltipImage(@NotNull ItemStack stack) {
-//        return Optional.of(new VolcanoTooltip(getEnergyRounded(stack)));
-//    }
-//
-//    public static class VolcanoTooltip implements TooltipComponent {
-//        public final MutableComponent tooltipFirst =
-//                Component.translatable("tooltip.reliquified_lenders_cataclysm.volcano");
-//        public final MutableComponent tooltipSecond;
-//
-//        public VolcanoTooltip(String tooltipInput) {
-//            this.tooltipSecond = Component.literal(tooltipInput + " mB").withStyle(ChatFormatting.YELLOW);
-//        }
-//
-//        public MutableComponent get() {
-//            return tooltipFirst.withStyle(ChatFormatting.GOLD).append(tooltipSecond);
-//        }
-//    }
-//
-//    @OnlyIn(Dist.CLIENT)
-//    public static class VolcanoClientTooltip implements ClientTooltipComponent {
-//        private final VolcanoTooltip tooltip;
-//
-//        public VolcanoClientTooltip(VolcanoTooltip tooltip) {
-//            this.tooltip = tooltip;
-//        }
-//
-//        @Override
-//        public int getHeight() {
-//            return 10;
-//        }
-//
-//        @Override
-//        public int getWidth(@NotNull Font font) {
-//            return 100;
-//        }
-//
-//        @Override
-//        public void renderText(@NotNull Font font, int x, int y,
-//                               @NotNull Matrix4f mx, MultiBufferSource.@NotNull BufferSource buffer) {
-//            font.drawInBatch(tooltip.get(), x, y, 0xFFFFFF, false, mx, buffer,
-//                    Font.DisplayMode.NORMAL, 0, (int) (LightTexture.pack(15, 15)));
-//        }
-//    }
 }

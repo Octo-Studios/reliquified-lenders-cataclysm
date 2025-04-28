@@ -4,6 +4,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VacuumGloveParticlesPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VoidVortexMotionPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VoidVortexParticlesPacket;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.VolcanoEnergyPacket;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -25,5 +26,7 @@ public class RECNetworkHandler {
 
         registrar.playToServer(MaskOfRageMotionPacket.TYPE, MaskOfRageMotionPacket.STREAM_CODEC,
                 MaskOfRageMotionPacket::handle);
+        registrar.playToServer(VolcanoEnergyPacket.TYPE, VolcanoEnergyPacket.STREAM_CODEC,
+                VolcanoEnergyPacket::handle);
     }
 }
