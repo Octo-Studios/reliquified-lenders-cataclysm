@@ -1,6 +1,8 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.entities;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.EntityRegistry;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
@@ -21,6 +23,8 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
+@Getter
+@Setter
 public class IgnitedShieldEntity extends Entity {
     protected static final EntityDataAccessor<Optional<UUID>> OWNER_UUID =
             SynchedEntityData.defineId(IgnitedShieldEntity.class, EntityDataSerializers.OPTIONAL_UUID);
@@ -29,6 +33,8 @@ public class IgnitedShieldEntity extends Entity {
 
     protected static final EntityDataAccessor<Float> HEALTH =
             SynchedEntityData.defineId(IgnitedShieldEntity.class, EntityDataSerializers.FLOAT);
+
+    private long ticks;
 
     public IgnitedShieldEntity(EntityType<?> type, Level level) {
         super(type, level);
@@ -65,11 +71,11 @@ public class IgnitedShieldEntity extends Entity {
             return;
         }
 
-        float angle = getAngle() + 4.0F;
-
-        if (angle >= 360F) {
-            angle -= 360F;
-        }
+//        float angle = getAngle() + 4.0F;
+//
+//        if (angle >= 360F) {
+//            angle -= 360F;
+//        }
 
 //        List<IgnitedShieldEntity> shieldsIntersecting =
 //                level().getEntities(this, getBoundingBox()).stream()
@@ -77,15 +83,27 @@ public class IgnitedShieldEntity extends Entity {
 //                        .filter(Objects::nonNull).toList();
 //
 //        for (IgnitedShieldEntity shieldOther : shieldsIntersecting) {
-//            angle -= 4F;
+//            shieldOther.setAngle(shieldOther.getAngle() - 4F);
 //        }
 
-        double angleRad = Math.toRadians(angle), radius = 2.0D;
+        double elapsedTicks = (level().getGameTime() - getTicks());
+        float speed = 4F;
+        float angle = (float) (elapsedTicks * speed);
+        double angleRad = Math.toRadians(angle);
+        double radius = 2.0D;
+
         double x = Math.cos(angleRad) * radius;
         double z = Math.sin(angleRad) * radius;
 
         setPos(owner.getX() + x, owner.getY(), owner.getZ() + z);
         setAngle(angle);
+    }
+
+    @Override
+    public void onAddedToLevel() {
+        super.onAddedToLevel();
+
+        setTicks(level().getGameTime());
     }
 
     // entity data

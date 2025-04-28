@@ -26,15 +26,20 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import top.theillusivec4.curios.api.SlotContext;
 
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @EventBusSubscriber
@@ -183,6 +188,14 @@ public class FirePlateItem extends RECItem {
         LivingEntity entity = slotContext.entity();
         Level level = entity.getCommandSenderWorld();
 
+        if (stack.equals(newStack)) {
+            IgnitedShieldEntity shield = getShield(level, stack);
+
+            if (shield != null) {
+                shield.remove(Entity.RemovalReason.DISCARDED);
+            }
+        }
+
         if (level.isClientSide || newStack.getItem() == stack.getItem()) {
             return;
         }
@@ -195,13 +208,43 @@ public class FirePlateItem extends RECItem {
     }
 
     @SubscribeEvent
-    public static void onLivingDamage(LivingIncomingDamageEvent event) {
-        LivingEntity entity = event.getEntity();
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.FIRE_PLATE.get());
+    public static void onPlayerTick(PlayerTickEvent.Pre event) {
+        Player player = event.getEntity();
+        Level level = player.getCommandSenderWorld();
 
-        if (stack.isEmpty()) {
+        if (level.isClientSide) {
             return;
         }
+
+        List<IgnitedShieldEntity> shieldsAround =
+                level.getEntities(player, new AABB(player.blockPosition()).inflate(4D)).stream()
+                        .map(entity -> entity instanceof IgnitedShieldEntity shield && shield.getOwner() != null
+                                && shield.getOwner().equals(player) ? shield : null)
+                        .filter(Objects::nonNull).toList();
+        List<ItemStack> stacksEquipped = EntityUtils.findEquippedCurios(player, ItemRegistry.FIRE_PLATE.get());
+
+        for (IgnitedShieldEntity shield : shieldsAround) {
+            boolean isShieldBounded = false;
+
+            for (ItemStack stack : stacksEquipped) {
+                IgnitedShieldEntity shieldOther = ((FirePlateItem) stack.getItem()).getShield(level, stack);
+
+                if (shieldOther != null && shieldOther.equals(shield)) {
+                    isShieldBounded = true;
+
+                    break;
+                }
+            }
+
+            if (!isShieldBounded) {
+                shield.remove(Entity.RemovalReason.DISCARDED);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingDamage(LivingIncomingDamageEvent event) {
+        LivingEntity entity = event.getEntity();
 
         Level level = entity.getCommandSenderWorld();
 
@@ -209,24 +252,30 @@ public class FirePlateItem extends RECItem {
             return;
         }
 
-        FirePlateItem relic = ((FirePlateItem) stack.getItem());
-        IgnitedShieldEntity shield = relic.getShield(level, stack);
+        for (ItemStack stack : EntityUtils.findEquippedCurios(entity, ItemRegistry.FIRE_PLATE.get())) {
+            if (stack.isEmpty()) {
+                continue;
+            }
 
-        if (shield == null || relic.getCooldown(stack) > 0
-                || !(event.getSource().getDirectEntity() instanceof LivingEntity sourceEntity)) {
-            return;
-        }
+            FirePlateItem relic = ((FirePlateItem) stack.getItem());
+            IgnitedShieldEntity shield = relic.getShield(level, stack);
 
-        Vec3 entityPos = entity.position();
-        Vec3 directionVector = shield.position().subtract(entityPos).normalize();
-        double dotProduct = sourceEntity.position().subtract(entityPos).normalize().dot(directionVector);
+            if (shield == null || relic.getCooldown(stack) > 0
+                    || !(event.getSource().getDirectEntity() instanceof LivingEntity sourceEntity)) {
+                continue;
+            }
 
-        // block the attack if it was from the shield side
-        if (dotProduct > 0.0D) {
-            shield.setHealth(shield.getHealth() - 1F);
-            event.setCanceled(true);
+            Vec3 entityPos = entity.position();
+            Vec3 directionVector = shield.position().subtract(entityPos).normalize();
+            double dotProduct = sourceEntity.position().subtract(entityPos).normalize().dot(directionVector);
 
-            relic.playShieldSound(shield, SoundEvents.SHIELD_BLOCK);
+            // block the attack if it was from the shield side
+            if (dotProduct > 0.0D) {
+                shield.setHealth(shield.getHealth() - 1F);
+                event.setCanceled(true);
+
+                relic.playShieldSound(shield, SoundEvents.SHIELD_BLOCK);
+            }
         }
     }
 
