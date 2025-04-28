@@ -3,7 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.ring;
 import com.github.L_Ender.cataclysm.entity.projectile.Flame_Jet_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathUtils;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
@@ -15,7 +15,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
-import it.hurts.sskirillss.relics.utils.MathUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -40,17 +39,17 @@ public class FlameKindlerRingItem extends RECItem {
                                 .stat(StatData.builder("jets")
                                         .initialValue(3D, 4D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.3D)
-                                        .formatValue(RECMathUtils::roundInt)
+                                        .formatValue(MathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("damage")
                                         .initialValue(3D, 4D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.1D)
-                                        .formatValue(RECMathUtils::roundHP)
+                                        .formatValue(MathUtils::roundHP)
                                         .build())
                                 .stat(StatData.builder("chance")
                                         .initialValue(0.25D, 0.3D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.167D)
-                                        .formatValue(RECMathUtils::roundPercents)
+                                        .formatValue(MathUtils::roundPercents)
                                         .build())
                                 .build())
                         .build())
@@ -89,7 +88,7 @@ public class FlameKindlerRingItem extends RECItem {
         }
 
         if (player.getRandom().nextDouble() <= getChanceStat(stack)) {
-            int jetsNum = MathUtils.randomBetween(new Random(), 1, getJetsStat(stack));
+            int jetsNum = it.hurts.sskirillss.relics.utils.MathUtils.randomBetween(new Random(), 1, getJetsStat(stack));
             double inaccuracy = 0.1D * jetsNum; // jets summon area depends on the num of jets
             Vec3 motion = target.getDeltaMovement();
 
@@ -106,7 +105,7 @@ public class FlameKindlerRingItem extends RECItem {
     }
 
     private static double randomizedAround(double inaccuracy) {
-        return MathUtils.randomBetween(new Random(), -1.0D - inaccuracy, 1.0D + inaccuracy);
+        return it.hurts.sskirillss.relics.utils.MathUtils.randomBetween(new Random(), -1.0D - inaccuracy, 1.0D + inaccuracy);
     }
 
     private static int getJetsStat(ItemStack stack) {

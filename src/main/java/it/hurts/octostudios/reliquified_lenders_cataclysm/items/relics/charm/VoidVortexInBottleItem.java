@@ -6,7 +6,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentR
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathUtils;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
@@ -39,17 +39,17 @@ public class VoidVortexInBottleItem extends RECItem {
                                 .stat(StatData.builder("height")
                                         .initialValue(3D, 4D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.075D)
-                                        .formatValue(RECMathUtils::roundInt)
+                                        .formatValue(MathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("damage")
                                         .initialValue(6.0D, 8.0D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
-                                        .formatValue(RECMathUtils::roundHP)
+                                        .formatValue(MathUtils::roundHP)
                                         .build())
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(30D, 25D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.06D)
-                                        .formatValue(RECMathUtils::roundOneDigit)
+                                        .formatValue(MathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())

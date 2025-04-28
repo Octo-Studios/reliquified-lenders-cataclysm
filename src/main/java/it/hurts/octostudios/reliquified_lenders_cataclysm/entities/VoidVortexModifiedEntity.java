@@ -6,6 +6,7 @@ import com.github.L_Ender.cataclysm.init.ModSounds;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.EntityRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VoidVortexParticlesPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathRandomUtils;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.PacketPlayerMotion;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
@@ -285,17 +286,16 @@ public class VoidVortexModifiedEntity extends Entity {
                 0.8F + randomized(0.1F));
     }
 
-
     public float randomized(float value) {
-        return value * getRandom().nextFloat();
+        return MathRandomUtils.randomized(getRandom(), value);
     }
 
     public double randomized(double value) {
-        return value * getRandom().nextDouble();
+        return MathRandomUtils.randomized(getRandom(), value);
     }
 
     public int randomized(int value) {
-        return value * getRandom().nextInt();
+        return MathRandomUtils.randomized(getRandom(), value);
     }
 
     // entity data

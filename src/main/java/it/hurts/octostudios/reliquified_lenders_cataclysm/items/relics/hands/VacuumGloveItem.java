@@ -5,7 +5,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VacuumGloveParticlesPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathUtils;
 import it.hurts.sskirillss.relics.init.DataComponentRegistry;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
@@ -45,12 +45,12 @@ public class VacuumGloveItem extends RECItem {
                                 .stat(StatData.builder("slowdown")
                                         .initialValue(0.28D, 0.34D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
-                                        .formatValue(RECMathUtils::roundPercents)
+                                        .formatValue(MathUtils::roundPercents)
                                         .build())
                                 .stat(StatData.builder("radius")
                                         .initialValue(6D, 6.5D)
                                         .upgradeModifier(UpgradeOperation.ADD, 0.35D)
-                                        .formatValue(RECMathUtils::roundInt)
+                                        .formatValue(MathUtils::roundInt)
                                         .build())
                                 .build())
                         .build())

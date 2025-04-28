@@ -6,7 +6,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathUtils;
 import it.hurts.sskirillss.relics.init.DataComponentRegistry;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
@@ -49,22 +49,22 @@ public class FirePlateItem extends RECItem {
                                 .stat(StatData.builder("health")
                                         .initialValue(4D, 6D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.233D)
-                                        .formatValue(RECMathUtils::roundHP)
+                                        .formatValue(MathUtils::roundHP)
                                         .build())
                                 .stat(StatData.builder("regeneration_time")
                                         .initialValue(60D, 55D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.0722D)
-                                        .formatValue(RECMathUtils::roundInt)
+                                        .formatValue(MathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("projectiles")
                                         .initialValue(8D, 10D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.22D)
-                                        .formatValue(RECMathUtils::roundOneDigit)
+                                        .formatValue(MathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatData.builder("damage")
                                         .initialValue(1D, 2D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.65D)
-                                        .formatValue(RECMathUtils::roundHP)
+                                        .formatValue(MathUtils::roundHP)
                                         .build())
                                 .build())
                         .build())
