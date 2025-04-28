@@ -47,28 +47,28 @@
   "tooltip.relics.ring_of_the_flame_kindler.ability.flame_summon": "",
   "tooltip.relics.ring_of_the_flame_kindler.ability.flame_summon.description": "flame jets max num: %1$s, damage: %2$s, chance: %3$s%",
   "tooltip.relics.ring_of_the_flame_kindler.leveling_source.flame_summon.title": "",
-  "tooltip.relics.ring_of_the_flame_kindler.leveling_source.flame_summon.description": "",
+  "tooltip.relics.ring_of_the_flame_kindler.leveling_source.flame_summon.description": "+%1$s XP for each activation of the %2$s ability.",
 
   "item.reliquified_lenders_cataclysm.mask_of_rage": "Mask of Rage",
   "tooltip.relics.mask_of_rage.description": "",
   "tooltip.relics.mask_of_rage.ability.ram_mode": "",
   "tooltip.relics.mask_of_rage.ability.ram_mode.description": "threshold speed: %1$s blocks/sec, damage: %2$s, effect duration: %3$s sec",
   "tooltip.relics.mask_of_rage.leveling_source.ram_mode.title": "",
-  "tooltip.relics.mask_of_rage.leveling_source.ram_mode.description": "",
+  "tooltip.relics.mask_of_rage.leveling_source.ram_mode.description": "+%1$s XP for each mob pushed away with the %2$s ability.",
 
   "item.reliquified_lenders_cataclysm.fire_plate": "Fire Plate",
   "tooltip.relics.fire_plate.description": "",
   "tooltip.relics.fire_plate.ability.spawn_shield": "",
   "tooltip.relics.fire_plate.ability.spawn_shield.description": "health: %1$s, regeneration time: %2$s sec, projectiles num: %3$s, damage: %4$s",
   "tooltip.relics.fire_plate.leveling_source.spawn_shield.title": "",
-  "tooltip.relics.fire_plate.leveling_source.spawn_shield.description": "",
+  "tooltip.relics.fire_plate.leveling_source.spawn_shield.description": "+%1$s XP for each attack blocked by the %2$s ability.",
 
   "item.reliquified_lenders_cataclysm.volcano": "Volcano",
   "tooltip.relics.volcano.description": "",
   "tooltip.relics.volcano.ability.jetpack": "",
   "tooltip.relics.volcano.ability.jetpack.description": "speed: %1$s blocks/sec, consumption: %2$s, capacity: %3$s",
   "tooltip.relics.volcano.leveling_source.jetpack.title": "",
-  "tooltip.relics.volcano.leveling_source.jetpack.description": "",
+  "tooltip.relics.volcano.leveling_source.jetpack.description": "+%1$s XP for every 5 seconds flied with the %2$s ability.",
 
   "tooltip.reliquified_lenders_cataclysm.volcano": "Amount of lava: ",
 

@@ -245,7 +245,6 @@ public class FirePlateItem extends RECItem {
     @SubscribeEvent
     public static void onLivingDamage(LivingIncomingDamageEvent event) {
         LivingEntity entity = event.getEntity();
-
         Level level = entity.getCommandSenderWorld();
 
         if (level.isClientSide) {
@@ -275,6 +274,8 @@ public class FirePlateItem extends RECItem {
                 event.setCanceled(true);
 
                 relic.playShieldSound(shield, SoundEvents.SHIELD_BLOCK);
+
+                relic.spreadRelicExperience(entity, stack, 1);
             }
         }
     }

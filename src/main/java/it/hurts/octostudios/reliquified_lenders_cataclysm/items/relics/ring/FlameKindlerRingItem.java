@@ -101,6 +101,8 @@ public class FlameKindlerRingItem extends RECItem {
                 level.addFreshEntity(new Flame_Jet_Entity(level,
                         x, y, z, target.getYRot(), i + 2, getDamageStat(stack), player));
             }
+
+            ((FlameKindlerRingItem) stack.getItem()).spreadRelicExperience(player, stack, 1);
         }
     }
 

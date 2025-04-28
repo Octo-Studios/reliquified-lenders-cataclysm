@@ -162,6 +162,10 @@ public class VolcanoItem extends RECItem {
             player.playSound(SoundEvents.FIRECHARGE_USE);
         }
 
+        if (player.tickCount % 100 == 0) {
+            ((VolcanoItem) stack.getItem()).spreadRelicExperience(player, stack, 1);
+        }
+
         // display amount of remaining lava above hotbar
 //        player.displayClientMessage(
 //                Component.translatable("tooltip.reliquified_lenders_cataclysm.volcano").withStyle(ChatFormatting.GOLD)

@@ -127,6 +127,8 @@ public class MaskOfRageItem extends RECItem {
             for (LivingEntity entityOther : entitiesColliding) {
                 NetworkHandler.sendToServer(new MaskOfRageMotionPacket(entityOther.getId(),
                         motion.x, motion.z, getDamageStat(stack), getEffectDurationStat(stack)));
+
+                spreadRelicExperience(entity, stack, 1);
             }
         } else {
             setRamModeTicks(0);
