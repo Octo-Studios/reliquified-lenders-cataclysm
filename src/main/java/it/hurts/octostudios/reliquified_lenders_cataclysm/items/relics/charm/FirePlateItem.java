@@ -28,6 +28,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -193,7 +194,6 @@ public class FirePlateItem extends RECItem {
         }
     }
 
-    // todo: block the attack from the shield side only
     @SubscribeEvent
     public static void onLivingDamage(LivingIncomingDamageEvent event) {
         LivingEntity entity = event.getEntity();
@@ -212,14 +212,22 @@ public class FirePlateItem extends RECItem {
         FirePlateItem relic = ((FirePlateItem) stack.getItem());
         IgnitedShieldEntity shield = relic.getShield(level, stack);
 
-        if (shield == null || relic.getCooldown(stack) > 0) {
+        if (shield == null || relic.getCooldown(stack) > 0
+                || !(event.getSource().getDirectEntity() instanceof LivingEntity sourceEntity)) {
             return;
         }
 
-        shield.setHealth(shield.getHealth() - 1F);
+        Vec3 entityPos = entity.position();
+        Vec3 directionVector = shield.position().subtract(entityPos).normalize();
+        double dotProduct = sourceEntity.position().subtract(entityPos).normalize().dot(directionVector);
 
-        event.setCanceled(true);
-        relic.playShieldSound(shield, SoundEvents.SHIELD_BLOCK);
+        // block the attack if it was from the shield side
+        if (dotProduct > 0.0D) {
+            shield.setHealth(shield.getHealth() - 1F);
+            event.setCanceled(true);
+
+            relic.playShieldSound(shield, SoundEvents.SHIELD_BLOCK);
+        }
     }
 
     private void playShieldSound(IgnitedShieldEntity shield, SoundEvent soundEvent) {

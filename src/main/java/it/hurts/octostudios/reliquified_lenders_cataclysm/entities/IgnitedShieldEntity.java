@@ -59,11 +59,26 @@ public class IgnitedShieldEntity extends Entity {
             return;
         }
 
+        if (getHealth() <= 0) {
+            remove(RemovalReason.DISCARDED);
+
+            return;
+        }
+
         float angle = getAngle() + 4.0F;
 
         if (angle >= 360F) {
             angle -= 360F;
         }
+
+//        List<IgnitedShieldEntity> shieldsIntersecting =
+//                level().getEntities(this, getBoundingBox()).stream()
+//                        .map(entity -> entity instanceof IgnitedShieldEntity shieldEntity ? shieldEntity : null)
+//                        .filter(Objects::nonNull).toList();
+//
+//        for (IgnitedShieldEntity shieldOther : shieldsIntersecting) {
+//            angle -= 4F;
+//        }
 
         double angleRad = Math.toRadians(angle), radius = 2.0D;
         double x = Math.cos(angleRad) * radius;
