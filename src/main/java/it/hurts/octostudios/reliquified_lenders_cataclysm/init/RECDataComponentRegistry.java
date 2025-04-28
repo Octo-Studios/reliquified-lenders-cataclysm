@@ -24,6 +24,8 @@ public class RECDataComponentRegistry {
             registerIntComponent("void_rune_time");
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> ATTACK_BLOCKS =
             registerIntComponent("attack_blocks");
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> ENERGY =
+            registerIntComponent("energy");
 
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> TARGET_UUID =
             registerStringComponent("target_uuid");

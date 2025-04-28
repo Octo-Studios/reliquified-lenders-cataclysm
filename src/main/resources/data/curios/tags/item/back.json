@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "reliquified_lenders_cataclysm:void_cloak"
+    "reliquified_lenders_cataclysm:void_cloak",
+    "reliquified_lenders_cataclysm:volcano"
   ]
 }

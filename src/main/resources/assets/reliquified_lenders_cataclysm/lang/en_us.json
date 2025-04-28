@@ -63,6 +63,15 @@
   "tooltip.relics.fire_plate.leveling_source.spawn_shield.title": "",
   "tooltip.relics.fire_plate.leveling_source.spawn_shield.description": "",
 
+  "item.reliquified_lenders_cataclysm.volcano": "Volcano",
+  "tooltip.relics.volcano.description": "",
+  "tooltip.relics.volcano.ability.jetpack": "",
+  "tooltip.relics.volcano.ability.jetpack.description": "speed: %1$s blocks/sec, consumption: %2$s, capacity: %3$s",
+  "tooltip.relics.volcano.leveling_source.jetpack.title": "",
+  "tooltip.relics.volcano.leveling_source.jetpack.description": "",
+
+  "tooltip.reliquified_lenders_cataclysm.volcano": "Amount of lava: ",
+
   "entity.reliquified_lenders_cataclysm.ignited_shield": "Ignited Shield",
 
   "explosion.sub": "Explosion"
