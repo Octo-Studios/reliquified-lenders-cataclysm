@@ -3,6 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.head;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.MaskOfRageMotionPacket;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECMathUtils;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
@@ -52,7 +53,7 @@ public class MaskOfRageItem extends RECItem {
         return RelicData.builder()
                 .abilities(AbilitiesData.builder()
                         .ability(AbilityData.builder(ABILITY_ID)
-                                .stat(StatData.builder("threshold_speed")
+                                .stat(StatData.builder("speed")
                                         .initialValue(7D, 6D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.033D)
                                         .formatValue(RECMathUtils::roundOneDigit)
@@ -106,7 +107,7 @@ public class MaskOfRageItem extends RECItem {
             return;
         }
 
-        if (getEntitySpeed(entity) >= getSpeedStat(stack)) {
+        if (getEntitySpeed(entity) >= ItemUtils.getSpeedStat(stack, ABILITY_ID)) {
             setRamModeTicks(getRamModeTicks() + 1);
 
             AABB entityBox = entity.getBoundingBox();
@@ -189,10 +190,6 @@ public class MaskOfRageItem extends RECItem {
                 tag.remove("PushDamage");
             }
         }
-    }
-
-    private static float getSpeedStat(ItemStack stack) {
-        return (float) (((MaskOfRageItem) stack.getItem()).getStatValue(stack, ABILITY_ID, "threshold_speed") / 20);
     }
 
     private static float getDamageStat(ItemStack stack) {

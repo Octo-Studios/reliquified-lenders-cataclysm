@@ -18,4 +18,8 @@ public class RECMathUtils {
     public static double roundPercents(double value) {
         return MathUtils.round(value * 100, 0);
     }
+
+    public static int roundThousands(double value) {
+        return (int) MathUtils.round(value * 1000, 0);
+    }
 }

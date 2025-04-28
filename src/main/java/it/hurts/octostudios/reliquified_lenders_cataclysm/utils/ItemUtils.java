@@ -54,4 +54,8 @@ public class ItemUtils {
     public static int getCooldownStat(ItemStack stack, String ability) {
         return getTickStat((IRelicItem) stack.getItem(), stack, ability, "cooldown");
     }
+
+    public static float getSpeedStat(ItemStack stack, String ability) {
+        return (float) (((IRelicItem) stack.getItem()).getStatValue(stack, ability, "speed") / 20);
+    }
 }
