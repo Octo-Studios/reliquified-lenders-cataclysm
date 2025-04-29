@@ -4,7 +4,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.MaskOfRageMotionPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
@@ -56,17 +56,17 @@ public class MaskOfRageItem extends RECItem {
                                 .stat(StatData.builder("speed")
                                         .initialValue(7D, 6D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.033D)
-                                        .formatValue(MathUtils::roundOneDigit)
+                                        .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatData.builder("damage")
                                         .initialValue(4D, 5D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.1D)
-                                        .formatValue(MathUtils::roundHP)
+                                        .formatValue(RECMathUtils::roundHP)
                                         .build())
                                 .stat(StatData.builder("effect_duration")
                                         .initialValue(5D, 7D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.329D)
-                                        .formatValue(MathUtils::roundOneDigit)
+                                        .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())

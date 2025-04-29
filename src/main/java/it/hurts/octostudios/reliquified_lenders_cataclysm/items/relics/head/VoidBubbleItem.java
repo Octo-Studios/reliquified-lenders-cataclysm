@@ -5,7 +5,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
@@ -49,22 +49,22 @@ public class VoidBubbleItem extends RECItem {
                                 .stat(StatData.builder("attack_blocks")
                                         .initialValue(2D, 3D)
                                         .upgradeModifier(UpgradeOperation.ADD, 0.5D)
-                                        .formatValue(MathUtils::roundInt)
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("projectiles")
                                         .initialValue(16D, 20D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.22D)
-                                        .formatValue(MathUtils::roundInt)
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("damage")
                                         .initialValue(0.4D, 0.6D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.56D)
-                                        .formatValue(MathUtils::roundHP)
+                                        .formatValue(RECMathUtils::roundHP)
                                         .build())
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(30D, 25D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.068D)
-                                        .formatValue(MathUtils::roundOneDigit)
+                                        .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())

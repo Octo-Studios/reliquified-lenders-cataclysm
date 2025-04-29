@@ -6,7 +6,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentR
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastType;
@@ -50,12 +50,12 @@ public class VoidCloakItem extends RECItem {
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(20D, 16D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.05625D)
-                                        .formatValue(MathUtils::roundOneDigit)
+                                        .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatData.builder("damage")
                                         .initialValue(1.4D, 1.76D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.525D)
-                                        .formatValue(MathUtils::roundHP)
+                                        .formatValue(RECMathUtils::roundHP)
                                         .build())
                                 .build())
                         .ability(AbilityData.builder("seismic_zone")
@@ -63,17 +63,17 @@ public class VoidCloakItem extends RECItem {
                                 .stat(StatData.builder("radius")
                                         .initialValue(2D, 3D)
                                         .upgradeModifier(UpgradeOperation.ADD, 0.5D)
-                                        .formatValue(MathUtils::roundInt)
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("waves")
                                         .initialValue(2D, 3D)
                                         .upgradeModifier(UpgradeOperation.ADD, 0.5D)
-                                        .formatValue(MathUtils::roundInt)
+                                        .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatData.builder("damage")
                                         .initialValue(1.4D, 1.76D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.525D)
-                                        .formatValue(MathUtils::roundHP)
+                                        .formatValue(RECMathUtils::roundHP)
                                         .build())
                                 .build())
                         .build())
