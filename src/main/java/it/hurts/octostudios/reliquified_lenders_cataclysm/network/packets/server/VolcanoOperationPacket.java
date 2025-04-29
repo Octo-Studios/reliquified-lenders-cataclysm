@@ -17,11 +17,11 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
-public record VolcanoEnergyPacket(int stackIndex)
+public record VolcanoOperationPacket(int stackIndex, int operationId, boolean toggled)
         implements CustomPacketPayload {
-    public static final StreamCodec<ByteBuf, VolcanoEnergyPacket> STREAM_CODEC =
-            StreamCodec.ofMember(VolcanoEnergyPacket::encode, VolcanoEnergyPacket::decode);
-    public static final Type<VolcanoEnergyPacket> TYPE =
+    public static final StreamCodec<ByteBuf, VolcanoOperationPacket> STREAM_CODEC =
+            StreamCodec.ofMember(VolcanoOperationPacket::encode, VolcanoOperationPacket::decode);
+    public static final Type<VolcanoOperationPacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(ReliquifiedLendersCataclysm.MOD_ID,
                     "volcano_energy"));
 
@@ -30,12 +30,14 @@ public record VolcanoEnergyPacket(int stackIndex)
         return TYPE;
     }
 
-    public static VolcanoEnergyPacket decode(ByteBuf buf) {
-        return new VolcanoEnergyPacket(buf.readInt());
+    public static VolcanoOperationPacket decode(ByteBuf buf) {
+        return new VolcanoOperationPacket(buf.readInt(), buf.readInt(), buf.readBoolean());
     }
 
     public void encode(ByteBuf buf) {
         buf.writeInt(stackIndex);
+        buf.writeInt(operationId);
+        buf.writeBoolean(toggled);
     }
 
     public void handle(IPayloadContext ctx) {
@@ -44,11 +46,15 @@ public record VolcanoEnergyPacket(int stackIndex)
             Level level = player.getCommandSenderWorld();
             ItemStack stack = EntityUtils.findEquippedCurios(player, ItemRegistry.VOLCANO.get()).get(stackIndex);
 
-            if (level.isClientSide() || stack.isEmpty()) {
+            if (stack.isEmpty()) {
                 return;
             }
 
-            consumeEnergy(stack, level, player);
+            switch (operationId) {
+                case 0 -> VolcanoItem.setToggled(stack, toggled);
+                case 1 -> consumeEnergy(stack, level, player);
+                case 2 -> ((VolcanoItem) stack.getItem()).spreadRelicExperience(player, stack, 1);
+            }
         });
     }
 
