@@ -59,7 +59,7 @@ public class VoidBubbleItem extends RECItem {
                                 .stat(StatData.builder("damage")
                                         .initialValue(0.4D, 0.6D)
                                         .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.56D)
-                                        .formatValue(RECMathUtils::roundHP)
+                                        .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatData.builder("cooldown")
                                         .initialValue(30D, 25D)

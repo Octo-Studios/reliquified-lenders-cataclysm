@@ -11,10 +11,6 @@ public class RECMathUtils {
         return MathUtils.round(value, 1);
     }
 
-    public static double roundHP(double value) {
-        return MathUtils.round(value / 2, 1);
-    }
-
     public static double roundPercents(double value) {
         return MathUtils.round(value * 100, 0);
     }
