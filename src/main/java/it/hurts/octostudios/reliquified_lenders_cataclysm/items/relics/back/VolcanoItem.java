@@ -101,8 +101,13 @@ public class VolcanoItem extends RECItem {
                         .build())
                 .style(StyleData.builder()
                         .tooltip(TooltipData.builder()
+                                .borderTop(0xFFFFDF52)
+                                .borderBottom(0xFFD87F12)
+                                .textured(true)
                                 .build())
                         .beams(BeamsData.builder()
+                                .startColor(0xFFCA7C00)
+                                .endColor(0x00713A44)
                                 .build())
                         .build())
                 .build();
