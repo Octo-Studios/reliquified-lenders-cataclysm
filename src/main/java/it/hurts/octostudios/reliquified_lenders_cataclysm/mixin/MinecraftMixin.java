@@ -35,7 +35,7 @@ public class MinecraftMixin {
         }
 
         if (livingEntity.getUUID().toString().equals(getTargetUUID(stack))
-                && ScouringEyeUtils.isGlowingTimeTicking(stack, livingEntity.level())) {
+                && ScouringEyeUtils.isGlowingTimeTicking(livingEntity, stack, livingEntity.level())) {
             cir.setReturnValue(true);
         }
     }

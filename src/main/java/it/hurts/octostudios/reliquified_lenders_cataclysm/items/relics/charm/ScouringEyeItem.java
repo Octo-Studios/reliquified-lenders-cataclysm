@@ -5,19 +5,20 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
-import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils;
+import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
+import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastStage;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastType;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.PredicateType;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemShape;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
-import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootData;
+import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
+import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
+import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.core.BlockPos;
@@ -40,52 +41,41 @@ import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.Sc
 @EventBusSubscriber
 public class ScouringEyeItem extends RECItem {
     @Override
-    public RelicData constructDefaultRelicData() {
-        return RelicData.builder()
-                .abilities(AbilitiesData.builder()
-                        .ability(AbilityData.builder(ABILITY_ID)
-                                .active(CastData.builder()
+    public RelicTemplate constructDefaultRelicTemplate() {
+        return RelicTemplate.builder()
+                .abilities(AbilitiesTemplate.builder()
+                        .ability(AbilityTemplate.builder(ABILITY_ID)
+                                .castData(CastData.builder()
                                         .type(CastType.INSTANTANEOUS)
                                         .predicate("target", PredicateType.CAST,
                                                 (player, stack) -> !getTargetUUID(stack).isEmpty())
                                         .predicate("tp_allowed", PredicateType.CAST,
-                                                (player, stack) -> isTeleportAllowed(stack))
+                                                ScouringEyeUtils::isTeleportAllowed)
                                         .build())
-                                .stat(StatData.builder("cooldown")
+                                .stat(StatTemplate.builder("cooldown")
                                         .initialValue(20D, 15D)
-                                        .upgradeModifier(UpgradeOperation.ADD, -1D)
+                                        .upgradeModifier(ScalingModelRegistry.ADDITIVE.get(), -1D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
-                                .stat(StatData.builder("glowing_time")
+                                .stat(StatTemplate.builder("glowing_time")
                                         .initialValue(10D, 12D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.525D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.525D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .build())
                         .build())
-                .leveling(LevelingData.builder()
+                .leveling(LevelingTemplate.builder()
                         .initialCost(100)
                         .step(100)
-                        .maxLevel(10)
-                        .sources(LevelingSourcesData.builder()
-                                .source(LevelingSourceData
-                                        .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.SQUARE, GemColor.PURPLE)
-                                        .build())
-                                .build())
                         .build())
-                .loot(LootData.builder()
+                .loot(LootTemplate.builder()
                         .entry(RECLootEntries.CURSED_PYRAMID, LootEntries.THE_END)
                         .build())
-                .style(StyleData.builder()
+                .style(StyleTemplate.builder()
                         .tooltip(TooltipData.builder()
                                 .borderTop(0xFFA171D1)
                                 .borderBottom(0xFF8441AB)
                                 .textured(true)
-                                .build())
-                        .beams(BeamsData.builder()
-                                .startColor(0xFF460357)
-                                .endColor(0x00A827C6)
                                 .build())
                         .build())
                 .build();
@@ -107,7 +97,7 @@ public class ScouringEyeItem extends RECItem {
         }
 
         if (target.isDeadOrDying()) {
-            resetData(stack);
+            resetData(entity, stack);
 
             return;
         }
@@ -153,7 +143,7 @@ public class ScouringEyeItem extends RECItem {
      * Ability {@code glowing_scour} <b>[active]</b>: tp player to the attacked entity, then set the cooldown
      */
     @Override
-    public void castActiveAbility(ItemStack stack, Player player, String ability, CastType type, CastStage stage) {
+    public void castActiveAbility(Player player, ItemStack stack, String ability, CastType type, CastStage stage) {
         if (!ability.equals(ABILITY_ID)) {
             return;
         }
@@ -182,7 +172,7 @@ public class ScouringEyeItem extends RECItem {
         Vec3 teleportMovement = getMovementOnTeleport(teleportPos, target.blockPosition()).scale(0.12D);
 
         teleportToTarget(player, target, teleportPos, teleportMovement);
-        setAbilityCooldown(stack, ABILITY_ID, ItemUtils.getCooldownStat(stack, ABILITY_ID));
+        setAbilityCooldown(player, stack, ABILITY_ID, ItemUtils.getCooldownStat(player, stack, ABILITY_ID));
 
         spreadRelicExperience(player, stack, 1);
     }
@@ -193,42 +183,40 @@ public class ScouringEyeItem extends RECItem {
      */
     @SubscribeEvent
     public static void onPlayerAttack(LivingDamageEvent.Post event) {
-        Player player = null;
+        LivingEntity entity = null;
 
         if (event.getSource().getEntity() instanceof Projectile projectile
-                && projectile.getOwner() instanceof Player ownerPlayer) {
-            player = ownerPlayer;
-        } else if (event.getSource().getEntity() instanceof Player sourcePlayer) {
-            player = sourcePlayer;
+                && projectile.getOwner() instanceof LivingEntity ownerEntity) {
+            entity = ownerEntity;
+        } else if (event.getSource().getEntity() instanceof LivingEntity sourceEntity) {
+            entity = sourceEntity;
         }
 
-        if (player == null) {
+        if (entity == null) {
             return;
         }
 
-        Level level = player.getCommandSenderWorld();
-        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.SCOURING_EYE.get());
+        Level level = entity.getCommandSenderWorld();
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.SCOURING_EYE.get());
         LivingEntity target = event.getEntity();
 
-        if (level.isClientSide || stack.isEmpty() || target.isDeadOrDying() || target.equals(player)) {
+        if (level.isClientSide || stack.isEmpty() || target.isDeadOrDying() || target.equals(entity)) {
             return;
         }
 
         setStackTime(stack, (int) level.getGameTime());
-        setGlowingTime(stack, getGlowingTimeStat(stack)); // set new glowing time on each attack
+        setGlowingTime(stack, getGlowingTimeStat(entity, stack)); // set new glowing time on each attack
         setTargetUUID(stack, target.getUUID().toString());
         setPlayerDied(stack, false);
     }
 
     @SubscribeEvent
-    public static void onPlayerDeath(LivingDeathEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
+    public static void onLivingDeath(LivingDeathEvent event) {
+        LivingEntity entity = event.getEntity();
 
-        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.SCOURING_EYE.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.SCOURING_EYE.get());
 
-        if (player.getCommandSenderWorld().isClientSide || stack.isEmpty()) {
+        if (entity.getCommandSenderWorld().isClientSide || stack.isEmpty()) {
             return;
         }
 

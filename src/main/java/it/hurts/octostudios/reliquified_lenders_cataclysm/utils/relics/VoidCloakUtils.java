@@ -10,7 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,33 +20,33 @@ public class VoidCloakUtils {
     @Getter
     private static final int waveTicks = 30;
 
-    public static void spawnVoidRune(Level level, Player player, LivingEntity entity, ItemStack stack) {
-        Vec3 mobMovement = entity.getDeltaMovement();
+    public static void spawnVoidRune(Level level, LivingEntity entity, LivingEntity targetEntity, ItemStack stack) {
+        Vec3 mobMovement = targetEntity.getDeltaMovement();
 
-        if (EntityUtils.isAlliedTo(player, entity)) {
+        if (EntityUtils.isAlliedTo(entity, targetEntity)) {
             return;
         }
 
-        spawnFang(level, player, entity, entity.getX() + mobMovement.x, entity.getZ() + mobMovement.z,
-                0, -20, getRuneDamageStat(stack));
+        spawnFang(level, entity, targetEntity, targetEntity.getX() + mobMovement.x, targetEntity.getZ() + mobMovement.z,
+                0, -20, getRuneDamageStat(entity, stack));
     }
 
-    public static void spawnSeismicZone(Level level, Player player, LivingEntity dyingEntity, ItemStack stack) {
-        int wavesNum = ItemUtils.getIntStat(stack, "seismic_zone", "waves");
+    public static void spawnSeismicZone(Level level, LivingEntity entity, LivingEntity dyingEntity, ItemStack stack) {
+        int wavesNum = ItemUtils.getIntStat(entity, stack, "seismic_zone", "waves");
         int layersSpawned = 0;
 
         for (int i = 0; i < wavesNum; i++) {
-            layersSpawned = spawnQuakeWave(player, dyingEntity, stack, i);
+            layersSpawned = spawnQuakeWave(entity, dyingEntity, stack, i);
         }
 
         if (layersSpawned > 0) {
-            level.addFreshEntity(new ScreenShakeSoundedEntity(level, dyingEntity.position(), getRadiusStat(stack),
+            level.addFreshEntity(new ScreenShakeSoundedEntity(level, dyingEntity.position(), getRadiusStat(entity, stack),
                     layersSpawned, wavesNum, 40));
         }
     }
 
-    private static int spawnQuakeWave(Player player, LivingEntity dyingEntity, ItemStack stack, int waveIndex) {
-        Level level = player.getCommandSenderWorld();
+    private static int spawnQuakeWave(LivingEntity entity, LivingEntity dyingEntity, ItemStack stack, int waveIndex) {
+        Level level = entity.getCommandSenderWorld();
         Vec3 pos = dyingEntity.position();
 
         float shift = 1.25F; // fangs shift along circle
@@ -55,17 +54,17 @@ public class VoidCloakUtils {
         int delayTicks = 3;
         int layersSpawned = 0;
 
-        for (int r = 0; r < getRadiusStat(stack); r++) {
+        for (int r = 0; r < getRadiusStat(entity, stack); r++) {
             int fangsNum = 6;
             boolean fangSpawned = false;
 
             for (int i = 0; i < fangsNum; i++) {
                 float angle = (float) (i * Math.PI * 2.0F / fangsNum + shift);
 
-                if (spawnFang(level, player, dyingEntity,
+                if (spawnFang(level, entity, dyingEntity,
                         pos.x + (double) Mth.cos(angle) * shiftMultiplier,
                         pos.z + (double) Mth.sin(angle) * shiftMultiplier,
-                        i, waveIndex * getWaveTicks() + delayTicks, getZoneDamageStat(stack))) {
+                        i, waveIndex * getWaveTicks() + delayTicks, getZoneDamageStat(entity, stack))) {
                     fangSpawned = true;
                 }
             }
@@ -131,15 +130,15 @@ public class VoidCloakUtils {
 
     // simple getters
 
-    private static float getRuneDamageStat(ItemStack stack) {
-        return (float) ((VoidCloakItem) stack.getItem()).getStatValue(stack, "void_rune", "damage");
+    private static float getRuneDamageStat(LivingEntity entity, ItemStack stack) {
+        return (float) ((VoidCloakItem) stack.getItem()).getStatValue(entity, stack, "void_rune", "damage");
     }
 
-    private static float getZoneDamageStat(ItemStack stack) {
-        return (float) ((VoidCloakItem) stack.getItem()).getStatValue(stack, "seismic_zone", "damage");
+    private static float getZoneDamageStat(LivingEntity entity, ItemStack stack) {
+        return (float) ((VoidCloakItem) stack.getItem()).getStatValue(entity, stack, "seismic_zone", "damage");
     }
 
-    public static int getRadiusStat(ItemStack stack) {
-        return ItemUtils.getIntStat(stack, "seismic_zone", "radius");
+    public static int getRadiusStat(LivingEntity entity, ItemStack stack) {
+        return ItemUtils.getIntStat(entity, stack, "seismic_zone", "radius");
     }
 }

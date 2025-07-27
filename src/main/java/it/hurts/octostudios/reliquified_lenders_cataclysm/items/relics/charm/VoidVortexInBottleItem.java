@@ -7,19 +7,18 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
-import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemShape;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
-import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootData;
+import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
+import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
+import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
+import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -32,50 +31,39 @@ public class VoidVortexInBottleItem extends RECItem {
     private static final String ABILITY_ID = "spawn_vortex";
 
     @Override
-    public RelicData constructDefaultRelicData() {
-        return RelicData.builder()
-                .abilities(AbilitiesData.builder()
-                        .ability(AbilityData.builder(ABILITY_ID)
-                                .stat(StatData.builder("height")
+    public RelicTemplate constructDefaultRelicTemplate() {
+        return RelicTemplate.builder()
+                .abilities(AbilitiesTemplate.builder()
+                        .ability(AbilityTemplate.builder(ABILITY_ID)
+                                .stat(StatTemplate.builder("height")
                                         .initialValue(3D, 4D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.075D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.075D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
-                                .stat(StatData.builder("damage")
+                                .stat(StatTemplate.builder("damage")
                                         .initialValue(6.0D, 8.0D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.15D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
-                                .stat(StatData.builder("cooldown")
+                                .stat(StatTemplate.builder("cooldown")
                                         .initialValue(30D, 25D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.06D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), -0.06D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())
-                .leveling(LevelingData.builder()
+                .leveling(LevelingTemplate.builder()
                         .initialCost(100)
                         .step(100)
-                        .maxLevel(10)
-                        .sources(LevelingSourcesData.builder()
-                                .source(LevelingSourceData
-                                        .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.SQUARE, GemColor.PURPLE)
-                                        .build())
-                                .build())
                         .build())
-                .loot(LootData.builder()
+                .loot(LootTemplate.builder()
                         .entry(RECLootEntries.FROSTED_PRISON, LootEntries.THE_END)
                         .build())
-                .style(StyleData.builder()
+                .style(StyleTemplate.builder()
                         .tooltip(TooltipData.builder()
                                 .borderTop(0xFF965DB0)
                                 .borderBottom(0xFF77448E)
                                 .textured(true)
-                                .build())
-                        .beams(BeamsData.builder()
-                                .startColor(0xFF6D22AD)
-                                .endColor(0x00A356C5)
                                 .build())
                         .build())
                 .build();
@@ -111,11 +99,11 @@ public class VoidVortexInBottleItem extends RECItem {
     public static void onEntityDeath(LivingDeathEvent event) {
         Level level = event.getEntity().level();
 
-        if (level.isClientSide || !(event.getSource().getEntity() instanceof Player player)) {
+        if (level.isClientSide || !(event.getSource().getEntity() instanceof LivingEntity entity)) {
             return;
         }
 
-        for (ItemStack stack : EntityUtils.findEquippedCurios(player, ItemRegistry.VOID_VORTEX_IN_BOTTLE.get())) {
+        for (ItemStack stack : EntityUtils.findEquippedCurios(entity, ItemRegistry.VOID_VORTEX_IN_BOTTLE.get())) {
             LivingEntity target = event.getEntity();
 
             if (!(stack.getItem() instanceof VoidVortexInBottleItem relic)
@@ -124,19 +112,19 @@ public class VoidVortexInBottleItem extends RECItem {
             }
 
             VoidVortexModifiedEntity voidVortexEntity = new VoidVortexModifiedEntity(level,
-                    target.getX(), target.getY(), target.getZ(), player.getYRot(), player, 100,
-                    ItemUtils.getIntStat(stack, ABILITY_ID, "height"), relic.getDamageStat(stack));
-            voidVortexEntity.setOwner(player);
+                    target.getX(), target.getY(), target.getZ(), entity.getYRot(), entity, 100,
+                    ItemUtils.getIntStat(entity, stack, ABILITY_ID, "height"), relic.getDamageStat(entity, stack));
+            voidVortexEntity.setOwner(entity);
 
             level.addFreshEntity(voidVortexEntity);
 
-            relic.spreadRelicExperience(player, stack, 3);
-            relic.setVortexCooldown(stack);
+            relic.spreadRelicExperience(entity, stack, 3);
+            relic.setVortexCooldown(entity, stack);
         }
     }
 
-    private float getDamageStat(ItemStack stack) {
-        return (float) (getStatValue(stack, ABILITY_ID, "damage"));
+    private float getDamageStat(LivingEntity entity, ItemStack stack) {
+        return (float) (getStatValue(entity, stack, ABILITY_ID, "damage"));
     }
 
     private int getVortexCooldown(ItemStack stack) {
@@ -147,7 +135,7 @@ public class VoidVortexInBottleItem extends RECItem {
         stack.set(RECDataComponentRegistry.COOLDOWN, getVortexCooldown(stack) - 1);
     }
 
-    private void setVortexCooldown(ItemStack stack) {
-        stack.set(RECDataComponentRegistry.COOLDOWN, ItemUtils.getCooldownStat(stack, ABILITY_ID));
+    private void setVortexCooldown(LivingEntity entity, ItemStack stack) {
+        stack.set(RECDataComponentRegistry.COOLDOWN, ItemUtils.getCooldownStat(entity, stack, ABILITY_ID));
     }
 }

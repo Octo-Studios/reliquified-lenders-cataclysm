@@ -1,7 +1,8 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.utils;
 
-import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
+import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
+import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -10,7 +11,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,23 +44,66 @@ public class ItemUtils {
                 .filter(Objects::nonNull).toList();
     }
 
-    public static int getIntStat(ItemStack stack, String ability, String stat) {
-        return (int) Math.round(((IRelicItem) stack.getItem()).getStatValue(stack, ability, stat));
+    public static List<LivingEntity> getEntitiesInArea(LivingEntity caster, Level level, double radius) {
+        return getEntitiesInArea(caster, level, getSphereArea(caster, radius));
     }
 
-    private static int getTickStat(IRelicItem relic, ItemStack stack, String ability, String stat) {
-        return (int) Math.floor(relic.getStatValue(stack, ability, stat) * 20);
+    public static AABB getSphereArea(LivingEntity entity, double radius) {
+        return new AABB(entity.blockPosition()).inflate(radius);
     }
 
-    public static int getTickStat(ItemStack stack, String ability, String stat) {
-        return getTickStat((IRelicItem) stack.getItem(), stack, ability, stat);
+    @Nullable
+    public static BlockPos getValidSpawnPos(Level level, BlockPos initialPos) {
+        for (int i = 1; i <= 4; i++) {
+            for (int j = 1; j <= 4; j++) {
+                double initialY = initialPos.getY();
+
+                // get the nearest blocks at the same height in opposite to target's view direction
+                BlockPos pos = BlockPos.containing(
+                        initialPos.getX() + i, initialY, initialPos.getZ() + i);
+
+                BlockPos newPos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos);
+
+                // check for safety & possible height difference
+                if (isBlockSafe(level, newPos) && Math.abs(initialY - newPos.getY()) <= 3.0D) {
+                    return newPos;
+                }
+            }
+        }
+
+        return null;
     }
 
-    public static int getCooldownStat(ItemStack stack, String ability) {
-        return getTickStat((IRelicItem) stack.getItem(), stack, ability, "cooldown");
+    public static boolean isBlockSafe(Level level, BlockPos pos) {
+        BlockState blockState = level.getBlockState(pos);
+        BlockState blockStateBelow = level.getBlockState(pos.below());
+        BlockState blockStateAbove = level.getBlockState(pos.above());
+
+        return blockStateAbove.isAir() // player's head must be in air
+                && (blockState.isAir() || !blockState.isCollisionShapeFullBlock(level, pos))
+                && blockStateBelow.isSolid() // BlockState.isSolid() - deprecated
+                && !(blockStateBelow.getBlock() instanceof LiquidBlock);
     }
 
-    public static float getSpeedStat(ItemStack stack, String ability) {
-        return (float) (((IRelicItem) stack.getItem()).getStatValue(stack, ability, "speed") / 20);
+    // stats
+
+    public static int getIntStat(LivingEntity entity, ItemStack stack, String ability, String stat) {
+        return (int) Math.round(((RelicItem) stack.getItem()).getStatValue(entity, stack, ability, stat));
+    }
+
+    private static int getTickStat(RelicItem relic, LivingEntity entity, ItemStack stack, String ability, String stat) {
+        return (int) Math.floor(relic.getStatValue(entity, stack, ability, stat) * 20);
+    }
+
+    public static int getTickStat(LivingEntity entity, ItemStack stack, String ability, String stat) {
+        return getTickStat((RelicItem) stack.getItem(), entity, stack, ability, stat);
+    }
+
+    public static int getCooldownStat(LivingEntity entity, ItemStack stack, String ability) {
+        return getTickStat((RelicItem) stack.getItem(), entity, stack, ability, "cooldown");
+    }
+
+    public static float getSpeedStat(LivingEntity entity, ItemStack stack, String ability) {
+        return (float) (((RelicItem) stack.getItem()).getStatValue(entity, stack, ability, "speed") / 20);
     }
 }

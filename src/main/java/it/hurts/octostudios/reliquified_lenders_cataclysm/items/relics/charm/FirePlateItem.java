@@ -7,16 +7,16 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentR
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
+import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
 import it.hurts.sskirillss.relics.init.DataComponentRegistry;
-import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemShape;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
-import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootData;
+import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
+import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
+import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.server.level.ServerLevel;
@@ -29,7 +29,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -47,55 +46,44 @@ public class FirePlateItem extends RECItem {
     private static final String ABILITY_ID = "spawn_shield";
 
     @Override
-    public RelicData constructDefaultRelicData() {
-        return RelicData.builder()
-                .abilities(AbilitiesData.builder()
-                        .ability(AbilityData.builder(ABILITY_ID)
-                                .stat(StatData.builder("health")
+    public RelicTemplate constructDefaultRelicTemplate() {
+        return RelicTemplate.builder()
+                .abilities(AbilitiesTemplate.builder()
+                        .ability(AbilityTemplate.builder(ABILITY_ID)
+                                .stat(StatTemplate.builder("health")
                                         .initialValue(4D, 6D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.233D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.233D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
-                                .stat(StatData.builder("regeneration_time")
+                                .stat(StatTemplate.builder("regeneration_time")
                                         .initialValue(60D, 55D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.0722D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), -0.0722D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
-                                .stat(StatData.builder("projectiles")
+                                .stat(StatTemplate.builder("projectiles")
                                         .initialValue(8D, 10D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.22D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.22D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
-                                .stat(StatData.builder("damage")
+                                .stat(StatTemplate.builder("damage")
                                         .initialValue(1D, 2D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.65D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.65D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())
-                .leveling(LevelingData.builder()
+                .leveling(LevelingTemplate.builder()
                         .initialCost(100)
                         .step(100)
-                        .maxLevel(10)
-                        .sources(LevelingSourcesData.builder()
-                                .source(LevelingSourceData
-                                        .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.SQUARE, GemColor.ORANGE)
-                                        .build())
-                                .build())
                         .build())
-                .loot(LootData.builder()
+                .loot(LootTemplate.builder()
                         .entry(LootEntries.THE_NETHER)
                         .build())
-                .style(StyleData.builder()
+                .style(StyleTemplate.builder()
                         .tooltip(TooltipData.builder()
                                 .borderTop(0xFFFDF878)
                                 .borderBottom(0xFFF0BA36)
                                 .textured(true)
-                                .build())
-                        .beams(BeamsData.builder()
-                                .startColor(0xFFDD6732)
-                                .endColor(0x00A4512C)
                                 .build())
                         .build())
                 .build();
@@ -127,7 +115,7 @@ public class FirePlateItem extends RECItem {
         // shield spawn
         if (shield == null) {
             IgnitedShieldEntity shieldNew =
-                    new IgnitedShieldEntity(level, entity, entity.position(), getHealthStat(stack));
+                    new IgnitedShieldEntity(level, entity, entity.position(), getHealthStat(entity, stack));
 
             level.addFreshEntity(shieldNew);
 
@@ -142,9 +130,9 @@ public class FirePlateItem extends RECItem {
         int ticks = getTime(stack);
 
         // shield regen (once for N sec)
-        if (ticks != 0 && ticks % getRegenTimeStat(stack) == 0) {
-            if (health > 0F && health < getHealthStat(stack)) {
-                shield.setHealth(getHealthStat(stack));
+        if (ticks != 0 && ticks % getRegenTimeStat(entity, stack) == 0) {
+            if (health > 0F && health < getHealthStat(entity, stack)) {
+                shield.setHealth(getHealthStat(entity, stack));
 
                 playShieldSound(shield, SoundEvents.EXPERIENCE_ORB_PICKUP);
             }
@@ -154,11 +142,11 @@ public class FirePlateItem extends RECItem {
         if (shield.getHealth() <= 0F) {
             playShieldSound(shield, SoundEvents.DROWNED_SHOOT);
 
-            int projectilesNum = getProjectilesStat(stack);
+            int projectilesNum = getProjectilesStat(entity, stack);
 
             // spawn projectiles
             for (int i = 0; i < projectilesNum; i++) {
-                Blazing_Bone_Entity projectile = new Blazing_Bone_Entity(level, getDamageStat(stack), entity);
+                Blazing_Bone_Entity projectile = new Blazing_Bone_Entity(level, getDamageStat(entity, stack), entity);
 
                 float yawRadians = (float) Math.toRadians(shield.getYRot() + 90F);
                 float throwAngle = (float) (yawRadians + i * Math.PI * 2 / projectilesNum);
@@ -222,7 +210,7 @@ public class FirePlateItem extends RECItem {
         }
 
         List<IgnitedShieldEntity> shieldsAround =
-                level.getEntities(player, new AABB(player.blockPosition()).inflate(4D)).stream()
+                level.getEntities(player, ItemUtils.getSphereArea(player, 4D)).stream()
                         .map(entity -> entity instanceof IgnitedShieldEntity shield && shield.getOwner() != null
                                 && shield.getOwner().equals(player) ? shield : null)
                         .filter(Objects::nonNull).toList();
@@ -326,19 +314,19 @@ public class FirePlateItem extends RECItem {
         stack.set(RECDataComponentRegistry.COOLDOWN, value);
     }
 
-    private int getRegenTimeStat(ItemStack stack) {
-        return ItemUtils.getIntStat(stack, ABILITY_ID, "regeneration_time") * 20;
+    private int getRegenTimeStat(LivingEntity entity, ItemStack stack) {
+        return ItemUtils.getIntStat(entity, stack, ABILITY_ID, "regeneration_time") * 20;
     }
 
-    private static float getHealthStat(ItemStack stack) {
-        return (float) (((FirePlateItem) stack.getItem()).getStatValue(stack, ABILITY_ID, "health"));
+    private static float getHealthStat(LivingEntity entity, ItemStack stack) {
+        return (float) (((FirePlateItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "health"));
     }
 
-    private int getProjectilesStat(ItemStack stack) {
-        return ItemUtils.getIntStat(stack, ABILITY_ID, "projectiles");
+    private int getProjectilesStat(LivingEntity entity, ItemStack stack) {
+        return ItemUtils.getIntStat(entity, stack, ABILITY_ID, "projectiles");
     }
 
-    private static float getDamageStat(ItemStack stack) {
-        return (float) (((FirePlateItem) stack.getItem()).getStatValue(stack, ABILITY_ID, "damage"));
+    private static float getDamageStat(LivingEntity entity, ItemStack stack) {
+        return (float) (((FirePlateItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "damage"));
     }
 }

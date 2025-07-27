@@ -59,7 +59,7 @@ public record VolcanoOperationPacket(int stackIndex, int operationId, boolean to
     }
 
     private static void consumeEnergy(ItemStack stack, Level level, Player player) {
-        int energyNew = VolcanoItem.getEnergy(stack) - ((VolcanoItem) stack.getItem()).getConsumptionStat(stack);
+        int energyNew = VolcanoItem.getEnergy(player, stack) - ((VolcanoItem) stack.getItem()).getConsumptionStat(player, stack);
 
         stack.set(RECDataComponentRegistry.VOLCANO_ENERGY,
                 Math.max(0, energyNew));

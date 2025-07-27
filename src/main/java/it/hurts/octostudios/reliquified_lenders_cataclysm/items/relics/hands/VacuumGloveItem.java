@@ -6,16 +6,16 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLoo
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VacuumGloveParticlesPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
+import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
 import it.hurts.sskirillss.relics.init.DataComponentRegistry;
-import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemShape;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
-import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootData;
+import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
+import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
+import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import net.minecraft.server.level.ServerLevel;
@@ -23,7 +23,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import top.theillusivec4.curios.api.SlotContext;
 
@@ -38,45 +37,34 @@ public class VacuumGloveItem extends RECItem {
     private final HashMap<UUID, Vec3> positionsPrev = new HashMap<>();
 
     @Override
-    public RelicData constructDefaultRelicData() {
-        return RelicData.builder()
-                .abilities(AbilitiesData.builder()
-                        .ability(AbilityData.builder(ABILITY_ID)
-                                .stat(StatData.builder("slowdown")
+    public RelicTemplate constructDefaultRelicTemplate() {
+        return RelicTemplate.builder()
+                .abilities(AbilitiesTemplate.builder()
+                        .ability(AbilityTemplate.builder(ABILITY_ID)
+                                .stat(StatTemplate.builder("slowdown")
                                         .initialValue(0.28D, 0.34D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.15D)
+                                        .upgradeModifier(ScalingModelRegistry.ADDITIVE.get(), 0.15D)
                                         .formatValue(RECMathUtils::roundPercents)
                                         .build())
-                                .stat(StatData.builder("radius")
+                                .stat(StatTemplate.builder("radius")
                                         .initialValue(6D, 6.5D)
-                                        .upgradeModifier(UpgradeOperation.ADD, 0.35D)
+                                        .upgradeModifier(ScalingModelRegistry.ADDITIVE.get(), 0.35D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .build())
                         .build())
-                .leveling(LevelingData.builder()
+                .leveling(LevelingTemplate.builder()
                         .initialCost(100)
                         .step(100)
-                        .maxLevel(10)
-                        .sources(LevelingSourcesData.builder()
-                                .source(LevelingSourceData
-                                        .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.SQUARE, GemColor.PURPLE)
-                                        .build())
-                                .build())
                         .build())
-                .loot(LootData.builder()
+                .loot(LootTemplate.builder()
                         .entry(RECLootEntries.CURSED_PYRAMID, LootEntries.THE_END)
                         .build())
-                .style(StyleData.builder()
+                .style(StyleTemplate.builder()
                         .tooltip(TooltipData.builder()
                                 .borderTop(0xFFFDE389)
                                 .borderBottom(0xFFDBA461)
                                 .textured(true)
-                                .build())
-                        .beams(BeamsData.builder()
-                                .startColor(0xFF550E5B)
-                                .endColor(0x00CC4AD5)
                                 .build())
                         .build())
                 .build();
@@ -98,13 +86,13 @@ public class VacuumGloveItem extends RECItem {
                 continue;
             }
 
-            if (entity.distanceTo(entitySlowed) > getRadiusStat(stack) || entitySlowed.isDeadOrDying()) {
+            if (entity.distanceTo(entitySlowed) > getRadiusStat(entity, stack) || entitySlowed.isDeadOrDying()) {
                 removeSlowdown(slowedEntities, entitySlowed, stack);
             }
         }
 
         // apply slowdown on mobs inside the area
-        for (LivingEntity entityOther : getEntitiesInArea(level, entity, getRadiusStat(stack))) {
+        for (LivingEntity entityOther : ItemUtils.getEntitiesInArea(entity, level, getRadiusStat(entity, stack))) {
             UUID id = entityOther.getUUID();
             Vec3 posPrev = positionsPrev.getOrDefault(id, entityOther.position());
             positionsPrev.put(id, entityOther.position());
@@ -119,14 +107,14 @@ public class VacuumGloveItem extends RECItem {
             float entityBaseSpeed = (float) entityOther.getAttributeBaseValue(Attributes.MOVEMENT_SPEED);
 
             if (dotProduct > 0.0D && distanceNext > distanceCurrent) {
-                float modifier = getModifierValue(stack, entityBaseSpeed, entity.distanceTo(entityOther));
+                float modifier = getModifierValue(entity, stack, entityBaseSpeed, entity.distanceTo(entityOther));
 
                 ItemUtils.resetMovementAttribute(entityOther, stack, modifier);
                 slowedEntities.add(entityOther.getUUID());
 
                 // particles of circle segment
                 NetworkHandler.sendToClientsTrackingEntityAndSelf(
-                        new VacuumGloveParticlesPacket(getRadiusStat(stack), entityOther.getId(),
+                        new VacuumGloveParticlesPacket(getRadiusStat(entity, stack), entityOther.getId(),
                                 entity.getX(), entity.getY(), entity.getZ()), entityOther);
             } else {
                 removeSlowdown(slowedEntities, entityOther, stack);
@@ -167,31 +155,25 @@ public class VacuumGloveItem extends RECItem {
         slowedEntities.remove(entity.getUUID());
     }
 
-    private static List<LivingEntity> getEntitiesInArea(Level level, LivingEntity entityCenter, float radius) {
-        AABB sphereArea = new AABB(entityCenter.blockPosition()).inflate(radius);
-
-        return ItemUtils.getEntitiesInArea(entityCenter, level, sphereArea);
-    }
-
-    public float getModifierValue(ItemStack stack, float speed, float distance) {
-        float radius = getRadiusStat(stack);
+    public float getModifierValue(LivingEntity entity, ItemStack stack, float speed, float distance) {
+        float radius = getRadiusStat(entity, stack);
 
         if (distance == 0.0F || speed == 0.0F || distance > radius) {
             return 0.0F;
         }
 
-        float minSpeed = getSlowdownStat(stack) * speed;
+        float minSpeed = getSlowdownStat(entity, stack) * speed;
         float slowdownSpeed = minSpeed + (radius - distance) * (speed - minSpeed) / radius;
 
         return (slowdownSpeed - speed);
     }
 
-    private float getSlowdownStat(ItemStack stack) {
-        return (float) (1.0F - getStatValue(stack, ABILITY_ID, "slowdown"));
+    private float getSlowdownStat(LivingEntity entity, ItemStack stack) {
+        return (float) (1.0F - getStatValue(entity, stack, ABILITY_ID, "slowdown"));
     }
 
-    public float getRadiusStat(ItemStack stack) {
-        return (float) getStatValue(stack, ABILITY_ID, "radius");
+    public float getRadiusStat(LivingEntity entity, ItemStack stack) {
+        return (float) getStatValue(entity, stack, ABILITY_ID, "radius");
     }
 
     public ArrayList<UUID> getSlowedEntities(ItemStack stack) {

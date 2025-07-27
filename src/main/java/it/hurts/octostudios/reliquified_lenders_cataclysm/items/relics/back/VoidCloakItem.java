@@ -7,20 +7,22 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
-import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
+import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
+import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastType;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemShape;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
-import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootData;
+import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
+import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
+import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -33,78 +35,64 @@ import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.List;
 
-import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidCloakUtils.*;
+import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidCloakUtils.spawnSeismicZone;
+import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidCloakUtils.spawnVoidRune;
 
 @EventBusSubscriber
 public class VoidCloakItem extends RECItem {
     @Override
-    public RelicData constructDefaultRelicData() {
-        return RelicData.builder()
-                .abilities(AbilitiesData.builder()
-                        .ability(AbilityData.builder("void_invulnerability")
+    public RelicTemplate constructDefaultRelicTemplate() {
+        return RelicTemplate.builder()
+                .abilities(AbilitiesTemplate.builder()
+                        .ability(AbilityTemplate.builder("void_invulnerability")
                                 .build())
-                        .ability(AbilityData.builder("void_rune")
-                                .active(CastData.builder()
+                        .ability(AbilityTemplate.builder("void_rune")
+                                .castData(CastData.builder()
                                         .type(CastType.TOGGLEABLE)
                                         .build())
-                                .stat(StatData.builder("cooldown")
+                                .stat(StatTemplate.builder("cooldown")
                                         .initialValue(20D, 16D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.05625D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), -0.05625D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
-                                .stat(StatData.builder("damage")
+                                .stat(StatTemplate.builder("damage")
                                         .initialValue(1.4D, 1.76D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.525D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.525D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
-                        .ability(AbilityData.builder("seismic_zone")
+                        .ability(AbilityTemplate.builder("seismic_zone")
                                 .requiredLevel(5)
-                                .stat(StatData.builder("radius")
+                                .stat(StatTemplate.builder("radius")
                                         .initialValue(2D, 3D)
-                                        .upgradeModifier(UpgradeOperation.ADD, 0.5D)
+                                        .upgradeModifier(ScalingModelRegistry.ADDITIVE.get(), 0.5D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
-                                .stat(StatData.builder("waves")
+                                .stat(StatTemplate.builder("waves")
                                         .initialValue(2D, 3D)
-                                        .upgradeModifier(UpgradeOperation.ADD, 0.5D)
+                                        .upgradeModifier(ScalingModelRegistry.ADDITIVE.get(), 0.5D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
-                                .stat(StatData.builder("damage")
+                                .stat(StatTemplate.builder("damage")
                                         .initialValue(1.4D, 1.76D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.525D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.525D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())
-                .leveling(LevelingData.builder()
+                .leveling(LevelingTemplate.builder()
                         .initialCost(100)
                         .step(100)
-                        .maxLevel(15)
-                        .sources(LevelingSourcesData.builder()
-                                .source(LevelingSourceData
-                                        .abilityBuilder("void_rune")
-                                        .gem(GemShape.SQUARE, GemColor.PURPLE)
-                                        .build())
-                                .source(LevelingSourceData
-                                        .abilityBuilder("seismic_zone")
-                                        .gem(GemShape.SQUARE, GemColor.ORANGE)
-                                        .build())
-                                .build())
                         .build())
-                .loot(LootData.builder()
+                .loot(LootTemplate.builder()
                         .entry(RECLootEntries.CURSED_PYRAMID, RECLootEntries.FROSTED_PRISON,
                                 LootEntries.THE_END)
                         .build())
-                .style(StyleData.builder()
+                .style(StyleTemplate.builder()
                         .tooltip(TooltipData.builder()
                                 .borderTop(0xFFB98FD2)
                                 .borderBottom(0xFF895DA4)
                                 .textured(true)
-                                .build())
-                        .beams(BeamsData.builder()
-                                .startColor(0xFFB98FD2)
-                                .endColor(0x00F8E096)
                                 .build())
                         .build())
                 .build();
@@ -112,12 +100,13 @@ public class VoidCloakItem extends RECItem {
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
-        if (stack.isEmpty() || !(slotContext.entity() instanceof Player player)
-                || !isAbilityTicking(stack, "void_rune")) {
+        LivingEntity entity = slotContext.entity();
+
+        if (stack.isEmpty() || !isAbilityTicking(entity, stack, "void_rune")) {
             return;
         }
 
-        Level level = player.getCommandSenderWorld();
+        Level level = entity.getCommandSenderWorld();
 
         if (level.isClientSide) {
             return;
@@ -128,28 +117,27 @@ public class VoidCloakItem extends RECItem {
         if (voidRuneCooldown > 0) {
             voidRuneCooldown--;
         } else {
-            List<LivingEntity> entitiesInArea = ItemUtils.getEntitiesInArea(player, level,
-                    player.getBoundingBox().inflate(10.0D));
+            List<LivingEntity> entitiesInArea = ItemUtils.getEntitiesInArea(entity, level, 10D);
 
             boolean runeSpawned = false;
 
-            for (LivingEntity entity : entitiesInArea) {
-                if (entity == null || entity.equals(player)
-                        || entity instanceof ArmorStand || EntityUtils.isAlliedTo(player, entity)) {
+            for (LivingEntity entityInArea : entitiesInArea) {
+                if (entityInArea == null || entityInArea.equals(entity)
+                        || entityInArea instanceof ArmorStand || EntityUtils.isAlliedTo(entity, entityInArea)) {
                     continue;
                 }
 
-                if (entity instanceof Mob mob) {
+                if (entityInArea instanceof Mob mob) {
                     LivingEntity targetEntity = mob.getTarget();
 
-                    if (targetEntity != null && targetEntity.is(player)) {
-                        spawnVoidRune(level, player, mob, stack);
+                    if (targetEntity != null && targetEntity.is(entity)) {
+                        spawnVoidRune(level, entity, mob, stack);
                         runeSpawned = true;
 
                         break;
                     }
                 } else {
-                    spawnVoidRune(level, player, entity, stack);
+                    spawnVoidRune(level, entity, entityInArea, stack);
                     runeSpawned = true;
 
                     break;
@@ -157,7 +145,7 @@ public class VoidCloakItem extends RECItem {
             }
 
             if (runeSpawned) {
-                voidRuneCooldown = ItemUtils.getCooldownStat(stack, "void_rune");
+                voidRuneCooldown = ItemUtils.getCooldownStat(entity, stack, "void_rune");
             }
         }
 
@@ -167,18 +155,19 @@ public class VoidCloakItem extends RECItem {
     // add relic xp on entity damaged by void rune
     @SubscribeEvent
     public static void onLivingDamage(LivingIncomingDamageEvent event) {
-        if (!(event.getSource().getDirectEntity() instanceof Void_Rune_Entity voidRuneEntity)
-                || !(voidRuneEntity.getCaster() instanceof Player player)) {
+        if (!(event.getSource().getDirectEntity() instanceof Void_Rune_Entity voidRuneEntity)) {
             return;
         }
 
-        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_CLOAK.get());
+        LivingEntity entity = voidRuneEntity.getCaster();
+
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.VOID_CLOAK.get());
 
         if (stack.isEmpty() || !(stack.getItem() instanceof VoidCloakItem relic)) {
             return;
         }
 
-        relic.spreadRelicExperience(player, stack, 1);
+        relic.spreadRelicExperience(entity, stack, 1);
     }
 
     /**
@@ -186,7 +175,9 @@ public class VoidCloakItem extends RECItem {
      */
     @SubscribeEvent
     public static void onPlayerDamage(LivingIncomingDamageEvent event) {
-        if (!(event.getEntity() instanceof Player player) || player.getCommandSenderWorld().isClientSide) {
+        LivingEntity entity = event.getEntity();
+
+        if (entity.getCommandSenderWorld().isClientSide) {
             return;
         }
 
@@ -194,18 +185,18 @@ public class VoidCloakItem extends RECItem {
         if (event.getSource().getDirectEntity() instanceof Void_Rune_Entity voidRuneEntity) {
             LivingEntity caster = voidRuneEntity.getCaster();
 
-            if (caster != null && caster.getUUID().equals(player.getUUID())) {
+            if (caster != null && caster.getUUID().equals(entity.getUUID())) {
                 event.setCanceled(true);
             }
         }
 
-        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_CLOAK.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.VOID_CLOAK.get());
 
         if (stack.isEmpty() || !(stack.getItem() instanceof VoidCloakItem)) {
             return;
         }
 
-        if (player.getY() < player.getCommandSenderWorld().getMinBuildHeight()) {
+        if (entity.getY() < entity.getCommandSenderWorld().getMinBuildHeight()) {
             event.setCanceled(true);
         }
     }
@@ -215,43 +206,37 @@ public class VoidCloakItem extends RECItem {
      */
     @SubscribeEvent
     public static void onEntityDeath(LivingDeathEvent event) {
-        LivingEntity entity = event.getEntity();
-        Player player = null;
+        LivingEntity entityDead = event.getEntity();
+        LivingEntity entity = null;
 
-        if (entity instanceof Player) {
-            player = (Player) entity;
-        } else if (entity instanceof OwnableEntity ownableEntity) {
-            LivingEntity entityOwner = ownableEntity.getOwner();
-
-            if (!(entityOwner instanceof Player entityOwnerPlayer)) {
-                return;
-            }
-
-            player = entityOwnerPlayer;
+        if (entityDead instanceof Player) {
+            entity = entityDead;
+        } else if (entityDead instanceof OwnableEntity ownableEntity) {
+            entity = ownableEntity.getOwner();
         }
 
-        if (player == null) {
+        if (entity == null) {
             return;
         }
 
-        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_CLOAK.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.VOID_CLOAK.get());
 
         if (stack.isEmpty() || !(stack.getItem() instanceof VoidCloakItem relic)
-                || !relic.isAbilityUnlocked(stack, "seismic_zone")) {
+                || !relic.isAbilityUnlocked(entityDead, stack, "seismic_zone")) {
             return;
         }
 
-        Level level = player.getCommandSenderWorld();
+        Level level = entity.getCommandSenderWorld();
 
         if (level.isClientSide) {
             return;
         }
 
-        level.explode(player, entity.getX(), entity.getY(), entity.getZ(),
+        level.explode(entity, entityDead.getX(), entityDead.getY(), entityDead.getZ(),
                 1.0F, false, Level.ExplosionInteraction.NONE);
 
-        spawnSeismicZone(level, player, entity, stack);
+        spawnSeismicZone(level, entity, entityDead, stack);
 
-        relic.spreadRelicExperience(player, stack, 5);
+        relic.spreadRelicExperience(entity, stack, 5);
     }
 }

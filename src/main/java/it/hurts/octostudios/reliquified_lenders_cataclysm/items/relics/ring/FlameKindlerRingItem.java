@@ -1,131 +1,168 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.ring;
 
-import com.github.L_Ender.cataclysm.entity.projectile.Flame_Jet_Entity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.FlameJetModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
-import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemShape;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
-import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootData;
+import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
+import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
+import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
+import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import top.theillusivec4.curios.api.SlotContext;
 
-import java.util.Random;
+import java.util.List;
 
 @EventBusSubscriber
 public class FlameKindlerRingItem extends RECItem {
     public static final String ABILITY_ID = "flame_summon";
 
     @Override
-    public RelicData constructDefaultRelicData() {
-        return RelicData.builder()
-                .abilities(AbilitiesData.builder()
-                        .ability(AbilityData.builder(ABILITY_ID)
-                                .stat(StatData.builder("jets")
-                                        .initialValue(3D, 4D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.3D)
-                                        .formatValue(RECMathUtils::roundInt)
-                                        .build())
-                                .stat(StatData.builder("damage")
-                                        .initialValue(3D, 4D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.1D)
+    public RelicTemplate constructDefaultRelicTemplate() {
+        return RelicTemplate.builder()
+                .abilities(AbilitiesTemplate.builder()
+                        .ability(AbilityTemplate.builder(ABILITY_ID)
+                                .stat(StatTemplate.builder("radius")
+                                        .initialValue(5D, 6D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.363D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
-                                .stat(StatData.builder("chance")
+                                .stat(StatTemplate.builder("chance")
                                         .initialValue(0.25D, 0.3D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.167D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.167D)
                                         .formatValue(RECMathUtils::roundPercents)
                                         .build())
-                                .build())
-                        .build())
-                .leveling(LevelingData.builder()
-                        .initialCost(100)
-                        .step(100)
-                        .maxLevel(10)
-                        .sources(LevelingSourcesData.builder()
-                                .source(LevelingSourceData
-                                        .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.SQUARE, GemColor.ORANGE)
+                                .stat(StatTemplate.builder("jets")
+                                        .initialValue(3D, 4D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.3D)
+                                        .formatValue(RECMathUtils::roundInt)
+                                        .build())
+                                .stat(StatTemplate.builder("damage")
+                                        .initialValue(3D, 4D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.1D)
+                                        .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())
-                .loot(LootData.builder()
+                .leveling(LevelingTemplate.builder()
+                        .initialCost(100)
+                        .step(100)
+                        .build())
+                .loot(LootTemplate.builder()
                         .entry(LootEntries.THE_NETHER)
                         .build())
-                .style(StyleData.builder()
+                .style(StyleTemplate.builder()
                         .tooltip(TooltipData.builder()
                                 .borderTop(0xFFFE432B)
                                 .borderBottom(0xFFC50921)
                                 .textured(true)
                                 .build())
-                        .beams(BeamsData.builder()
-                                .startColor(0xFFFF2500)
-                                .endColor(0x00DF1008)
-                                .build())
                         .build())
                 .build();
     }
 
-    @SubscribeEvent
-    public static void onPlayerAttack(AttackEntityEvent event) {
-        Player player = event.getEntity();
-        Level level = player.getCommandSenderWorld();
-        Entity entity = event.getTarget();
-        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.FLAME_KINDLER_RING.get());
+    @Override
+    public void curioTick(SlotContext slotContext, ItemStack stack) {
+        LivingEntity entity = slotContext.entity();
+        Level level = entity.getCommandSenderWorld();
 
-        if (level.isClientSide || stack.isEmpty()
-                || !(entity instanceof LivingEntity target) || EntityUtils.isAlliedTo(player, target)) {
+        if (level.isClientSide) {
             return;
         }
 
-        if (player.getRandom().nextDouble() <= getChanceStat(stack)) {
-            int jetsNum = MathUtils.randomBetween(new Random(), 1, getJetsStat(stack));
-            double inaccuracy = 0.1D * jetsNum; // jets summon area depends on the num of jets
-            Vec3 motion = target.getDeltaMovement();
+        List<LivingEntity> entitiesAround = ItemUtils.getEntitiesInArea(entity, level, getRadiusStat(entity, stack));
 
-            // summon N jets next to the target
-            for (int i = 0; i < jetsNum; i++) {
-                double x = target.getX() + motion.x + randomizedAround(inaccuracy);
-                double y = target.getY() + motion.y;
-                double z = target.getZ() + motion.z + randomizedAround(inaccuracy);
-
-                level.addFreshEntity(new Flame_Jet_Entity(level,
-                        x, y, z, target.getYRot(), i + 2, getDamageStat(stack), player));
+        for (LivingEntity target : entitiesAround) {
+            if (!target.wasOnFire && target.isOnFire()) {
+                spawnJets(level, entity, target, stack, 0F); // jets spawn is guaranteed
             }
-
-            ((FlameKindlerRingItem) stack.getItem()).spreadRelicExperience(player, stack, 1);
         }
     }
 
-    private static double randomizedAround(double inaccuracy) {
-        return MathUtils.randomBetween(new Random(), -1.0D - inaccuracy, 1.0D + inaccuracy);
+    @SubscribeEvent
+    public static void onLivingAttack(LivingIncomingDamageEvent event) {
+        LivingEntity target = event.getEntity();
+        Level level = target.getCommandSenderWorld();
+
+        if (level.isClientSide || !(event.getSource().getDirectEntity() instanceof LivingEntity entity)
+                || EntityUtils.isAlliedTo(entity, target)) {
+            return;
+        }
+
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.FLAME_KINDLER_RING.get());
+
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        spawnJets(level, entity, target, stack, entity.getRandom().nextDouble());
     }
 
-    private static int getJetsStat(ItemStack stack) {
-        return (int) ((FlameKindlerRingItem) stack.getItem()).getStatValue(stack, ABILITY_ID, "jets");
+    private static void spawnJets(Level level, LivingEntity sourceEntity, LivingEntity targetEntity, ItemStack stack, double chance) {
+        if (chance > getChanceStat(sourceEntity, stack)) {
+            return;
+        }
+
+        int jetsNum = MathUtils.randomBetween(sourceEntity.getRandom(), 1, getJetsStat(sourceEntity, stack));
+        double inaccuracy = 0.1D * jetsNum; // summon area of jets depends on the num of jets
+        Vec3 motion = targetEntity.getDeltaMovement();
+
+        // summon N jets next to the target
+        for (int i = 0; i < jetsNum; i++) {
+            double x = targetEntity.getX() + motion.x + randomizedAround(sourceEntity, inaccuracy);
+            double y = targetEntity.getY() + motion.y;
+            double z = targetEntity.getZ() + motion.z + randomizedAround(sourceEntity, inaccuracy);
+
+            // ensure that potential spawn pos of jet is valid
+            BlockPos spawnPos = ItemUtils.getValidSpawnPos(level, BlockPos.containing(x, y, z));
+
+            if (spawnPos == null) {
+                continue;
+            }
+
+            FlameJetModifiedEntity flameJet = new FlameJetModifiedEntity(level,
+                    spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(),
+                    targetEntity.getYRot(), i + 2, getDamageStat(targetEntity, stack), sourceEntity);
+
+            level.addFreshEntity(flameJet);
+        }
+
+        ((FlameKindlerRingItem) stack.getItem()).spreadRelicExperience(sourceEntity, stack, 1);
     }
 
-    private static float getDamageStat(ItemStack stack) {
-        return (float) ((FlameKindlerRingItem) stack.getItem()).getStatValue(stack, ABILITY_ID, "damage");
+    private static double randomizedAround(LivingEntity entity, double inaccuracy) {
+        return MathUtils.randomBetween(entity.getRandom(), -1.0D - inaccuracy, 1.0D + inaccuracy);
     }
 
-    private static double getChanceStat(ItemStack stack) {
-        return ((FlameKindlerRingItem) stack.getItem()).getStatValue(stack, ABILITY_ID, "chance");
+    private static double getChanceStat(LivingEntity entity, ItemStack stack) {
+        return ((FlameKindlerRingItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "chance");
+    }
+
+    private static double getRadiusStat(LivingEntity entity, ItemStack stack) {
+        return ((FlameKindlerRingItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "radius");
+    }
+
+    private static int getJetsStat(LivingEntity entity, ItemStack stack) {
+        return (int) ((FlameKindlerRingItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "jets");
+    }
+
+    private static float getDamageStat(LivingEntity entity, ItemStack stack) {
+        return (float) ((FlameKindlerRingItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "damage");
     }
 }

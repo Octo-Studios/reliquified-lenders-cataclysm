@@ -8,7 +8,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathRandomUtils;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
-import it.hurts.sskirillss.relics.network.packets.PacketPlayerMotion;
+import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import lombok.Getter;
@@ -152,7 +152,7 @@ public class VoidVortexModifiedEntity extends Entity {
                 Vec3 motion = entity.getDeltaMovement().subtract(direction);
 
                 if (entity instanceof ServerPlayer player && !player.equals(getOwner())) {
-                    NetworkHandler.sendToClient(new PacketPlayerMotion(motion.x, motion.y, motion.z), player);
+                    NetworkHandler.sendToClient(new S2CSetEntityMotion(player.getId(), motion.toVector3f()), player);
                 } else {
                     double vortexMotionScale = 0.8D - 0.025D * (getHeight() - 3); // move vortices slower than other entities
 
@@ -251,7 +251,7 @@ public class VoidVortexModifiedEntity extends Entity {
             Vec3 motion = entity.getDeltaMovement().subtract(deltaMovement);
 
             if (entity instanceof ServerPlayer player && !player.equals(getOwner())) {
-                NetworkHandler.sendToClient(new PacketPlayerMotion(motion.x, motion.y, motion.z), player);
+                NetworkHandler.sendToClient(new S2CSetEntityMotion(player.getId(), motion.toVector3f()  ), player);
             } else {
                 entity.setDeltaMovement(motion);
             }

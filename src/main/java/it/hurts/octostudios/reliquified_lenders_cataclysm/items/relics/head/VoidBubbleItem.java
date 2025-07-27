@@ -6,16 +6,16 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentR
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
-import it.hurts.sskirillss.relics.items.relics.base.IRelicItem;
-import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemShape;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
-import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootData;
+import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
+import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
+import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
+import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
+import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.sounds.SoundEvents;
@@ -42,55 +42,44 @@ public class VoidBubbleItem extends RECItem {
     private static final String ABILITY_ID = "protective_bubble";
 
     @Override
-    public RelicData constructDefaultRelicData() {
-        return RelicData.builder()
-                .abilities(AbilitiesData.builder()
-                        .ability(AbilityData.builder(ABILITY_ID)
-                                .stat(StatData.builder("attack_blocks")
+    public RelicTemplate constructDefaultRelicTemplate() {
+        return RelicTemplate.builder()
+                .abilities(AbilitiesTemplate.builder()
+                        .ability(AbilityTemplate.builder(ABILITY_ID)
+                                .stat(StatTemplate.builder("attack_blocks")
                                         .initialValue(2D, 3D)
-                                        .upgradeModifier(UpgradeOperation.ADD, 0.5D)
+                                        .upgradeModifier(ScalingModelRegistry.ADDITIVE.get(), 0.5D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
-                                .stat(StatData.builder("projectiles")
+                                .stat(StatTemplate.builder("projectiles")
                                         .initialValue(16D, 20D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.22D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.22D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
-                                .stat(StatData.builder("damage")
+                                .stat(StatTemplate.builder("damage")
                                         .initialValue(0.4D, 0.6D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.56D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.56D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
-                                .stat(StatData.builder("cooldown")
+                                .stat(StatTemplate.builder("cooldown")
                                         .initialValue(30D, 25D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.068D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), -0.068D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())
-                .leveling(LevelingData.builder()
+                .leveling(LevelingTemplate.builder()
                         .initialCost(100)
                         .step(100)
-                        .maxLevel(10)
-                        .sources(LevelingSourcesData.builder()
-                                .source(LevelingSourceData
-                                        .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.SQUARE, GemColor.PURPLE)
-                                        .build())
-                                .build())
                         .build())
-                .loot(LootData.builder()
+                .loot(LootTemplate.builder()
                         .entry(LootEntries.THE_END)
                         .build())
-                .style(StyleData.builder()
+                .style(StyleTemplate.builder()
                         .tooltip(TooltipData.builder()
                                 .borderTop(0xFFFF9FC1)
                                 .borderBottom(0xFFE7598B)
                                 .textured(true)
-                                .build())
-                        .beams(BeamsData.builder()
-                                .startColor(0xFFD565CA)
-                                .endColor(0x004A00A5)
                                 .build())
                         .build())
                 .build();
@@ -98,24 +87,25 @@ public class VoidBubbleItem extends RECItem {
 
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
-        if (!(slotContext.entity() instanceof Player player)
-                || !(stack.getItem() instanceof VoidBubbleItem relic)) {
+        if (!(stack.getItem() instanceof VoidBubbleItem relic)) {
             return;
         }
 
-        Level level = player.getCommandSenderWorld();
+        LivingEntity entity = slotContext.entity();
+
+        Level level = entity.getCommandSenderWorld();
 
         if (level.isClientSide) {
             return;
         }
 
-        if (getAttackBlocks(stack) == getAttackBlocksStat(stack)) {
-            setCooldown(relic, stack);
+        if (getAttackBlocks(stack) == getAttackBlocksStat(entity, stack)) {
+            setCooldown(relic, entity, stack);
             stack.set(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
         }
 
-        if (getAbilityCooldown(stack, ABILITY_ID) == 1) {
-            ItemUtils.playCooldownSound(level, player);
+        if (getAbilityCooldown(entity, stack, ABILITY_ID) == 1) {
+            ItemUtils.playCooldownSound(level, entity);
         }
     }
 
@@ -123,12 +113,10 @@ public class VoidBubbleItem extends RECItem {
      * Ability {@code protective_bubble} <b>[1]</b>: remove the need for air
      */
     @SubscribeEvent
-    public static void onPlayerBreathe(LivingBreatheEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
+    public static void onLivingBreathe(LivingBreatheEvent event) {
+        LivingEntity entity = event.getEntity();
 
-        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_BUBBLE.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.VOID_BUBBLE.get());
 
         if (stack.isEmpty() || !(stack.getItem() instanceof VoidBubbleItem)) {
             return;
@@ -142,29 +130,30 @@ public class VoidBubbleItem extends RECItem {
      */
     @SubscribeEvent
     public static void onPlayerDamaged(LivingIncomingDamageEvent event) {
-        if (!(event.getEntity() instanceof Player player)
-                || !(event.getSource().getEntity() instanceof Entity)) {
+        if (!(event.getSource().getEntity() instanceof Entity)) {
             return;
         }
 
-        Level level = player.getCommandSenderWorld();
-        ItemStack stack = EntityUtils.findEquippedCurio(player, ItemRegistry.VOID_BUBBLE.get());
+        LivingEntity entity = event.getEntity();
+
+        Level level = entity.getCommandSenderWorld();
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.VOID_BUBBLE.get());
 
         if (level.isClientSide || stack.isEmpty() || !(stack.getItem() instanceof VoidBubbleItem relic)
-                || relic.isAbilityOnCooldown(stack, ABILITY_ID)) {
+                || relic.isAbilityOnCooldown(entity, stack, ABILITY_ID)) {
             return;
         }
 
         int attackBlocks = getAttackBlocks(stack);
-        int attackBlocksStat = relic.getAttackBlocksStat(stack);
+        int attackBlocksStat = relic.getAttackBlocksStat(entity, stack);
 
         if (attackBlocks < attackBlocksStat) {
             if (attackBlocks == attackBlocksStat - 1) {
-                relic.spawnShards(player, stack);
+                relic.spawnShards(entity, stack);
             }
 
-            relic.spreadRelicExperience(player, stack, 1);
-            level.playSound(null, player.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS);
+            relic.spreadRelicExperience(entity, stack, 1);
+            level.playSound(null, entity.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS);
 
             event.setCanceled(true);
 
@@ -174,7 +163,7 @@ public class VoidBubbleItem extends RECItem {
 
     private void spawnShards(LivingEntity caster, ItemStack stack) {
         Level level = caster.getCommandSenderWorld();
-        int projectilesNum = ItemUtils.getIntStat(stack, ABILITY_ID, "projectiles");
+        int projectilesNum = ItemUtils.getIntStat(caster, stack, ABILITY_ID, "projectiles");
 
         List<Vec3> movementVecs = getShootVectors(caster.getRandom(), projectilesNum);
 
@@ -185,7 +174,7 @@ public class VoidBubbleItem extends RECItem {
                     caster.getX() + movementVec.x,
                     caster.getY() + movementVec.y + 1.2D,
                     caster.getZ() + movementVec.z,
-                    movementVec, caster, getDamageStat(stack));
+                    movementVec, caster, getDamageStat(caster, stack));
 
             level.addFreshEntity(shardEntity);
         }
@@ -225,15 +214,15 @@ public class VoidBubbleItem extends RECItem {
         return stack.getOrDefault(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
     }
 
-    private int getAttackBlocksStat(ItemStack stack) {
-        return (int) Math.round(getStatValue(stack, ABILITY_ID, "attack_blocks"));
+    private int getAttackBlocksStat(LivingEntity entity, ItemStack stack) {
+        return (int) Math.round(getStatValue(entity, stack, ABILITY_ID, "attack_blocks"));
     }
 
-    private float getDamageStat(ItemStack stack) {
-        return (float) getStatValue(stack, ABILITY_ID, "damage");
+    private float getDamageStat(LivingEntity entity, ItemStack stack) {
+        return (float) getStatValue(entity, stack, ABILITY_ID, "damage");
     }
 
-    private static void setCooldown(IRelicItem relic, ItemStack stack) {
-        relic.setAbilityCooldown(stack, ABILITY_ID, ItemUtils.getCooldownStat(stack, ABILITY_ID));
+    private static void setCooldown(RelicItem relic, LivingEntity entity, ItemStack stack) {
+        relic.setAbilityCooldown(entity, stack, ABILITY_ID, ItemUtils.getCooldownStat(entity, stack, ABILITY_ID));
     }
 }

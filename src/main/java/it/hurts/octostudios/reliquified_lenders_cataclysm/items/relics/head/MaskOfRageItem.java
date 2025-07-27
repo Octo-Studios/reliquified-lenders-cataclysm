@@ -5,15 +5,15 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.MaskOfRageMotionPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
-import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemShape;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
-import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootData;
+import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
+import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
+import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
+import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
@@ -49,50 +49,39 @@ public class MaskOfRageItem extends RECItem {
     private static int ramModeTicks = 0;
 
     @Override
-    public RelicData constructDefaultRelicData() {
-        return RelicData.builder()
-                .abilities(AbilitiesData.builder()
-                        .ability(AbilityData.builder(ABILITY_ID)
-                                .stat(StatData.builder("speed")
+    public RelicTemplate constructDefaultRelicTemplate() {
+        return RelicTemplate.builder()
+                .abilities(AbilitiesTemplate.builder()
+                        .ability(AbilityTemplate.builder(ABILITY_ID)
+                                .stat(StatTemplate.builder("speed")
                                         .initialValue(7D, 6D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.033D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), -0.033D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
-                                .stat(StatData.builder("damage")
+                                .stat(StatTemplate.builder("damage")
                                         .initialValue(4D, 5D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.1D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.1D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
-                                .stat(StatData.builder("effect_duration")
+                                .stat(StatTemplate.builder("effect_duration")
                                         .initialValue(5D, 7D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.329D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.329D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())
-                .leveling(LevelingData.builder()
+                .leveling(LevelingTemplate.builder()
                         .initialCost(100)
                         .step(100)
-                        .maxLevel(10)
-                        .sources(LevelingSourcesData.builder()
-                                .source(LevelingSourceData
-                                        .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.SQUARE, GemColor.ORANGE)
-                                        .build())
-                                .build())
                         .build())
-                .loot(LootData.builder()
+                .loot(LootTemplate.builder()
                         .entry(LootEntries.THE_NETHER)
                         .build())
-                .style(StyleData.builder()
+                .style(StyleTemplate.builder()
                         .tooltip(TooltipData.builder()
                                 .borderTop(0xFFFE4A2D)
                                 .borderBottom(0xFFA30022)
                                 .textured(true)
-                                .build())
-                        .beams(BeamsData.builder()
-                                .startColor(0xFFFF2603)
-                                .endColor(0x0096001D)
                                 .build())
                         .build())
                 .build();
@@ -112,13 +101,13 @@ public class MaskOfRageItem extends RECItem {
             return;
         }
 
-        if (getEntitySpeed(entity) >= ItemUtils.getSpeedStat(stack, ABILITY_ID)) {
+        if (getEntitySpeed(entity) >= ItemUtils.getSpeedStat(entity, stack, ABILITY_ID)) {
             setRamModeTicks(getRamModeTicks() + 1);
 
             AABB entityBox = entity.getBoundingBox();
 
             List<LivingEntity> entitiesColliding = level.getEntities(entity, entityBox, entityOther ->
-                    entityBox.intersects(entityOther.getBoundingBox())).stream()
+                            entityBox.intersects(entityOther.getBoundingBox())).stream()
                     .map(entityOther -> entityOther instanceof LivingEntity livingEntity
                             && !EntityUtils.isAlliedTo(livingEntity, entity) ? livingEntity : null)
                     .filter(Objects::nonNull).toList();
@@ -129,9 +118,9 @@ public class MaskOfRageItem extends RECItem {
 
             Vec3 motion = entity.getDeltaMovement();
 
-            for (LivingEntity entityOther : entitiesColliding) {
-                NetworkHandler.sendToServer(new MaskOfRageMotionPacket(entityOther.getId(),
-                        motion.x, motion.z, getDamageStat(stack), getEffectDurationStat(stack)));
+            for (LivingEntity entityColliding : entitiesColliding) {
+                NetworkHandler.sendToServer(new MaskOfRageMotionPacket(entityColliding.getId(),
+                        motion.x, motion.z, getDamageStat(entity, stack), getEffectDurationStat(entity, stack)));
 
                 spreadRelicExperience(entity, stack, 1);
             }
@@ -199,11 +188,11 @@ public class MaskOfRageItem extends RECItem {
         }
     }
 
-    private static float getDamageStat(ItemStack stack) {
-        return (float) ((MaskOfRageItem) stack.getItem()).getStatValue(stack, ABILITY_ID, "damage");
+    private static float getDamageStat(LivingEntity entity, ItemStack stack) {
+        return (float) ((MaskOfRageItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "damage");
     }
 
-    private static int getEffectDurationStat(ItemStack stack) {
-        return (int) ((MaskOfRageItem) stack.getItem()).getStatValue(stack, ABILITY_ID, "effect_duration") * 20;
+    private static int getEffectDurationStat(LivingEntity entity, ItemStack stack) {
+        return (int) ((MaskOfRageItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "effect_duration") * 20;
     }
 }

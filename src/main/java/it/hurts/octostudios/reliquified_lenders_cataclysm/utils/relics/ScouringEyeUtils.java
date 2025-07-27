@@ -4,7 +4,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentR
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.sskirillss.relics.init.DataComponentRegistry;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
-import it.hurts.sskirillss.relics.network.packets.PacketPlayerMotion;
+import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -18,9 +18,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,8 +26,8 @@ import java.util.UUID;
 public class ScouringEyeUtils {
     public static final String ABILITY_ID = "glowing_scour";
 
-    public static void resetData(ItemStack stack) {
-        setGlowingTime(stack, getGlowingTimeStat(stack));
+    public static void resetData(LivingEntity entity, ItemStack stack) {
+        setGlowingTime(stack, getGlowingTimeStat(entity, stack));
         setTargetUUID(stack, "");
         setTeleportSafe(stack, false);
     }
@@ -41,8 +38,7 @@ public class ScouringEyeUtils {
         player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition().add(0D, 0.5D, 0D));
 
         // set player movement
-        NetworkHandler.sendToClient(new PacketPlayerMotion(motion.x, motion.y, motion.z), (ServerPlayer) player);
-
+        NetworkHandler.sendToClient(new S2CSetEntityMotion(player.getId(), motion.toVector3f()), (ServerPlayer) player);
 
         target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 30), player);
 
@@ -58,50 +54,17 @@ public class ScouringEyeUtils {
         BlockPos blockPos = BlockPos.containing(pos.x, pos.y, pos.z);
 
         // firstly check initial pos for safety
-        if (!isBlockSafe(level, blockPos)) {
+        if (!ItemUtils.isBlockSafe(level, blockPos)) {
             // then find nearest safe pos (there may be null if no safe pos found)
-            return getSafePos(level, blockPos);
+            return ItemUtils.getValidSpawnPos(level, blockPos);
         }
 
         return blockPos;
     }
 
-    @Nullable
-    public static BlockPos getSafePos(Level level, BlockPos initialPos) {
-        for (int i = 1; i <= 4; i++) {
-            for (int j = 1; j <= 4; j++) {
-                double initialY = initialPos.getY();
-
-                // get the nearest blocks at the same height in opposite to target's view direction
-                BlockPos pos = BlockPos.containing(
-                        initialPos.getX() + i, initialY, initialPos.getZ() + i);
-
-                BlockPos newPos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos);
-
-                // check for safety & possible height difference
-                if (isBlockSafe(level, newPos) && Math.abs(initialY - newPos.getY()) <= 3.0D) {
-                    return newPos;
-                }
-            }
-        }
-
-        return null;
-    }
-
     public static Vec3 getMovementOnTeleport(BlockPos teleportPos, BlockPos targetPos) {
         return new Vec3(targetPos.getX(), 0.0D, targetPos.getZ())
                 .subtract(teleportPos.getX(), 0.0D, teleportPos.getZ());
-    }
-
-    public static boolean isBlockSafe(Level level, BlockPos pos) {
-        BlockState blockState = level.getBlockState(pos);
-        BlockState blockStateBelow = level.getBlockState(pos.below());
-        BlockState blockStateAbove = level.getBlockState(pos.above());
-
-        return blockStateAbove.isAir() // player's head must be in air
-                && (blockState.isAir() || !blockState.isCollisionShapeFullBlock(level, pos))
-                && blockStateBelow.isSolid() // BlockState.isSolid() - deprecated
-                && !(blockStateBelow.getBlock() instanceof LiquidBlock);
     }
 
     @Nullable
@@ -123,17 +86,17 @@ public class ScouringEyeUtils {
 
     // simple getters & setters
 
-    public static boolean isGlowingTimeInBounds(ItemStack stack) {
-        return getGlowingTime(stack) > 0 && getGlowingTime(stack) <= getGlowingTimeStat(stack);
+    public static boolean isGlowingTimeInBounds(LivingEntity entity, ItemStack stack) {
+        return getGlowingTime(stack) > 0 && getGlowingTime(stack) <= getGlowingTimeStat(entity, stack);
     }
 
-    public static boolean isGlowingTimeTicking(ItemStack stack, Level level) {
-        return isGlowingTimeInBounds(stack) && getStackTime(stack) >= level.getGameTime() - 1;
+    public static boolean isGlowingTimeTicking(LivingEntity entity, ItemStack stack, Level level) {
+        return isGlowingTimeInBounds(entity, stack) && getStackTime(stack) >= level.getGameTime() - 1;
     }
 
-    public static boolean isTeleportAllowed(ItemStack stack) {
+    public static boolean isTeleportAllowed(LivingEntity entity, ItemStack stack) {
         return stack.getOrDefault(RECDataComponentRegistry.TP_SAFE, false)
-                && isGlowingTimeInBounds(stack)
+                && isGlowingTimeInBounds(entity, stack)
                 && !stack.getOrDefault(RECDataComponentRegistry.PLAYER_DIED, false);
     }
 
@@ -169,7 +132,7 @@ public class ScouringEyeUtils {
         stack.set(RECDataComponentRegistry.GLOWING_TIME, value);
     }
 
-    public static int getGlowingTimeStat(ItemStack stack) {
-        return ItemUtils.getTickStat(stack, ABILITY_ID, "glowing_time");
+    public static int getGlowingTimeStat(LivingEntity entity, ItemStack stack) {
+        return ItemUtils.getTickStat(entity, stack, ABILITY_ID, "glowing_time");
     }
 }

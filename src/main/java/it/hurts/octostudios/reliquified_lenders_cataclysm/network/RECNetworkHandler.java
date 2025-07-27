@@ -1,10 +1,8 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.network;
 
-import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VolcanoParticlesPacket;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.*;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.FlameJetSpawnPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.MaskOfRageMotionPacket;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VacuumGloveParticlesPacket;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VoidVortexMotionPacket;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VoidVortexParticlesPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.VolcanoOperationPacket;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -31,5 +29,7 @@ public class RECNetworkHandler {
                 MaskOfRageMotionPacket::handle);
         registrar.playToServer(VolcanoOperationPacket.TYPE, VolcanoOperationPacket.STREAM_CODEC,
                 VolcanoOperationPacket::handle);
+        registrar.playToServer(FlameJetSpawnPacket.TYPE, FlameJetSpawnPacket.STREAM_CODEC,
+                FlameJetSpawnPacket::handle);
     }
 }

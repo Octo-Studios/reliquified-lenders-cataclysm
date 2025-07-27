@@ -1,10 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.init;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.IgnitedShieldEntity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidShardModifiedEntity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidVortexModifiedEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -42,6 +39,16 @@ public class EntityRegistry {
                             .clientTrackingRange(10)
                             .fireImmune()
                             .build("void_vortex_modified")
+            );
+
+    public static final DeferredHolder<EntityType<?>, EntityType<FlameJetModifiedEntity>> FLAME_JET_MODIFIED =
+            ENTITIES.register("flame_jet_modified", () ->
+                    EntityType.Builder.<FlameJetModifiedEntity>of(FlameJetModifiedEntity::new, MobCategory.MISC)
+                            .sized(0.6F, 2.5F)
+                            .clientTrackingRange(6)
+                            .setUpdateInterval(2)
+                            .fireImmune()
+                            .build("flame_jet_modified")
             );
 
     public static final DeferredHolder<EntityType<?>, EntityType<IgnitedShieldEntity>> IGNITED_SHIELD =

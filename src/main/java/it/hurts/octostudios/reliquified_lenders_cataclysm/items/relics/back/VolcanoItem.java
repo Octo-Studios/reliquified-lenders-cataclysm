@@ -9,16 +9,16 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.sskirillss.relics.api.events.common.ContainerSlotClickEvent;
+import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
+import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
 import it.hurts.sskirillss.relics.init.DataComponentRegistry;
-import it.hurts.sskirillss.relics.items.relics.base.data.RelicData;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.*;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemColor;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.GemShape;
-import it.hurts.sskirillss.relics.items.relics.base.data.leveling.misc.UpgradeOperation;
-import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootData;
+import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
+import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.BeamsData;
-import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleData;
+import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
@@ -64,50 +64,39 @@ public class VolcanoItem extends RECItem {
     public static final String ABILITY_ID = "jetpack";
 
     @Override
-    public RelicData constructDefaultRelicData() {
-        return RelicData.builder()
-                .abilities(AbilitiesData.builder()
-                        .ability(AbilityData.builder(ABILITY_ID)
-                                .stat(StatData.builder("speed")
+    public RelicTemplate constructDefaultRelicTemplate() {
+        return RelicTemplate.builder()
+                .abilities(AbilitiesTemplate.builder()
+                        .ability(AbilityTemplate.builder(ABILITY_ID)
+                                .stat(StatTemplate  .builder("speed")
                                         .initialValue(2D, 2.5D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.18D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.18D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
-                                .stat(StatData.builder("consumption")
+                                .stat(StatTemplate.builder("consumption")
                                         .initialValue(4D, 3D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, -0.0833D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), -0.0833D)
                                         .formatValue(RECMathUtils::roundHundreds)
                                         .build())
-                                .stat(StatData.builder("capacity")
+                                .stat(StatTemplate.builder("capacity")
                                         .initialValue(3D, 4D)
-                                        .upgradeModifier(UpgradeOperation.MULTIPLY_BASE, 0.4D)
+                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.4D)
                                         .formatValue(RECMathUtils::roundThousands)
                                         .build())
                                 .build())
                         .build())
-                .leveling(LevelingData.builder()
+                .leveling(LevelingTemplate.builder()
                         .initialCost(100)
                         .step(100)
-                        .maxLevel(15)
-                        .sources(LevelingSourcesData.builder()
-                                .source(LevelingSourceData
-                                        .abilityBuilder(ABILITY_ID)
-                                        .gem(GemShape.SQUARE, GemColor.ORANGE)
-                                        .build())
-                                .build())
                         .build())
-                .loot(LootData.builder()
+                .loot(LootTemplate.builder()
                         .entry(LootEntries.THE_NETHER)
                         .build())
-                .style(StyleData.builder()
+                .style(StyleTemplate.builder()
                         .tooltip(TooltipData.builder()
                                 .borderTop(0xFFFFDF52)
                                 .borderBottom(0xFFD87F12)
                                 .textured(true)
-                                .build())
-                        .beams(BeamsData.builder()
-                                .startColor(0xFFCA7C00)
-                                .endColor(0x00713A44)
                                 .build())
                         .build())
                 .build();
@@ -119,14 +108,14 @@ public class VolcanoItem extends RECItem {
         super.appendHoverText(stack, tooltip, components, flag);
 
         int energy = VolcanoItem.getEnergy(stack);
-        int capacity = VolcanoItem.getCapacityForItem(stack);
+//        int capacity = VolcanoItem.getCapacityForItem(stack);
         ChatFormatting energyColor = ChatFormatting.YELLOW;
 
-        if (energy == capacity) {
-            energyColor = ChatFormatting.GREEN;
-        } else if (energy <= capacity * 0.1) {
-            energyColor = ChatFormatting.RED;
-        }
+//        if (energy == capacity) {
+//            energyColor = ChatFormatting.GREEN;
+//        } else if (energy <= capacity * 0.1) {
+//            energyColor = ChatFormatting.RED;
+//        }
 
         components.add(
                 Component.translatable("tooltip.reliquified_lenders_cataclysm.volcano").withStyle(ChatFormatting.GOLD)
@@ -147,8 +136,8 @@ public class VolcanoItem extends RECItem {
             NetworkHandler.sendToClientsTrackingEntityAndSelf(new VolcanoParticlesPacket(entity.getId()), entity);
         }
 
-        int energy = getEnergy(stack);
-        int capacity = getCapacityForItem(stack);
+        int energy = getEnergy(entity, stack);
+        int capacity = getCapacityForItem(entity, stack);
 
         if (energy > capacity) {
             addEnergy(entity, stack, energy - capacity);
@@ -173,15 +162,15 @@ public class VolcanoItem extends RECItem {
         ItemStack stack = stacksEquipped.getFirst();
         Iterator<ItemStack> stacksIterator = stacksEquipped.iterator();
 
-        while (!isStackValid(stack) && stacksIterator.hasNext()) {
+        while (!isStackValid(player, stack) && stacksIterator.hasNext()) {
             stack = stacksIterator.next();
 
-            if (isStackValid(stack)) {
+            if (isStackValid(player, stack)) {
                 break;
             }
         }
 
-        if (!isStackValid(stack)) {
+        if (!isStackValid(player, stack)) {
             return;
         }
 
@@ -196,7 +185,7 @@ public class VolcanoItem extends RECItem {
         Vec3 motion = player.getDeltaMovement();
 
         player.setDeltaMovement(
-                motion.x, ItemUtils.getSpeedStat(stack, ABILITY_ID) * stacksEquipped.size(), motion.z);
+                motion.x, ItemUtils.getSpeedStat(player, stack, ABILITY_ID) * stacksEquipped.size(), motion.z);
         // toggled = true
         NetworkHandler.sendToServer(new VolcanoOperationPacket(stacksEquipped.indexOf(stack), 0, true));
 
@@ -334,8 +323,8 @@ public class VolcanoItem extends RECItem {
 
     // getters & setters
 
-    private static boolean isStackValid(ItemStack stack) {
-        return !stack.isEmpty() && getEnergy(stack) > 0;
+    private static boolean isStackValid(LivingEntity entity, ItemStack stack) {
+        return !stack.isEmpty() && getEnergy(entity, stack) > 0;
     }
 
     private static boolean isItemStoringLava(IFluidHandlerItem item) {
@@ -349,7 +338,7 @@ public class VolcanoItem extends RECItem {
     }
 
     private static boolean addEnergy(LivingEntity entity, ItemStack stack, int value) {
-        int capacity = getCapacityForItem(stack), energy = getEnergy(stack);
+        int capacity = getCapacityForItem(entity, stack), energy = getEnergy(entity, stack);
 
         if (capacity <= energy) {
             return false;
@@ -371,18 +360,22 @@ public class VolcanoItem extends RECItem {
     }
 
     public static int getEnergy(ItemStack stack) {
-        return stack.getOrDefault(RECDataComponentRegistry.VOLCANO_ENERGY, getCapacityForItem(stack));
+        return stack.getOrDefault(RECDataComponentRegistry.VOLCANO_ENERGY, 10000);
     }
 
-    private static int getCapacityForItem(ItemStack stack) {
-        return ((VolcanoItem) stack.getItem()).getCapacityStat(stack);
+    public static int getEnergy(LivingEntity entity, ItemStack stack) {
+        return stack.getOrDefault(RECDataComponentRegistry.VOLCANO_ENERGY, getCapacityForItem(entity, stack));
     }
 
-    public int getConsumptionStat(ItemStack stack) {
-        return (int) (getStatValue(stack, ABILITY_ID, "consumption") * 100);
+    private static int getCapacityForItem(LivingEntity entity, ItemStack stack) {
+        return ((VolcanoItem) stack.getItem()).getCapacityStat(entity, stack);
     }
 
-    private int getCapacityStat(ItemStack stack) {
-        return (int) (MathUtils.round(getStatValue(stack, ABILITY_ID, "capacity"), 0) * 1000);
+    public int getConsumptionStat(LivingEntity entity, ItemStack stack) {
+        return (int) (getStatValue(entity, stack, ABILITY_ID, "consumption") * 100);
+    }
+
+    private int getCapacityStat(LivingEntity entity, ItemStack stack) {
+        return (int) (MathUtils.round(getStatValue(entity, stack, ABILITY_ID, "capacity"), 0) * 1000);
     }
 }
