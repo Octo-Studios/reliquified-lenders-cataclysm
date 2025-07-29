@@ -1,11 +1,8 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.entities;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Flame_Jet_Entity;
-import com.github.L_Ender.cataclysm.init.ModParticle;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.EntityRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.FlameJetSpawnPacket;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;

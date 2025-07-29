@@ -9,7 +9,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public class EntityRegistry {
+public class RECEntities {
     private static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, ReliquifiedLendersCataclysm.MOD_ID);
 
     public static final DeferredHolder<EntityType<?>, EntityType<ScreenShakeSoundedEntity>> SCREEN_SHAKE_SOUNDED =

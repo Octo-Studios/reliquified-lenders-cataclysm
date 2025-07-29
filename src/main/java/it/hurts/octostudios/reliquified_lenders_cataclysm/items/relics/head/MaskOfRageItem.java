@@ -1,6 +1,6 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.head;
 
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.MaskOfRageMotionPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
@@ -141,7 +141,7 @@ public class MaskOfRageItem extends RECItem {
             return;
         }
 
-        ItemStack stack = EntityUtils.findEquippedCurio(event.getEntity(), ItemRegistry.MASK_OF_RAGE.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(event.getEntity(), RECItems.MASK_OF_RAGE.get());
 
         if (stack.isEmpty()) {
             return;

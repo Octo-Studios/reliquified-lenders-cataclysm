@@ -1,7 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.ring;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.FlameJetModifiedEntity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
@@ -105,7 +105,7 @@ public class FlameKindlerRingItem extends RECItem {
             return;
         }
 
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.FLAME_KINDLER_RING.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.FLAME_KINDLER_RING.get());
 
         if (stack.isEmpty()) {
             return;

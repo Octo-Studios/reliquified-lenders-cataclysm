@@ -1,7 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back;
 
 import com.github.L_Ender.cataclysm.init.ModItems;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VolcanoParticlesPacket;
@@ -153,7 +153,7 @@ public class VolcanoItem extends RECItem {
             return;
         }
 
-        List<ItemStack> stacksEquipped = EntityUtils.findEquippedCurios(player, ItemRegistry.VOLCANO.get());
+        List<ItemStack> stacksEquipped = EntityUtils.findEquippedCurios(player, RECItems.VOLCANO.get());
 
         if (stacksEquipped.isEmpty()) {
             return;

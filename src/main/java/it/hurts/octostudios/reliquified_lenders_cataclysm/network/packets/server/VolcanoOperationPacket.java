@@ -2,7 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.serve
 
 import io.netty.buffer.ByteBuf;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VolcanoItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
@@ -44,7 +44,7 @@ public record VolcanoOperationPacket(int stackIndex, int operationId, boolean to
         ctx.enqueueWork(() -> {
             Player player = ctx.player();
             Level level = player.getCommandSenderWorld();
-            ItemStack stack = EntityUtils.findEquippedCurios(player, ItemRegistry.VOLCANO.get()).get(stackIndex);
+            ItemStack stack = EntityUtils.findEquippedCurios(player, RECItems.VOLCANO.get()).get(stackIndex);
 
             if (stack.isEmpty()) {
                 return;

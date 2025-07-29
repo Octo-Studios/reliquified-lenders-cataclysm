@@ -2,7 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Blazing_Bone_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.IgnitedShieldEntity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
@@ -214,7 +214,7 @@ public class FirePlateItem extends RECItem {
                         .map(entity -> entity instanceof IgnitedShieldEntity shield && shield.getOwner() != null
                                 && shield.getOwner().equals(player) ? shield : null)
                         .filter(Objects::nonNull).toList();
-        List<ItemStack> stacksEquipped = EntityUtils.findEquippedCurios(player, ItemRegistry.FIRE_PLATE.get());
+        List<ItemStack> stacksEquipped = EntityUtils.findEquippedCurios(player, RECItems.FIRE_PLATE.get());
 
         for (IgnitedShieldEntity shield : shieldsAround) {
             boolean isShieldBounded = false;
@@ -244,7 +244,7 @@ public class FirePlateItem extends RECItem {
             return;
         }
 
-        for (ItemStack stack : EntityUtils.findEquippedCurios(entity, ItemRegistry.FIRE_PLATE.get())) {
+        for (ItemStack stack : EntityUtils.findEquippedCurios(entity, RECItems.FIRE_PLATE.get())) {
             if (stack.isEmpty()) {
                 continue;
             }

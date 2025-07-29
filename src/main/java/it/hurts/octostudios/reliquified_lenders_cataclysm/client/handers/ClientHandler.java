@@ -1,18 +1,19 @@
-package it.hurts.octostudios.reliquified_lenders_cataclysm.init;
+package it.hurts.octostudios.reliquified_lenders_cataclysm.client.handers;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer.IgnitedShieldRenderer;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer.VoidVortexModifiedRenderer;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECEntities;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
 @EventBusSubscriber(modid = ReliquifiedLendersCataclysm.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public class RemoteRegistry {
+public class ClientHandler {
     @SubscribeEvent
     public static void entityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(EntityRegistry.VOID_VORTEX_MODIFIED.get(), VoidVortexModifiedRenderer::new);
-        event.registerEntityRenderer(EntityRegistry.IGNITED_SHIELD.get(), IgnitedShieldRenderer::new);
+        event.registerEntityRenderer(RECEntities.VOID_VORTEX_MODIFIED.get(), VoidVortexModifiedRenderer::new);
+        event.registerEntityRenderer(RECEntities.IGNITED_SHIELD.get(), IgnitedShieldRenderer::new);
     }
 }

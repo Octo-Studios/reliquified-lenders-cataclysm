@@ -1,7 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm;
 
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.EntityRegistry;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECEntities;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -14,8 +14,8 @@ public class ReliquifiedLendersCataclysm {
     public ReliquifiedLendersCataclysm(IEventBus bus) {
         bus.addListener(this::setupCommon);
 
-        ItemRegistry.register(bus);
-        EntityRegistry.register(bus);
+        RECItems.register(bus);
+        RECEntities.register(bus);
         RECDataComponents.register(bus);
     }
 

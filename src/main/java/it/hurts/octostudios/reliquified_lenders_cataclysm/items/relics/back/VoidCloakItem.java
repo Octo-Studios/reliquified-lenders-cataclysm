@@ -1,7 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Rune_Entity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
@@ -161,7 +161,7 @@ public class VoidCloakItem extends RECItem {
 
         LivingEntity entity = voidRuneEntity.getCaster();
 
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.VOID_CLOAK.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.VOID_CLOAK.get());
 
         if (stack.isEmpty() || !(stack.getItem() instanceof VoidCloakItem relic)) {
             return;
@@ -190,7 +190,7 @@ public class VoidCloakItem extends RECItem {
             }
         }
 
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.VOID_CLOAK.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.VOID_CLOAK.get());
 
         if (stack.isEmpty() || !(stack.getItem() instanceof VoidCloakItem)) {
             return;
@@ -219,7 +219,7 @@ public class VoidCloakItem extends RECItem {
             return;
         }
 
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.VOID_CLOAK.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.VOID_CLOAK.get());
 
         if (stack.isEmpty() || !(stack.getItem() instanceof VoidCloakItem relic)
                 || !relic.isAbilityUnlocked(entityDead, stack, "seismic_zone")) {

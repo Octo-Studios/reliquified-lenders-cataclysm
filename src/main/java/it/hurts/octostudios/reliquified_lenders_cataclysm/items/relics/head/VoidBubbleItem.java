@@ -1,7 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.head;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidShardModifiedEntity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
@@ -24,7 +24,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -116,7 +115,7 @@ public class VoidBubbleItem extends RECItem {
     public static void onLivingBreathe(LivingBreatheEvent event) {
         LivingEntity entity = event.getEntity();
 
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.VOID_BUBBLE.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.VOID_BUBBLE.get());
 
         if (stack.isEmpty() || !(stack.getItem() instanceof VoidBubbleItem)) {
             return;
@@ -137,7 +136,7 @@ public class VoidBubbleItem extends RECItem {
         LivingEntity entity = event.getEntity();
 
         Level level = entity.getCommandSenderWorld();
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.VOID_BUBBLE.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.VOID_BUBBLE.get());
 
         if (level.isClientSide || stack.isEmpty() || !(stack.getItem() instanceof VoidBubbleItem relic)
                 || relic.isAbilityOnCooldown(entity, stack, ABILITY_ID)) {

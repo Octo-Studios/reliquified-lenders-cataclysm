@@ -3,7 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.entities;
 import com.github.L_Ender.cataclysm.client.particle.Options.StormParticleOptions;
 import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.init.ModSounds;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.EntityRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECEntities;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VoidVortexParticlesPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathRandomUtils;
@@ -70,7 +70,7 @@ public class VoidVortexModifiedEntity extends Entity {
 
     public VoidVortexModifiedEntity(Level level, double x, double y, double z, float yRot,
                                     LivingEntity owner, int lifespan, int height, float damage) {
-        this(EntityRegistry.VOID_VORTEX_MODIFIED.get(), level);
+        this(RECEntities.VOID_VORTEX_MODIFIED.get(), level);
 
         setLifespan(lifespan);
         setLifespanStat(lifespan);

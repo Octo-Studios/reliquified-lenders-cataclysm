@@ -1,6 +1,6 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.entities;
 
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.EntityRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECEntities;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -42,7 +42,7 @@ public class IgnitedShieldEntity extends Entity {
 
     public IgnitedShieldEntity(Level level, LivingEntity owner, Vec3 pos,
                                float health) {
-        this(EntityRegistry.IGNITED_SHIELD.get(), level);
+        this(RECEntities.IGNITED_SHIELD.get(), level);
 
         setOwner(owner);
         setPos(pos);

@@ -1,6 +1,6 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory;
 
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
@@ -213,7 +213,7 @@ public class ScouringEyeItem extends RECItem {
     public static void onLivingDeath(LivingDeathEvent event) {
         LivingEntity entity = event.getEntity();
 
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.SCOURING_EYE.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.SCOURING_EYE.get());
 
         if (entity.getCommandSenderWorld().isClientSide || stack.isEmpty()) {
             return;

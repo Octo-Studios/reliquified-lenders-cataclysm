@@ -1,7 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidVortexModifiedEntity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
@@ -103,7 +103,7 @@ public class VoidVortexInBottleItem extends RECItem {
             return;
         }
 
-        for (ItemStack stack : EntityUtils.findEquippedCurios(entity, ItemRegistry.VOID_VORTEX_IN_BOTTLE.get())) {
+        for (ItemStack stack : EntityUtils.findEquippedCurios(entity, RECItems.VOID_VORTEX_IN_BOTTLE.get())) {
             LivingEntity target = event.getEntity();
 
             if (!(stack.getItem() instanceof VoidVortexInBottleItem relic)
