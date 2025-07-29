@@ -2,7 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back;
 
 import com.github.L_Ender.cataclysm.init.ModItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VolcanoParticlesPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.VolcanoOperationPacket;
@@ -13,8 +13,8 @@ import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
-import it.hurts.sskirillss.relics.init.DataComponentRegistry;
-import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.init.RelicsDataComponents;
+import it.hurts.sskirillss.relics.init.RelicsScalingModels;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
@@ -70,17 +70,17 @@ public class VolcanoItem extends RECItem {
                         .ability(AbilityTemplate.builder(ABILITY_ID)
                                 .stat(StatTemplate  .builder("speed")
                                         .initialValue(2D, 2.5D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.18D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.18D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatTemplate.builder("consumption")
                                         .initialValue(4D, 3D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), -0.0833D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), -0.0833D)
                                         .formatValue(RECMathUtils::roundHundreds)
                                         .build())
                                 .stat(StatTemplate.builder("capacity")
                                         .initialValue(3D, 4D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.4D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.4D)
                                         .formatValue(RECMathUtils::roundThousands)
                                         .build())
                                 .build())
@@ -344,7 +344,7 @@ public class VolcanoItem extends RECItem {
             return false;
         }
 
-        stack.set(RECDataComponentRegistry.VOLCANO_ENERGY, Math.min(capacity, energy + value));
+        stack.set(RECDataComponents.VOLCANO_ENERGY, Math.min(capacity, energy + value));
 
         entity.playSound(SoundEvents.LAVA_POP);
 
@@ -352,19 +352,19 @@ public class VolcanoItem extends RECItem {
     }
 
     public static void setToggled(ItemStack stack, boolean value) {
-        stack.set(DataComponentRegistry.TOGGLED, value);
+        stack.set(RelicsDataComponents.TOGGLED, value);
     }
 
     public static boolean isToggled(ItemStack stack) {
-        return stack.getOrDefault(DataComponentRegistry.TOGGLED, false);
+        return stack.getOrDefault(RelicsDataComponents.TOGGLED, false);
     }
 
     public static int getEnergy(ItemStack stack) {
-        return stack.getOrDefault(RECDataComponentRegistry.VOLCANO_ENERGY, 10000);
+        return stack.getOrDefault(RECDataComponents.VOLCANO_ENERGY, 10000);
     }
 
     public static int getEnergy(LivingEntity entity, ItemStack stack) {
-        return stack.getOrDefault(RECDataComponentRegistry.VOLCANO_ENERGY, getCapacityForItem(entity, stack));
+        return stack.getOrDefault(RECDataComponents.VOLCANO_ENERGY, getCapacityForItem(entity, stack));
     }
 
     private static int getCapacityForItem(LivingEntity entity, ItemStack stack) {

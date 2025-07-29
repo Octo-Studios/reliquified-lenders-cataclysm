@@ -2,7 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.EntityRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -16,7 +16,7 @@ public class ReliquifiedLendersCataclysm {
 
         ItemRegistry.register(bus);
         EntityRegistry.register(bus);
-        RECDataComponentRegistry.register(bus);
+        RECDataComponents.register(bus);
     }
 
     private void setupCommon(final FMLCommonSetupEvent event) {

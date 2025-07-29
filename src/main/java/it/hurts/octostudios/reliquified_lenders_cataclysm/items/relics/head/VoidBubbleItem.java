@@ -2,7 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.head;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidShardModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
@@ -10,7 +10,7 @@ import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
-import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.init.RelicsScalingModels;
 import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
@@ -48,22 +48,22 @@ public class VoidBubbleItem extends RECItem {
                         .ability(AbilityTemplate.builder(ABILITY_ID)
                                 .stat(StatTemplate.builder("attack_blocks")
                                         .initialValue(2D, 3D)
-                                        .upgradeModifier(ScalingModelRegistry.ADDITIVE.get(), 0.5D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.5D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("projectiles")
                                         .initialValue(16D, 20D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.22D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.22D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("damage")
                                         .initialValue(0.4D, 0.6D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.56D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.56D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatTemplate.builder("cooldown")
                                         .initialValue(30D, 25D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), -0.068D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), -0.068D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
@@ -101,7 +101,7 @@ public class VoidBubbleItem extends RECItem {
 
         if (getAttackBlocks(stack) == getAttackBlocksStat(entity, stack)) {
             setCooldown(relic, entity, stack);
-            stack.set(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
+            stack.set(RECDataComponents.ATTACK_BLOCKS, 0);
         }
 
         if (getAbilityCooldown(entity, stack, ABILITY_ID) == 1) {
@@ -157,7 +157,7 @@ public class VoidBubbleItem extends RECItem {
 
             event.setCanceled(true);
 
-            stack.set(RECDataComponentRegistry.ATTACK_BLOCKS, attackBlocks + 1);
+            stack.set(RECDataComponents.ATTACK_BLOCKS, attackBlocks + 1);
         }
     }
 
@@ -211,7 +211,7 @@ public class VoidBubbleItem extends RECItem {
     // simple getters & setters
 
     private static int getAttackBlocks(ItemStack stack) {
-        return stack.getOrDefault(RECDataComponentRegistry.ATTACK_BLOCKS, 0);
+        return stack.getOrDefault(RECDataComponents.ATTACK_BLOCKS, 0);
     }
 
     private int getAttackBlocksStat(LivingEntity entity, ItemStack stack) {

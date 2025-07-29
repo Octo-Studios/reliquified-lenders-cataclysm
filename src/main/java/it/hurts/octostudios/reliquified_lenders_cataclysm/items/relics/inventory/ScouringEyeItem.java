@@ -1,4 +1,4 @@
-package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
+package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
@@ -10,9 +10,8 @@ import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
-import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.init.RelicsScalingModels;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
-import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastStage;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastType;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.PredicateType;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
@@ -24,6 +23,9 @@ import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -34,7 +36,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import top.theillusivec4.curios.api.SlotContext;
+import org.jetbrains.annotations.NotNull;
 
 import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils.*;
 
@@ -52,14 +54,9 @@ public class ScouringEyeItem extends RECItem {
                                         .predicate("tp_allowed", PredicateType.CAST,
                                                 ScouringEyeUtils::isTeleportAllowed)
                                         .build())
-                                .stat(StatTemplate.builder("cooldown")
-                                        .initialValue(20D, 15D)
-                                        .upgradeModifier(ScalingModelRegistry.ADDITIVE.get(), -1D)
-                                        .formatValue(RECMathUtils::roundOneDigit)
-                                        .build())
                                 .stat(StatTemplate.builder("glowing_time")
                                         .initialValue(10D, 12D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.525D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.525D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .build())
@@ -82,11 +79,10 @@ public class ScouringEyeItem extends RECItem {
     }
 
     @Override
-    public void curioTick(SlotContext slotContext, ItemStack stack) {
-        LivingEntity entity = slotContext.entity();
-        Level level = entity.level();
+    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
 
-        if (level.isClientSide) {
+        if (!(entity instanceof LivingEntity livingEntity) || level.isClientSide) {
             return;
         }
 
@@ -97,13 +93,13 @@ public class ScouringEyeItem extends RECItem {
         }
 
         if (target.isDeadOrDying()) {
-            resetData(entity, stack);
+            resetData(livingEntity, stack);
 
             return;
         }
 
         // safe tp predicate
-        setTeleportSafe(stack, getTeleportPos(entity, target) != null);
+        setTeleportSafe(stack, getTeleportPos(livingEntity, target) != null);
 
         // handle glowing time
 
@@ -117,7 +113,7 @@ public class ScouringEyeItem extends RECItem {
 
         // play sound when limit exceeded
         if (glowingTime == 1) {
-            level.playSound(null, entity.blockPosition(),
+            level.playSound(null, livingEntity.blockPosition(),
                     SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.PLAYERS);
         }
 
@@ -143,21 +139,17 @@ public class ScouringEyeItem extends RECItem {
      * Ability {@code glowing_scour} <b>[active]</b>: tp player to the attacked entity, then set the cooldown
      */
     @Override
-    public void castActiveAbility(Player player, ItemStack stack, String ability, CastType type, CastStage stage) {
-        if (!ability.equals(ABILITY_ID)) {
-            return;
-        }
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
 
-        Level level = player.getCommandSenderWorld();
-
-        if (level.isClientSide) {
-            return;
+        if (level.isClientSide || !canPlayerUseAbility(player, stack, ABILITY_ID)) {
+            return InteractionResultHolder.pass(stack);
         }
 
         LivingEntity target = getEntityFromStack(level, stack);
 
         if (target == null) {
-            return;
+            return InteractionResultHolder.pass(stack);
         }
 
         BlockPos teleportPos = getTeleportPos(player, target);
@@ -166,7 +158,7 @@ public class ScouringEyeItem extends RECItem {
         if (teleportPos == null) {
             setTeleportSafe(stack, false);
 
-            return;
+            return InteractionResultHolder.pass(stack);
         }
 
         Vec3 teleportMovement = getMovementOnTeleport(teleportPos, target.blockPosition()).scale(0.12D);
@@ -175,6 +167,8 @@ public class ScouringEyeItem extends RECItem {
         setAbilityCooldown(player, stack, ABILITY_ID, ItemUtils.getCooldownStat(player, stack, ABILITY_ID));
 
         spreadRelicExperience(player, stack, 1);
+
+        return InteractionResultHolder.success(stack);
     }
 
     /**
@@ -183,29 +177,34 @@ public class ScouringEyeItem extends RECItem {
      */
     @SubscribeEvent
     public static void onPlayerAttack(LivingDamageEvent.Post event) {
-        LivingEntity entity = null;
+        Player player = null;
 
         if (event.getSource().getEntity() instanceof Projectile projectile
-                && projectile.getOwner() instanceof LivingEntity ownerEntity) {
-            entity = ownerEntity;
-        } else if (event.getSource().getEntity() instanceof LivingEntity sourceEntity) {
-            entity = sourceEntity;
+                && projectile.getOwner() instanceof Player ownerPlayer) {
+            player = ownerPlayer;
+        } else if (event.getSource().getEntity() instanceof Player sourcePlayer) {
+            player = sourcePlayer;
         }
 
-        if (entity == null) {
+        if (player == null) {
             return;
         }
 
-        Level level = entity.getCommandSenderWorld();
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, ItemRegistry.SCOURING_EYE.get());
+        Level level = player.getCommandSenderWorld();
         LivingEntity target = event.getEntity();
 
-        if (level.isClientSide || stack.isEmpty() || target.isDeadOrDying() || target.equals(entity)) {
+        if (level.isClientSide || target.isDeadOrDying() || target.equals(player)) {
+            return;
+        }
+
+        ItemStack stack = ScouringEyeUtils.getFirstFromInventory(player);
+
+        if (stack.isEmpty()) {
             return;
         }
 
         setStackTime(stack, (int) level.getGameTime());
-        setGlowingTime(stack, getGlowingTimeStat(entity, stack)); // set new glowing time on each attack
+        setGlowingTime(stack, getGlowingTimeStat(player, stack)); // set new glowing time on each attack
         setTargetUUID(stack, target.getUUID().toString());
         setPlayerDied(stack, false);
     }

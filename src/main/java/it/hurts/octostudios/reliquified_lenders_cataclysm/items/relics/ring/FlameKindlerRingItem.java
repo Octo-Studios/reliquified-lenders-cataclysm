@@ -9,7 +9,7 @@ import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
-import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.init.RelicsScalingModels;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
@@ -40,22 +40,22 @@ public class FlameKindlerRingItem extends RECItem {
                         .ability(AbilityTemplate.builder(ABILITY_ID)
                                 .stat(StatTemplate.builder("radius")
                                         .initialValue(5D, 6D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.363D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.363D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatTemplate.builder("chance")
                                         .initialValue(0.25D, 0.3D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.167D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.167D)
                                         .formatValue(RECMathUtils::roundPercents)
                                         .build())
                                 .stat(StatTemplate.builder("jets")
                                         .initialValue(3D, 4D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.3D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.3D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("damage")
                                         .initialValue(3D, 4D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.1D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.1D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())

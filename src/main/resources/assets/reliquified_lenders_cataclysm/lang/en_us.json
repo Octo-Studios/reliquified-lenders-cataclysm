@@ -2,7 +2,7 @@
   "item.reliquified_lenders_cataclysm.scouring_eye": "Scouring Eye",
   "tooltip.relics.scouring_eye.description": "An eye torn from the socket of one of the legendary End monsters. Despite the years passed, it is still alive and searching for a target for its next battle...",
   "tooltip.relics.scouring_eye.ability.glowing_scour": "Pursuit",
-  "tooltip.relics.scouring_eye.ability.glowing_scour.description": "Remembers the last target attacked by the player for %2$s seconds. When the ability is activated, the player is teleported behind the remembered target and the ability goes on cooldown for %1$s seconds.",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.description": "Remembers the last target attacked by the player for %1$s seconds. When the ability is activated, the player is teleported behind the remembered target and the ability goes on cooldown for %1$s seconds.",
   "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.target": "Selected Target",
   "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.tp_allowed": "Teleportation Conditions Met",
   "tooltip.relics.scouring_eye.leveling_source.glowing_scour.title": "Pursuit",

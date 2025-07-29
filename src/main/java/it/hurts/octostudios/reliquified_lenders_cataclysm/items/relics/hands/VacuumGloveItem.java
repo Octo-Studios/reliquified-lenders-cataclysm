@@ -1,6 +1,6 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands;
 
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VacuumGloveParticlesPacket;
@@ -10,8 +10,8 @@ import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
-import it.hurts.sskirillss.relics.init.DataComponentRegistry;
-import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.init.RelicsDataComponents;
+import it.hurts.sskirillss.relics.init.RelicsScalingModels;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
@@ -43,12 +43,12 @@ public class VacuumGloveItem extends RECItem {
                         .ability(AbilityTemplate.builder(ABILITY_ID)
                                 .stat(StatTemplate.builder("slowdown")
                                         .initialValue(0.28D, 0.34D)
-                                        .upgradeModifier(ScalingModelRegistry.ADDITIVE.get(), 0.15D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.15D)
                                         .formatValue(RECMathUtils::roundPercents)
                                         .build())
                                 .stat(StatTemplate.builder("radius")
                                         .initialValue(6D, 6.5D)
-                                        .upgradeModifier(ScalingModelRegistry.ADDITIVE.get(), 0.35D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.35D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .build())
@@ -129,14 +129,14 @@ public class VacuumGloveItem extends RECItem {
 
         // leveling
 
-        int ticks = stack.getOrDefault(DataComponentRegistry.TIME, 0);
+        int ticks = stack.getOrDefault(RelicsDataComponents.TIME, 0);
 
         // +1 for each 10 s of slowdown
         if (ticks % 200 == 0) {
             spreadRelicExperience(entity, stack, 1);
         }
 
-        stack.set(DataComponentRegistry.TIME, ticks + 1);
+        stack.set(RelicsDataComponents.TIME, ticks + 1);
     }
 
     @Override
@@ -177,11 +177,11 @@ public class VacuumGloveItem extends RECItem {
     }
 
     public ArrayList<UUID> getSlowedEntities(ItemStack stack) {
-        return new ArrayList<>(stack.getOrDefault(RECDataComponentRegistry.SLOWED_ENTITIES, new ArrayList<>()));
+        return new ArrayList<>(stack.getOrDefault(RECDataComponents.SLOWED_ENTITIES, new ArrayList<>()));
     }
 
     public void setSlowedEntities(ItemStack stack, List<UUID> entities) {
-        stack.set(RECDataComponentRegistry.SLOWED_ENTITIES, entities);
+        stack.set(RECDataComponents.SLOWED_ENTITIES, entities);
     }
 
     private void resetSlowedEntities(Level level, ItemStack stack) {
@@ -199,6 +199,6 @@ public class VacuumGloveItem extends RECItem {
             ItemUtils.removeMovementAttribute(target, stack);
         }
 
-        stack.set(RECDataComponentRegistry.SLOWED_ENTITIES, new ArrayList<>());
+        stack.set(RECDataComponents.SLOWED_ENTITIES, new ArrayList<>());
     }
 }

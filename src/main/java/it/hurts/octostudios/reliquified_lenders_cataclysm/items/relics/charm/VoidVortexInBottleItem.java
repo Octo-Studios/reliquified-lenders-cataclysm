@@ -2,7 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidVortexModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
@@ -11,7 +11,7 @@ import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
-import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.init.RelicsScalingModels;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
@@ -37,17 +37,17 @@ public class VoidVortexInBottleItem extends RECItem {
                         .ability(AbilityTemplate.builder(ABILITY_ID)
                                 .stat(StatTemplate.builder("height")
                                         .initialValue(3D, 4D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.075D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.075D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("damage")
                                         .initialValue(6.0D, 8.0D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.15D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.15D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatTemplate.builder("cooldown")
                                         .initialValue(30D, 25D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), -0.06D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), -0.06D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
@@ -128,14 +128,14 @@ public class VoidVortexInBottleItem extends RECItem {
     }
 
     private int getVortexCooldown(ItemStack stack) {
-        return stack.getOrDefault(RECDataComponentRegistry.COOLDOWN, 0);
+        return stack.getOrDefault(RECDataComponents.COOLDOWN, 0);
     }
 
     private void reduceVortexCooldown(ItemStack stack) {
-        stack.set(RECDataComponentRegistry.COOLDOWN, getVortexCooldown(stack) - 1);
+        stack.set(RECDataComponents.COOLDOWN, getVortexCooldown(stack) - 1);
     }
 
     private void setVortexCooldown(LivingEntity entity, ItemStack stack) {
-        stack.set(RECDataComponentRegistry.COOLDOWN, ItemUtils.getCooldownStat(entity, stack, ABILITY_ID));
+        stack.set(RECDataComponents.COOLDOWN, ItemUtils.getCooldownStat(entity, stack, ABILITY_ID));
     }
 }

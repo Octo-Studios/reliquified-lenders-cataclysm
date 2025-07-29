@@ -3,7 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.serve
 import io.netty.buffer.ByteBuf;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VolcanoItem;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.network.codec.StreamCodec;
@@ -61,7 +61,7 @@ public record VolcanoOperationPacket(int stackIndex, int operationId, boolean to
     private static void consumeEnergy(ItemStack stack, Level level, Player player) {
         int energyNew = VolcanoItem.getEnergy(player, stack) - ((VolcanoItem) stack.getItem()).getConsumptionStat(player, stack);
 
-        stack.set(RECDataComponentRegistry.VOLCANO_ENERGY,
+        stack.set(RECDataComponents.VOLCANO_ENERGY,
                 Math.max(0, energyNew));
 
         if (energyNew <= 0) {

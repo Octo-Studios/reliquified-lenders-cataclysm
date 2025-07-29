@@ -2,7 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Rune_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
@@ -11,7 +11,7 @@ import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
-import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.init.RelicsScalingModels;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
 import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastType;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
@@ -52,12 +52,12 @@ public class VoidCloakItem extends RECItem {
                                         .build())
                                 .stat(StatTemplate.builder("cooldown")
                                         .initialValue(20D, 16D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), -0.05625D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), -0.05625D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatTemplate.builder("damage")
                                         .initialValue(1.4D, 1.76D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.525D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.525D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
@@ -65,17 +65,17 @@ public class VoidCloakItem extends RECItem {
                                 .requiredLevel(5)
                                 .stat(StatTemplate.builder("radius")
                                         .initialValue(2D, 3D)
-                                        .upgradeModifier(ScalingModelRegistry.ADDITIVE.get(), 0.5D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.5D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("waves")
                                         .initialValue(2D, 3D)
-                                        .upgradeModifier(ScalingModelRegistry.ADDITIVE.get(), 0.5D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.5D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("damage")
                                         .initialValue(1.4D, 1.76D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.525D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.525D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
@@ -112,7 +112,7 @@ public class VoidCloakItem extends RECItem {
             return;
         }
 
-        int voidRuneCooldown = stack.getOrDefault(RECDataComponentRegistry.VOID_RUNE_TIME, 0);
+        int voidRuneCooldown = stack.getOrDefault(RECDataComponents.VOID_RUNE_TIME, 0);
 
         if (voidRuneCooldown > 0) {
             voidRuneCooldown--;
@@ -149,7 +149,7 @@ public class VoidCloakItem extends RECItem {
             }
         }
 
-        stack.set(RECDataComponentRegistry.VOID_RUNE_TIME, voidRuneCooldown);
+        stack.set(RECDataComponents.VOID_RUNE_TIME, voidRuneCooldown);
     }
 
     // add relic xp on entity damaged by void rune

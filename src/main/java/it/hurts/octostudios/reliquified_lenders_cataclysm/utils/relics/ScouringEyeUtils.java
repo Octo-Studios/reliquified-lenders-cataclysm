@@ -1,8 +1,9 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics;
 
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
-import it.hurts.sskirillss.relics.init.DataComponentRegistry;
+import it.hurts.sskirillss.relics.init.RelicsDataComponents;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -95,44 +96,56 @@ public class ScouringEyeUtils {
     }
 
     public static boolean isTeleportAllowed(LivingEntity entity, ItemStack stack) {
-        return stack.getOrDefault(RECDataComponentRegistry.TP_SAFE, false)
+        return stack.getOrDefault(RECDataComponents.TP_SAFE, false)
                 && isGlowingTimeInBounds(entity, stack)
-                && !stack.getOrDefault(RECDataComponentRegistry.PLAYER_DIED, false);
+                && !stack.getOrDefault(RECDataComponents.PLAYER_DIED, false);
     }
 
     public static void setTeleportSafe(ItemStack stack, boolean value) {
-        stack.set(RECDataComponentRegistry.TP_SAFE, value);
+        stack.set(RECDataComponents.TP_SAFE, value);
     }
 
     public static void setPlayerDied(ItemStack stack, boolean value) {
-        stack.set(RECDataComponentRegistry.PLAYER_DIED, value);
+        stack.set(RECDataComponents.PLAYER_DIED, value);
     }
 
     public static String getTargetUUID(ItemStack stack) {
-        return stack.getOrDefault(RECDataComponentRegistry.TARGET_UUID, "");
+        return stack.getOrDefault(RECDataComponents.TARGET_UUID, "");
     }
 
     public static void setTargetUUID(ItemStack stack, String value) {
-        stack.set(RECDataComponentRegistry.TARGET_UUID, value);
+        stack.set(RECDataComponents.TARGET_UUID, value);
     }
 
     public static int getStackTime(ItemStack stack) {
-        return stack.getOrDefault(DataComponentRegistry.TIME, 0);
+        return stack.getOrDefault(RelicsDataComponents.TIME, 0);
     }
 
     public static void setStackTime(ItemStack stack, int value) {
-        stack.set(DataComponentRegistry.TIME, value);
+        stack.set(RelicsDataComponents.TIME, value);
     }
 
     public static int getGlowingTime(ItemStack stack) {
-        return stack.getOrDefault(RECDataComponentRegistry.GLOWING_TIME, 0);
+        return stack.getOrDefault(RECDataComponents.GLOWING_TIME, 0);
     }
 
     public static void setGlowingTime(ItemStack stack, int value) {
-        stack.set(RECDataComponentRegistry.GLOWING_TIME, value);
+        stack.set(RECDataComponents.GLOWING_TIME, value);
     }
 
     public static int getGlowingTimeStat(LivingEntity entity, ItemStack stack) {
         return ItemUtils.getTickStat(entity, stack, ABILITY_ID, "glowing_time");
+    }
+
+    public static ItemStack getFirstFromInventory(Player player) {
+        ItemStack emptyStack = ItemStack.EMPTY;
+
+        if (player == null) {
+            return emptyStack;
+        }
+
+        return player.getInventory().items.stream()
+                .filter(stack -> !stack.isEmpty() && stack.getItem() instanceof ScouringEyeItem)
+                .findFirst().orElse(emptyStack);
     }
 }

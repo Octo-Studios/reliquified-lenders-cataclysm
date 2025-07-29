@@ -3,7 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
 import com.github.L_Ender.cataclysm.entity.projectile.Blazing_Bone_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.IgnitedShieldEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.ItemRegistry;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponentRegistry;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
@@ -11,8 +11,8 @@ import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
-import it.hurts.sskirillss.relics.init.DataComponentRegistry;
-import it.hurts.sskirillss.relics.init.ScalingModelRegistry;
+import it.hurts.sskirillss.relics.init.RelicsDataComponents;
+import it.hurts.sskirillss.relics.init.RelicsScalingModels;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
@@ -52,22 +52,22 @@ public class FirePlateItem extends RECItem {
                         .ability(AbilityTemplate.builder(ABILITY_ID)
                                 .stat(StatTemplate.builder("health")
                                         .initialValue(4D, 6D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.233D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.233D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatTemplate.builder("regeneration_time")
                                         .initialValue(60D, 55D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), -0.0722D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), -0.0722D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("projectiles")
                                         .initialValue(8D, 10D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.22D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.22D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("damage")
                                         .initialValue(1D, 2D)
-                                        .upgradeModifier(ScalingModelRegistry.MULTIPLICATIVE_BASE.get(), 0.65D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.65D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
@@ -291,27 +291,27 @@ public class FirePlateItem extends RECItem {
     }
 
     private String getShieldUUID(ItemStack stack) {
-        return stack.getOrDefault(RECDataComponentRegistry.SHIELD_UUID, "");
+        return stack.getOrDefault(RECDataComponents.SHIELD_UUID, "");
     }
 
     private void setShieldUUID(ItemStack stack, String shieldUUID) {
-        stack.set(RECDataComponentRegistry.SHIELD_UUID, shieldUUID);
+        stack.set(RECDataComponents.SHIELD_UUID, shieldUUID);
     }
 
     private int getTime(ItemStack stack) {
-        return stack.getOrDefault(DataComponentRegistry.TIME, 0);
+        return stack.getOrDefault(RelicsDataComponents.TIME, 0);
     }
 
     private void setTime(ItemStack stack, int value) {
-        stack.set(DataComponentRegistry.TIME, value);
+        stack.set(RelicsDataComponents.TIME, value);
     }
 
     private int getCooldown(ItemStack stack) {
-        return stack.getOrDefault(RECDataComponentRegistry.COOLDOWN, 0);
+        return stack.getOrDefault(RECDataComponents.COOLDOWN, 0);
     }
 
     private void setCooldown(ItemStack stack, int value) {
-        stack.set(RECDataComponentRegistry.COOLDOWN, value);
+        stack.set(RECDataComponents.COOLDOWN, value);
     }
 
     private int getRegenTimeStat(LivingEntity entity, ItemStack stack) {

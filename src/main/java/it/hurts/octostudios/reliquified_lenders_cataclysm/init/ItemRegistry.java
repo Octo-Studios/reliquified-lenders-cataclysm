@@ -4,7 +4,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCata
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VoidCloakItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VolcanoItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm.FirePlateItem;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm.ScouringEyeItem;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands.VacuumGloveItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm.VoidVortexInBottleItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.head.MaskOfRageItem;
