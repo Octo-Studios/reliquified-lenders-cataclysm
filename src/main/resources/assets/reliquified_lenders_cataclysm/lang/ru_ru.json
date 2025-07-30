@@ -2,7 +2,7 @@
   "item.reliquified_lenders_cataclysm.scouring_eye": "Рыщущее око",
   "tooltip.relics.scouring_eye.description": "Вырванное из глазницы одного из легендарных чудовищ Края око. Несмотря на прошедшие года, оно всё ещё живо и ищет цель для для очередных сражений...",
   "tooltip.relics.scouring_eye.ability.glowing_scour": "Преследование",
-  "tooltip.relics.scouring_eye.ability.glowing_scour.description": "Запоминает последнюю атакованную игроком цель на %1$s секунд. При активации способности телепортирует игрока за спину запомненной цели и уходит на перезарядку на %1$s секунд.",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.description": "Запоминает последнюю атакованную игроком цель на %1$s секунд. При активации способности телепортирует игрока за спину запомненной цели.",
   "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.target": "Выбранная цель",
   "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.tp_allowed": "Подходящие условия для телепортации",
   "tooltip.relics.scouring_eye.leveling_source.glowing_scour.title": "Преследование",

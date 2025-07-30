@@ -3,17 +3,14 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventor
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils;
 import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
+import it.hurts.sskirillss.relics.init.RelicsMobEffects;
 import it.hurts.sskirillss.relics.init.RelicsScalingModels;
-import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
-import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastType;
-import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.PredicateType;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
@@ -25,6 +22,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -47,22 +45,29 @@ public class ScouringEyeItem extends RECItem {
         return RelicTemplate.builder()
                 .abilities(AbilitiesTemplate.builder()
                         .ability(AbilityTemplate.builder(ABILITY_ID)
-                                .castData(CastData.builder()
-                                        .type(CastType.INSTANTANEOUS)
-                                        .predicate("target", PredicateType.CAST,
-                                                (player, stack) -> !getTargetUUID(stack).isEmpty())
-                                        .predicate("tp_allowed", PredicateType.CAST,
-                                                ScouringEyeUtils::isTeleportAllowed)
-                                        .build())
+                                .rankModifier(1, "glowing")
+                                .rankModifier(3, "paralysis")
+                                .rankModifier(5, "glowing_attack")
                                 .stat(StatTemplate.builder("glowing_time")
                                         .initialValue(10D, 12D)
-                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.525D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.02D)
                                         .formatValue(RECMathUtils::roundInt)
+                                        .build())
+                                .stat(StatTemplate.builder("paralysis_time")
+                                        .initialValue(0.8D, 1D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.028D)
+                                        .formatValue(RECMathUtils::roundOneDigit)
+                                        .build())
+                                .stat(StatTemplate.builder("damage")
+                                        .initialValue(0.05D, 0.06D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.209D)
+                                        .formatValue(RECMathUtils::roundPercents)
                                         .build())
                                 .build())
                         .build())
                 .leveling(LevelingTemplate.builder()
                         .initialCost(100)
+                        .maxRank(5)
                         .step(100)
                         .build())
                 .loot(LootTemplate.builder()
@@ -135,14 +140,12 @@ public class ScouringEyeItem extends RECItem {
         setGlowingTime(stack, glowingTime);
     }
 
-    /**
-     * Ability {@code glowing_scour} <b>[active]</b>: tp player to the attacked entity, then set the cooldown
-     */
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        if (level.isClientSide || !canPlayerUseAbility(player, stack, ABILITY_ID)) {
+        if (level.isClientSide || !canPlayerUseAbility(player, stack, ABILITY_ID)
+                || getTargetUUID(stack).isEmpty() || !isTeleportAllowed(player, stack)) {
             return InteractionResultHolder.pass(stack);
         }
 
@@ -150,6 +153,16 @@ public class ScouringEyeItem extends RECItem {
 
         if (target == null) {
             return InteractionResultHolder.pass(stack);
+        }
+
+        if (isRankModifierUnlocked(target, stack, "paralysis")) {
+            target.addEffect(new MobEffectInstance(RelicsMobEffects.PARALYSIS, getParalysisStatTicks(player, stack)), player);
+        }
+
+        if (isRankModifierUnlocked(target, stack, "glowing_attack")) {
+            float damage = getLastDamage(stack) * getDamagePercent(player, stack);
+
+            target.hurt(level.damageSources().magic(), damage); // todo attack all mobs on the way to target
         }
 
         BlockPos teleportPos = getTeleportPos(player, target);
@@ -162,19 +175,13 @@ public class ScouringEyeItem extends RECItem {
         }
 
         Vec3 teleportMovement = getMovementOnTeleport(teleportPos, target.blockPosition()).scale(0.12D);
-
         teleportToTarget(player, target, teleportPos, teleportMovement);
-        setAbilityCooldown(player, stack, ABILITY_ID, ItemUtils.getCooldownStat(player, stack, ABILITY_ID));
 
         spreadRelicExperience(player, stack, 1);
 
         return InteractionResultHolder.success(stack);
     }
 
-    /**
-     * Ability {@code glowing_scour} <b>[active]</b>:
-     * write data of the attacked entity to the relic, then start glowing the entity on client for a while
-     */
     @SubscribeEvent
     public static void onPlayerAttack(LivingDamageEvent.Post event) {
         Player player = null;
@@ -206,6 +213,7 @@ public class ScouringEyeItem extends RECItem {
         setStackTime(stack, (int) level.getGameTime());
         setGlowingTime(stack, getGlowingTimeStat(player, stack)); // set new glowing time on each attack
         setTargetUUID(stack, target.getUUID().toString());
+        setLastDamage(stack, event.getOriginalDamage());
         setPlayerDied(stack, false);
     }
 

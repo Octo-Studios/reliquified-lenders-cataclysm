@@ -20,6 +20,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.apache.http.annotation.Experimental;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -32,6 +33,21 @@ public class ScouringEyeUtils {
         setTargetUUID(stack, "");
         setTeleportSafe(stack, false);
     }
+
+//    public static void paralyzeEntity(LivingEntity entity, int ticks) {
+//        Vec3 motion = entity.getDeltaMovement();
+//
+//        entity.setDeltaMovement(Vec3.ZERO);
+//
+////        entity.getPersistentData().putInt("Paralysis", ticks);
+//
+//        entity.getCommandSenderWorld().addParticle(
+//                ParticleUtils.constructSimpleSpark(new Color(111, 24, 157),
+//                        0.4F, 20, 0.8F),
+//                entity.getX(), entity.getY() + entity.getBbHeight() / 2.0D, entity.getZ(),
+//                0, 0, 0
+//        );
+//    }
 
     public static void teleportToTarget(Player player, LivingEntity target, BlockPos pos, Vec3 motion) {
         Vec3 posCenter = pos.getBottomCenter();
@@ -87,6 +103,15 @@ public class ScouringEyeUtils {
 
     // simple getters & setters
 
+    @Experimental
+    public static boolean isRankModifierUnlocked(LivingEntity entity, ItemStack stack, String modifier) {
+        if (!(stack.getItem() instanceof ScouringEyeItem relic)) {
+            return false;
+        }
+
+        return relic.isAbilityRankModifierUnlocked(entity, stack, ABILITY_ID, modifier);
+    }
+
     public static boolean isGlowingTimeInBounds(LivingEntity entity, ItemStack stack) {
         return getGlowingTime(stack) > 0 && getGlowingTime(stack) <= getGlowingTimeStat(entity, stack);
     }
@@ -103,6 +128,14 @@ public class ScouringEyeUtils {
 
     public static void setTeleportSafe(ItemStack stack, boolean value) {
         stack.set(RECDataComponents.TP_SAFE, value);
+    }
+
+    public static float getLastDamage(ItemStack stack) {
+        return stack.getOrDefault(RECDataComponents.LAST_DAMAGE, 0F);
+    }
+
+    public static void setLastDamage(ItemStack stack, float value) {
+        stack.set(RECDataComponents.LAST_DAMAGE, value);
     }
 
     public static void setPlayerDied(ItemStack stack, boolean value) {
@@ -135,6 +168,14 @@ public class ScouringEyeUtils {
 
     public static int getGlowingTimeStat(LivingEntity entity, ItemStack stack) {
         return ItemUtils.getTickStat(entity, stack, ABILITY_ID, "glowing_time");
+    }
+
+    public static int getParalysisStatTicks(LivingEntity entity, ItemStack stack) {
+        return ItemUtils.getTickStat(entity, stack, ABILITY_ID, "paralysis_time");
+    }
+
+    public static float getDamagePercent(LivingEntity entity, ItemStack stack) {
+        return ItemUtils.getIntStat(entity, stack, ABILITY_ID, "damage");
     }
 
     public static ItemStack getFirstFromInventory(Player player) {

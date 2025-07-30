@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import javax.annotation.Nullable;
 
 import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils.getTargetUUID;
+import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils.isRankModifierUnlocked;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
@@ -33,7 +34,8 @@ public class MinecraftMixin {
         }
 
         if (livingEntity.getUUID().toString().equals(getTargetUUID(stack))
-                && ScouringEyeUtils.isGlowingTimeTicking(livingEntity, stack, livingEntity.level())) {
+                && ScouringEyeUtils.isGlowingTimeTicking(livingEntity, stack, livingEntity.level())
+                && isRankModifierUnlocked(livingEntity, stack, "glowing")) {
             cir.setReturnValue(true);
         }
     }

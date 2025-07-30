@@ -27,6 +27,9 @@ public class RECDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> VOLCANO_ENERGY =
             registerIntComponent("volcano_energy");
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Float>> LAST_DAMAGE =
+            registerFloatComponent("last_damage");
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> TARGET_UUID =
             registerStringComponent("target_uuid");
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<String>> SHIELD_UUID =
@@ -45,6 +48,13 @@ public class RECDataComponents {
                 DataComponentType.<Integer>builder()
                 .persistent(Codec.INT)
                 .build());
+    }
+
+    private static DeferredHolder<DataComponentType<?>, DataComponentType<Float>> registerFloatComponent(String name) {
+        return DATA_COMPONENTS.register(name, () ->
+                DataComponentType.<Float>builder()
+                        .persistent(Codec.FLOAT)
+                        .build());
     }
 
     private static DeferredHolder<DataComponentType<?>, DataComponentType<String>> registerStringComponent(String name) {
