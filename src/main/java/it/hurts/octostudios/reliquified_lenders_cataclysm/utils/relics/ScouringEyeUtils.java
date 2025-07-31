@@ -4,10 +4,14 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.sskirillss.relics.init.RelicsDataComponents;
+import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
+import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -19,10 +23,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.http.annotation.Experimental;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ScouringEyeUtils {
@@ -34,20 +42,75 @@ public class ScouringEyeUtils {
         setTeleportSafe(stack, false);
     }
 
-//    public static void paralyzeEntity(LivingEntity entity, int ticks) {
-//        Vec3 motion = entity.getDeltaMovement();
-//
-//        entity.setDeltaMovement(Vec3.ZERO);
-//
-////        entity.getPersistentData().putInt("Paralysis", ticks);
-//
-//        entity.getCommandSenderWorld().addParticle(
-//                ParticleUtils.constructSimpleSpark(new Color(111, 24, 157),
-//                        0.4F, 20, 0.8F),
-//                entity.getX(), entity.getY() + entity.getBbHeight() / 2.0D, entity.getZ(),
-//                0, 0, 0
-//        );
-//    }
+    public static void hurtTargets(LivingEntity target, Player player, Level level, float damage) {
+        Vec3 fromPos = player.position().add(0, player.getEyeHeight(), 0);
+        Vec3 toPos = target.position().add(0, target.getBbHeight() / 2D, 0);
+
+        double radius = target.getBbWidth() / 2D;
+
+        List<LivingEntity> targetsPotential = level.getEntitiesOfClass(LivingEntity.class,
+                new AABB(fromPos, toPos).inflate(radius),
+                entity -> !entity.equals(player) && entity.isAlive()
+                        && !EntityUtils.isAlliedTo(player, entity));
+        List<LivingEntity> targetsToHurt = new ArrayList<>();
+
+        Vec3 direction = toPos.subtract(fromPos);
+        Vec3 normalized = direction.normalize();
+
+        for (LivingEntity targetOther : targetsPotential) {
+            AABB box = targetOther.getBoundingBox();
+            Vec3 centerPos = box.getCenter();
+            double proj = centerPos.subtract(fromPos).dot(normalized);
+
+            if (proj < 0 || proj > direction.length()) {
+                continue;
+            }
+
+            Vec3 nearestPos = fromPos.add(normalized.scale(proj));
+
+            double dx = Math.max(0, Math.abs(centerPos.x - nearestPos.x) - box.getXsize() / 2D);
+            double dy = Math.max(0, Math.abs(centerPos.y - nearestPos.y) - box.getYsize() / 2D);
+            double dz = Math.max(0, Math.abs(centerPos.z - nearestPos.z) - box.getZsize() / 2D);
+
+            if (Math.pow(dx, 2) + Math.pow(dy, 2) + Math.pow(dz, 2) <= Math.pow(radius, 2)) {
+                targetsToHurt.add(targetOther);
+            }
+        }
+
+        targetsToHurt = targetsToHurt.stream().filter(entity ->
+                !entity.equals(player) && entity.isAlive()
+                        && !EntityUtils.isAlliedTo(player, entity))
+                .toList();
+
+        for (LivingEntity targetOther : targetsToHurt) {
+            player.sendSystemMessage(Component.literal(targetOther.getName() + " " + damage));
+            targetOther.hurt(level.damageSources().magic(), damage);
+        }
+
+        sendHurtParticles(fromPos, toPos, target, player, (ServerLevel) level);
+    }
+
+    public static void sendHurtParticles(Vec3 from, Vec3 to, LivingEntity target, Player player, ServerLevel level) {
+        double radius = target.getBbWidth();
+        int steps = 32;
+        int particlesPerStep = 4;
+
+        for (int i = 0; i <= steps; i++) {
+            Vec3 pos = from.lerp(to, i / (double) steps);
+
+            for (int j = 0; j < particlesPerStep; j++) {
+                double dx = (player.getRandom().nextDouble() - 0.5D) * radius;
+                double dz = (player.getRandom().nextDouble() - 0.5D) * radius;
+                double dy = (player.getRandom().nextDouble() - 0.5D) * 0.1D;
+
+                level.sendParticles(
+                        ParticleUtils.constructSimpleSpark(new Color(47, 0, 97),
+                                0.7F, 20, 0.8F),
+                        pos.x + dx, pos.y + dy, pos.z + dz,
+                        1, 0.1D, 0.1D, 0.1D, 0);
+            }
+        }
+    }
 
     public static void teleportToTarget(Player player, LivingEntity target, BlockPos pos, Vec3 motion) {
         Vec3 posCenter = pos.getBottomCenter();
@@ -174,8 +237,8 @@ public class ScouringEyeUtils {
         return ItemUtils.getTickStat(entity, stack, ABILITY_ID, "paralysis_time");
     }
 
-    public static float getDamagePercent(LivingEntity entity, ItemStack stack) {
-        return ItemUtils.getIntStat(entity, stack, ABILITY_ID, "damage");
+    public static double getDamagePercent(LivingEntity entity, ItemStack stack) {
+        return ((RelicItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "damage_percent");
     }
 
     public static ItemStack getFirstFromInventory(Player player) {

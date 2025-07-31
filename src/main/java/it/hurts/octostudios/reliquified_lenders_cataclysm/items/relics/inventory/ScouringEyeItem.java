@@ -58,9 +58,9 @@ public class ScouringEyeItem extends RECItem {
                                         .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.028D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
-                                .stat(StatTemplate.builder("damage")
-                                        .initialValue(0.05D, 0.06D)
-                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.209D)
+                                .stat(StatTemplate.builder("damage_percent")
+                                        .initialValue(0.05D, 0.1D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.114D)
                                         .formatValue(RECMathUtils::roundPercents)
                                         .build())
                                 .build())
@@ -155,14 +155,16 @@ public class ScouringEyeItem extends RECItem {
             return InteractionResultHolder.pass(stack);
         }
 
+        // rank 3
         if (isRankModifierUnlocked(target, stack, "paralysis")) {
             target.addEffect(new MobEffectInstance(RelicsMobEffects.PARALYSIS, getParalysisStatTicks(player, stack)), player);
         }
 
+        // rank 5
         if (isRankModifierUnlocked(target, stack, "glowing_attack")) {
-            float damage = getLastDamage(stack) * getDamagePercent(player, stack);
+            float damage = (float) (getLastDamage(stack) * getDamagePercent(player, stack));
 
-            target.hurt(level.damageSources().magic(), damage); // todo attack all mobs on the way to target
+            hurtTargets(target, player, level, damage);
         }
 
         BlockPos teleportPos = getTeleportPos(player, target);
@@ -178,6 +180,8 @@ public class ScouringEyeItem extends RECItem {
         teleportToTarget(player, target, teleportPos, teleportMovement);
 
         spreadRelicExperience(player, stack, 1);
+
+        player.getCooldowns().addCooldown(this, 20);
 
         return InteractionResultHolder.success(stack);
     }
@@ -213,7 +217,7 @@ public class ScouringEyeItem extends RECItem {
         setStackTime(stack, (int) level.getGameTime());
         setGlowingTime(stack, getGlowingTimeStat(player, stack)); // set new glowing time on each attack
         setTargetUUID(stack, target.getUUID().toString());
-        setLastDamage(stack, event.getOriginalDamage());
+        setLastDamage(stack, event.getNewDamage());
         setPlayerDied(stack, false);
     }
 
