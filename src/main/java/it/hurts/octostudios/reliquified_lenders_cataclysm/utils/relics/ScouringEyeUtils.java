@@ -11,7 +11,6 @@ import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -78,12 +77,11 @@ public class ScouringEyeUtils {
         }
 
         targetsToHurt = targetsToHurt.stream().filter(entity ->
-                !entity.equals(player) && entity.isAlive()
-                        && !EntityUtils.isAlliedTo(player, entity))
+                        !entity.equals(player) && entity.isAlive()
+                                && !EntityUtils.isAlliedTo(player, entity))
                 .toList();
 
         for (LivingEntity targetOther : targetsToHurt) {
-            player.sendSystemMessage(Component.literal(targetOther.getName() + " " + damage));
             targetOther.hurt(level.damageSources().magic(), damage);
         }
 
@@ -248,8 +246,19 @@ public class ScouringEyeUtils {
             return emptyStack;
         }
 
-        return player.getInventory().items.stream()
-                .filter(stack -> !stack.isEmpty() && stack.getItem() instanceof ScouringEyeItem)
-                .findFirst().orElse(emptyStack);
+        List<ItemStack> inventoryRelics = player.getInventory().items.stream()
+                .filter(stack -> !stack.isEmpty() && stack.getItem() instanceof ScouringEyeItem).toList();
+
+        if (inventoryRelics.isEmpty()) {
+            return emptyStack;
+        }
+
+        if (inventoryRelics.size() > 1) {
+            for (int i = 1; i < inventoryRelics.size(); i++) {
+                resetData(player, inventoryRelics.get(i));
+            }
+        }
+
+        return inventoryRelics.stream().findFirst().orElse(emptyStack);
     }
 }

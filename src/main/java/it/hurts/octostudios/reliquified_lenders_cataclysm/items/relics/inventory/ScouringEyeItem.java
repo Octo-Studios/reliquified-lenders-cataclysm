@@ -1,6 +1,5 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory;
 
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
@@ -16,7 +15,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
-import it.hurts.sskirillss.relics.utils.EntityUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -225,7 +223,11 @@ public class ScouringEyeItem extends RECItem {
     public static void onLivingDeath(LivingDeathEvent event) {
         LivingEntity entity = event.getEntity();
 
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.SCOURING_EYE.get());
+        if (!(entity instanceof Player player)) {
+            return;
+        }
+
+        ItemStack stack = ScouringEyeUtils.getFirstFromInventory(player);
 
         if (entity.getCommandSenderWorld().isClientSide || stack.isEmpty()) {
             return;
