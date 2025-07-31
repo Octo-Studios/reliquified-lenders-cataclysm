@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,6 +16,7 @@ import javax.annotation.Nullable;
 
 import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils.getTargetUUID;
 import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils.isRankModifierUnlocked;
+import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils.getAllInventoryStacks;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
@@ -26,17 +26,17 @@ public class MinecraftMixin {
 
     @Inject(method = "shouldEntityAppearGlowing", at = @At("RETURN"), cancellable = true)
     private void shouldEntityAppearGlowing(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        ItemStack stack = ScouringEyeUtils.getFirstFromInventory(player);
+        for (var stack : getAllInventoryStacks(player)) {
+            if (stack.isEmpty() || !(stack.getItem() instanceof ScouringEyeItem)
+                    || !(entity instanceof LivingEntity livingEntity)) {
+                return;
+            }
 
-        if (stack.isEmpty() || !(stack.getItem() instanceof ScouringEyeItem)
-                || !(entity instanceof LivingEntity livingEntity)) {
-            return;
-        }
-
-        if (livingEntity.getUUID().toString().equals(getTargetUUID(stack))
-                && ScouringEyeUtils.isGlowingTimeTicking(livingEntity, stack, livingEntity.level())
-                && isRankModifierUnlocked(livingEntity, stack, "glowing")) { // rank 1
-            cir.setReturnValue(true);
+            if (livingEntity.getUUID().toString().equals(getTargetUUID(stack))
+                    && ScouringEyeUtils.isGlowingTimeTicking(livingEntity, stack, livingEntity.level())
+                    && isRankModifierUnlocked(livingEntity, stack, "glowing")) { // rank 1
+                cir.setReturnValue(true);
+            }
         }
     }
 }

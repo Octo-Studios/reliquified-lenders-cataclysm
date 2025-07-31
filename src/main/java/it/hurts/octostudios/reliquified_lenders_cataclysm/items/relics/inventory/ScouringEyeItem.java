@@ -3,7 +3,6 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventor
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils;
 import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
@@ -206,33 +205,26 @@ public class ScouringEyeItem extends RECItem {
             return;
         }
 
-        ItemStack stack = ScouringEyeUtils.getFirstFromInventory(player);
-
-        if (stack.isEmpty()) {
-            return;
+        for (var stack : getAllInventoryStacks(player)) {
+            setStackTime(stack, (int) level.getGameTime());
+            setGlowingTime(stack, getGlowingTimeStat(player, stack)); // set new glowing time on each attack
+            setTargetUUID(stack, target.getUUID().toString());
+            setLastDamage(stack, event.getNewDamage());
+            setPlayerDied(stack, false);
         }
-
-        setStackTime(stack, (int) level.getGameTime());
-        setGlowingTime(stack, getGlowingTimeStat(player, stack)); // set new glowing time on each attack
-        setTargetUUID(stack, target.getUUID().toString());
-        setLastDamage(stack, event.getNewDamage());
-        setPlayerDied(stack, false);
     }
 
     @SubscribeEvent
     public static void onLivingDeath(LivingDeathEvent event) {
         LivingEntity entity = event.getEntity();
+        Level level = entity.getCommandSenderWorld();
 
-        if (!(entity instanceof Player player)) {
+        if (!(entity instanceof Player player) || level.isClientSide) {
             return;
         }
 
-        ItemStack stack = ScouringEyeUtils.getFirstFromInventory(player);
-
-        if (entity.getCommandSenderWorld().isClientSide || stack.isEmpty()) {
-            return;
+        for (var stack : getAllInventoryStacks(player)) {
+            setPlayerDied(stack, true);
         }
-
-        setPlayerDied(stack, true);
     }
 }

@@ -239,26 +239,18 @@ public class ScouringEyeUtils {
         return ((RelicItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "damage_percent");
     }
 
-    public static ItemStack getFirstFromInventory(Player player) {
-        ItemStack emptyStack = ItemStack.EMPTY;
-
+    public static List<ItemStack> getAllInventoryStacks(Player player) {
         if (player == null) {
-            return emptyStack;
+            return List.of();
         }
 
         List<ItemStack> inventoryRelics = player.getInventory().items.stream()
                 .filter(stack -> !stack.isEmpty() && stack.getItem() instanceof ScouringEyeItem).toList();
 
         if (inventoryRelics.isEmpty()) {
-            return emptyStack;
+            return List.of();
         }
 
-        if (inventoryRelics.size() > 1) {
-            for (int i = 1; i < inventoryRelics.size(); i++) {
-                resetData(player, inventoryRelics.get(i));
-            }
-        }
-
-        return inventoryRelics.stream().findFirst().orElse(emptyStack);
+        return inventoryRelics;
     }
 }
