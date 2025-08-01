@@ -1,4 +1,4 @@
-package it.hurts.octostudios.reliquified_lenders_cataclysm.entities;
+package it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_vortex_in_bottle;
 
 import com.github.L_Ender.cataclysm.client.particle.Options.StormParticleOptions;
 import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;

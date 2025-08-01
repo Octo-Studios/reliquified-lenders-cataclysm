@@ -1,7 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Blazing_Bone_Entity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.IgnitedShieldEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.fire_plate.IgnitedShieldEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;

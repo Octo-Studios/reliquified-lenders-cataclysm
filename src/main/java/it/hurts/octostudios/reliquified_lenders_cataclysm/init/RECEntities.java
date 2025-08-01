@@ -2,6 +2,10 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.init;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.*;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.fire_plate.IgnitedShieldEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.ring_of_the_flame_kindler.FlameJetModifiedEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_bubble.VoidShardModifiedEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_vortex_in_bottle.VoidVortexModifiedEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;

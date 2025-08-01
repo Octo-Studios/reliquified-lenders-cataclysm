@@ -1,6 +1,6 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.ring;
 
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.FlameJetModifiedEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.ring_of_the_flame_kindler.FlameJetModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;

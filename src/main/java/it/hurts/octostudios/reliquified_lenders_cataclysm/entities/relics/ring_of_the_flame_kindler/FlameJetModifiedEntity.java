@@ -1,4 +1,4 @@
-package it.hurts.octostudios.reliquified_lenders_cataclysm.entities;
+package it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.ring_of_the_flame_kindler;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Flame_Jet_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.FlameJetSpawnPacket;

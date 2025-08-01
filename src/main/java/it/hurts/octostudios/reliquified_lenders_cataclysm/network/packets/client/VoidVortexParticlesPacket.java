@@ -2,7 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.clien
 
 import io.netty.buffer.ByteBuf;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidVortexModifiedEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_vortex_in_bottle.VoidVortexModifiedEntity;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;

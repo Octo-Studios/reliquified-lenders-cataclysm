@@ -4,7 +4,7 @@ import com.github.L_Ender.lionfishapi.client.model.tools.AdvancedEntityModel;
 import com.github.L_Ender.lionfishapi.client.model.tools.AdvancedModelBox;
 import com.github.L_Ender.lionfishapi.client.model.tools.BasicModelPart;
 import com.google.common.collect.ImmutableList;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.IgnitedShieldEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.fire_plate.IgnitedShieldEntity;
 import org.jetbrains.annotations.NotNull;
 
 public class IgnitedShieldModel extends AdvancedEntityModel<IgnitedShieldEntity> {

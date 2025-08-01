@@ -1,4 +1,4 @@
-package it.hurts.octostudios.reliquified_lenders_cataclysm.entities;
+package it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.fire_plate;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECEntities;
 import lombok.Getter;

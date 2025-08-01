@@ -1,6 +1,6 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
 
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidVortexModifiedEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_vortex_in_bottle.VoidVortexModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;

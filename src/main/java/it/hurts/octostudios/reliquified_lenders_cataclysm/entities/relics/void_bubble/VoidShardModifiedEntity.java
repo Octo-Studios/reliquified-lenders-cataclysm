@@ -1,4 +1,4 @@
-package it.hurts.octostudios.reliquified_lenders_cataclysm.entities;
+package it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_bubble;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Shard_Entity;
 import it.hurts.sskirillss.relics.utils.EntityUtils;

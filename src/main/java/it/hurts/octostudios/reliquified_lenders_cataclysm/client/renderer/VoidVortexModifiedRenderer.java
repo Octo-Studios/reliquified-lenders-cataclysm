@@ -3,7 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer;
 import com.github.L_Ender.cataclysm.client.render.CMRenderTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.VoidVortexModifiedEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_vortex_in_bottle.VoidVortexModifiedEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
