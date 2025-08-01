@@ -26,7 +26,7 @@ public class FlameJetModifiedEntity extends Flame_Jet_Entity {
     public void tick() {
         super.tick();
 
-        if (level().isClientSide) {
+        if (getCommandSenderWorld().isClientSide) {
             if (clientSideAttackStarted) {
                 --lifeTicks;
 

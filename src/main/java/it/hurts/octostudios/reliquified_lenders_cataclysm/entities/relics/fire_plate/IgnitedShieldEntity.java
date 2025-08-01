@@ -53,7 +53,9 @@ public class IgnitedShieldEntity extends Entity {
     public void tick() {
         super.tick();
 
-        if (level().isClientSide) {
+        Level level = getCommandSenderWorld();
+
+        if (level.isClientSide) {
             return;
         }
 
@@ -86,7 +88,7 @@ public class IgnitedShieldEntity extends Entity {
 //            shieldOther.setAngle(shieldOther.getAngle() - 4F);
 //        }
 
-        double elapsedTicks = (level().getGameTime() - getTicks());
+        double elapsedTicks = (level.getGameTime() - getTicks());
         float speed = 4F;
         float angle = (float) (elapsedTicks * speed);
         double angleRad = Math.toRadians(angle);
@@ -103,7 +105,7 @@ public class IgnitedShieldEntity extends Entity {
     public void onAddedToLevel() {
         super.onAddedToLevel();
 
-        setTicks(level().getGameTime());
+        setTicks(getCommandSenderWorld().getGameTime());
     }
 
     // entity data
@@ -153,7 +155,9 @@ public class IgnitedShieldEntity extends Entity {
         Optional<UUID> ownerUUID = entityData.get(OWNER_UUID);
 
         if (ownerUUID.isPresent()) {
-            if (level().isClientSide) {
+            Level level = getCommandSenderWorld();
+
+            if (level.isClientSide) {
                 ClientLevel clientLevel = Minecraft.getInstance().level;
 
                 if (clientLevel != null) {
@@ -161,7 +165,7 @@ public class IgnitedShieldEntity extends Entity {
                 }
             }
 
-            return (LivingEntity) ((ServerLevel) level()).getEntity(ownerUUID.get());
+            return (LivingEntity) ((ServerLevel) level).getEntity(ownerUUID.get());
         }
 
         return null;

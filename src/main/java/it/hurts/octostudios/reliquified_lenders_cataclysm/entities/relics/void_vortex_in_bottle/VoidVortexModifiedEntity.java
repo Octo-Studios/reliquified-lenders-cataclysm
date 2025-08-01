@@ -100,6 +100,8 @@ public class VoidVortexModifiedEntity extends Entity {
             }
         }
 
+        Level level = getCommandSenderWorld();
+
         // vortex opening
         if (!isMadeOpenNoise()) {
             gameEvent(GameEvent.ENTITY_PLACE);
@@ -108,12 +110,12 @@ public class VoidVortexModifiedEntity extends Entity {
             setMadeOpenNoise(true);
 
             // spawn particles on first explode
-            if (level().isClientSide) {
+            if (level.isClientSide) {
                 spawnExplodeParticles();
             }
         }
 
-        if ((int) Math.min(tickCount, getLifespan()) >= 16 && level().isClientSide) {
+        if ((int) Math.min(tickCount, getLifespan()) >= 16 && level.isClientSide) {
             float r = 0.4F, g = 0.1F, b = 0.8F; // circles rgb
             float stepD = 0.25F, stepWRandom = 0.11F; // steps for width and its random
             float stepH = 1.0F, stepHRandom = 0.075F; // steps for height and its random
@@ -133,12 +135,12 @@ public class VoidVortexModifiedEntity extends Entity {
                             .add(0, 1.5D, 0);
                 }
 
-                level().addParticle(new StormParticleOptions(r, g, b, width, height, getId()),
+                level.addParticle(new StormParticleOptions(r, g, b, width, height, getId()),
                         pos.x, pos.y, pos.z, 0.0D, 0.0D, 0.0D);
             }
         }
 
-        if (getLifespan() > 0 && !level().isClientSide) {
+        if (getLifespan() > 0 && !level.isClientSide) {
             for (Entity entity : getEntitiesInVortex()) {
                 if (entity instanceof LivingEntity livingEntity) {
                     if (livingEntity.isDeadOrDying()) {
@@ -186,7 +188,7 @@ public class VoidVortexModifiedEntity extends Entity {
 
                             vortexOther.remove(RemovalReason.DISCARDED);
 
-                            level().playSound(null, blockPosition(),
+                            level.playSound(null, blockPosition(),
                                     SoundEvents.BEACON_ACTIVATE, SoundSource.NEUTRAL);
 
                             // spawn merge particles
@@ -208,12 +210,12 @@ public class VoidVortexModifiedEntity extends Entity {
             setMadeCloseNoise(true);
         }
 
-        if (getLifespan() == 1 && level().isClientSide) {
+        if (getLifespan() == 1 && level.isClientSide) {
             spawnExplodeParticles();
         }
 
         if (getLifespan() <= 0) {
-            if (!level().isClientSide) {
+            if (!level.isClientSide) {
                 damageMobs(getMaxCircleRadius());
             }
 
@@ -234,7 +236,7 @@ public class VoidVortexModifiedEntity extends Entity {
         AABB area = new AABB(getX() - getHeight(), getY(), getZ() - getHeight(),
                 getX() + getHeight(), getY() + getHeight(), getZ() + getHeight());
 
-        return level().getEntitiesOfClass(Entity.class, area).stream()
+        return getCommandSenderWorld().getEntitiesOfClass(Entity.class, area).stream()
                 .map(entity -> !entity.equals(getOwner()) && !EntityUtils.isAlliedTo(entity, getOwner())
                         && (entity instanceof LivingEntity
                         || (entity instanceof VoidVortexModifiedEntity voidVortexEntity
@@ -259,7 +261,7 @@ public class VoidVortexModifiedEntity extends Entity {
             entity.hurt(damageSources().magic(), getDamage());
         }
 
-        level().playSound(null, blockPosition(),
+        getCommandSenderWorld().playSound(null, blockPosition(),
                 ModSounds.EXPLOSION.get(), SoundSource.NEUTRAL);
     }
 
@@ -270,7 +272,7 @@ public class VoidVortexModifiedEntity extends Entity {
                 double yMax = 0.05D + randomized(0.1D);
                 double zMax = 0.25D * (randomized(2.0D) - 1.0D);
 
-                level().addParticle(getParticle(new Color(61, 0, 135), 0.7F),
+                getCommandSenderWorld().addParticle(getParticle(new Color(61, 0, 135), 0.7F),
                         getX() + Math.pow(-1, i) * randomized(2.0D),
                         getY() + 0.1D * randomized(0.5D) + i,
                         getZ() + Math.pow(-1, i) * randomized(2.0D),
@@ -373,7 +375,7 @@ public class VoidVortexModifiedEntity extends Entity {
     public LivingEntity getOwner() {
         if (ownerEntity != null && !ownerEntity.isRemoved()) {
             return ownerEntity;
-        } else if (ownerUUID != null && level() instanceof ServerLevel serverlevel) {
+        } else if (ownerUUID != null && getCommandSenderWorld() instanceof ServerLevel serverlevel) {
             this.ownerEntity = (LivingEntity) serverlevel.getEntity(ownerUUID);
 
             return ownerEntity;
