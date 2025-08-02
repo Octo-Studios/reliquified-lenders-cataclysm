@@ -1,8 +1,8 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.client.handers;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer.IgnitedShieldRenderer;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer.VoidVortexModifiedRenderer;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer.entities.IgnitedShieldRenderer;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer.entities.VoidVortexModifiedRenderer;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECEntities;
 import it.hurts.sskirillss.relics.client.renderer.entities.NullRenderer;
 import net.neoforged.api.distmarker.Dist;

@@ -1,4 +1,4 @@
-package it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer;
+package it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer.entities;
 
 import com.github.L_Ender.cataclysm.client.render.CMRenderTypes;
 import com.mojang.blaze3d.vertex.PoseStack;
