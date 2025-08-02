@@ -161,7 +161,7 @@ public class ScouringEyeItem extends RECItem {
         if (isRankModifierUnlocked(target, stack, "glowing_attack")) {
             float damage = (float) (getLastDamage(stack) * getDamagePercent(player, stack));
 
-            hurtTargets(target, player, level, damage);
+            pierceTargets(target, player, level, damage);
         }
 
         BlockPos teleportPos = getTeleportPos(player, target);
@@ -175,8 +175,6 @@ public class ScouringEyeItem extends RECItem {
 
         Vec3 teleportMovement = getMovementOnTeleport(teleportPos, target.blockPosition()).scale(0.12D);
         teleportToTarget(player, target, teleportPos, teleportMovement);
-
-        spreadRelicExperience(player, stack, 1);
 
         player.getCooldowns().addCooldown(this, 20);
 

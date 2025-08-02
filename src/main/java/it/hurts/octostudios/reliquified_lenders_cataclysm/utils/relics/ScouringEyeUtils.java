@@ -1,5 +1,6 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics;
 
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.scouring_eye.ScouringRayEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
@@ -8,7 +9,6 @@ import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
-import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -27,7 +27,6 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.http.annotation.Experimental;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -41,7 +40,7 @@ public class ScouringEyeUtils {
         setTeleportSafe(stack, false);
     }
 
-    public static void hurtTargets(LivingEntity target, Player player, Level level, float damage) {
+    public static void pierceTargets(LivingEntity target, Player player, Level level, float damage) {
         Vec3 fromPos = player.position().add(0, player.getEyeHeight(), 0);
         Vec3 toPos = target.position().add(0, target.getBbHeight() / 2D, 0);
 
@@ -81,33 +80,18 @@ public class ScouringEyeUtils {
                                 && !EntityUtils.isAlliedTo(player, entity))
                 .toList();
 
-        for (LivingEntity targetOther : targetsToHurt) {
-            targetOther.hurt(level.damageSources().magic(), damage);
-        }
+//        for (LivingEntity targetOther : targetsToHurt) {
+//            targetOther.hurt(level.damageSources().magic(), damage);
+//        }
 
-        sendHurtParticles(fromPos, toPos, target, player, (ServerLevel) level);
+        sendHurtParticles(level, target, targetsToHurt, fromPos, toPos, damage);
     }
 
-    public static void sendHurtParticles(Vec3 from, Vec3 to, LivingEntity target, Player player, ServerLevel level) {
-        double radius = target.getBbWidth();
-        int steps = 32;
-        int particlesPerStep = 4;
+    public static void sendHurtParticles(Level level, LivingEntity targetFinal, List<LivingEntity> targets, Vec3 fromPos, Vec3 toPos, float damage) {
+        ScouringRayEntity rayEntity = new ScouringRayEntity(level, targets, fromPos, toPos, targetFinal.getBbWidth(), damage);
+        rayEntity.setPos(fromPos);
 
-        for (int i = 0; i <= steps; i++) {
-            Vec3 pos = from.lerp(to, i / (double) steps);
-
-            for (int j = 0; j < particlesPerStep; j++) {
-                double dx = (player.getRandom().nextDouble() - 0.5D) * radius;
-                double dz = (player.getRandom().nextDouble() - 0.5D) * radius;
-                double dy = (player.getRandom().nextDouble() - 0.5D) * 0.1D;
-
-                level.sendParticles(
-                        ParticleUtils.constructSimpleSpark(new Color(47, 0, 97),
-                                0.7F, 20, 0.8F),
-                        pos.x + dx, pos.y + dy, pos.z + dz,
-                        1, 0.1D, 0.1D, 0.1D, 0);
-            }
-        }
+        level.addFreshEntity(rayEntity);
     }
 
     public static void teleportToTarget(Player player, LivingEntity target, BlockPos pos, Vec3 motion) {
