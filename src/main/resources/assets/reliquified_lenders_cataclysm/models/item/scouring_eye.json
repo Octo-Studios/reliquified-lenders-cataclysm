@@ -2,5 +2,19 @@
   "parent": "minecraft:item/generated",
   "textures":{
     "layer0": "reliquified_lenders_cataclysm:item/scouring_eye"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "reliquified_lenders_cataclysm:targeted": 0
+      },
+      "model": "reliquified_lenders_cataclysm:item/scouring_eye_0"
+    },
+    {
+      "predicate": {
+        "reliquified_lenders_cataclysm:targeted": 1
+      },
+      "model": "reliquified_lenders_cataclysm:item/scouring_eye_1"
+    }
+  ]
 }

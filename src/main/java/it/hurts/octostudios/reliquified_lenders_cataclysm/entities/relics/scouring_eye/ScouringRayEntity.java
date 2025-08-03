@@ -7,7 +7,6 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -64,6 +63,8 @@ public class ScouringRayEntity extends Entity {
 
         if (tickCount > lifetimeTicks) {
             discard();
+
+            return;
         }
 
         Level level = getCommandSenderWorld();
@@ -72,7 +73,7 @@ public class ScouringRayEntity extends Entity {
             return;
         }
 
-        double currentProgress = (tickCount - 1D) / lifetimeTicks;
+        double currentProgress = (double) tickCount / lifetimeTicks;
 
         Vec3 direction = toPos.subtract(fromPos).normalize();
         Vec3 up = new Vec3(0, 1, 0);
@@ -105,7 +106,7 @@ public class ScouringRayEntity extends Entity {
             Vec3 pos = fromPos.add(direction.scale(distance)).add(offset);
 
             ((ServerLevel) level).sendParticles(
-                    getParticle(progressFrac),
+                    getParticle(currentProgress),
                     pos.x, pos.y, pos.z,
                     1, 0, 0, 0, 0);
         }
@@ -126,27 +127,18 @@ public class ScouringRayEntity extends Entity {
             if (delta <= boxOffset) {
                 AABB box = entity.getBoundingBox().move(direction.scale(boxOffset));
 
-                hurtEntity(level, entity, box);
+                hurtEntity(level, entity, box, currentProgress);
             }
         }
     }
 
-    private ParticleOptions getParticle(double progressFrac) {
-        int r = (int) Mth.lerp(progressFrac, startColor.getRed(), endColor.getRed());
-        int g = (int) Mth.lerp(progressFrac, startColor.getGreen(), endColor.getGreen());
-        int b = (int) Mth.lerp(progressFrac, startColor.getBlue(), endColor.getBlue());
-
-        return ParticleUtils.constructSimpleSpark(new Color(r, g, b),
-                0.7F, 20, 0.8F);
-    }
-
-    private void hurtEntity(Level level, LivingEntity entity, AABB box) {
+    private void hurtEntity(Level level, LivingEntity entity, AABB box, double progress) {
         entity.hurt(level.damageSources().magic(), damage);
 
-        drawEntityBox(level, box);
+        drawEntityBox(level, box, progress);
     }
 
-    private static void drawEntityBox(Level level, AABB box) {
+    private void drawEntityBox(Level level, AABB box, double progress) {
         List<Vec3> corners = getCorners(box);
 
         int[][] edges = {
@@ -165,8 +157,7 @@ public class ScouringRayEntity extends Entity {
                 Vec3 pos = start.lerp(end, (double) i / resolution);
 
                 ((ServerLevel) level).sendParticles(
-                        ParticleUtils.constructSimpleSpark(new Color(47, 0, 97),
-                                0.7F, 20, 0.8F),
+                        getParticle(progress),
                         pos.x, pos.y, pos.z,
                         1, 0, 0, 0, 0);
             }
@@ -187,6 +178,18 @@ public class ScouringRayEntity extends Entity {
                 new Vec3(min.x, max.y, max.z),
                 new Vec3(max.x, max.y, max.z)
         );
+    }
+
+    private ParticleOptions getParticle(double progress) {
+        return ParticleUtils.constructSimpleSpark(getCurrentColor(progress),
+                0.7F, 20, 0.8F);
+    }
+
+    private Color getCurrentColor(double progress) {
+        int r = (int) (startColor.getRed() - progress * Math.abs(startColor.getRed() - endColor.getRed()));
+        int b = (int) (startColor.getBlue() - progress * Math.abs(startColor.getBlue() - endColor.getBlue()));
+
+        return new Color(r, 0, b);
     }
 
     @Override
