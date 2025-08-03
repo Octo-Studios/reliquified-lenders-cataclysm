@@ -1,7 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.init;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.*;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.fire_plate.IgnitedShieldEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.ring_of_the_flame_kindler.FlameJetModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.scouring_eye.ScouringRayEntity;
@@ -19,19 +19,17 @@ public class RECEntities {
 
     public static final DeferredHolder<EntityType<?>, EntityType<ScreenShakeSoundedEntity>> SCREEN_SHAKE_SOUNDED =
             ENTITIES.register("screen_shake_sounded", () ->
-            EntityType.Builder.<ScreenShakeSoundedEntity>of(ScreenShakeSoundedEntity::new, MobCategory.MISC)
-                    .sized(0.0F, 0.0F)
-                    .setUpdateInterval(Integer.MAX_VALUE)
-                    .noSummon()
-                    .build("screen_shake_sounded")
-    );
+                    EntityType.Builder.<ScreenShakeSoundedEntity>of(ScreenShakeSoundedEntity::new, MobCategory.MISC)
+                            .sized(0.0F, 0.0F)
+                            .setUpdateInterval(Integer.MAX_VALUE)
+                            .noSummon()
+                            .build("screen_shake_sounded")
+            );
 
     public static final DeferredHolder<EntityType<?>, EntityType<ScouringRayEntity>> SCOURING_RAY =
             ENTITIES.register("scouring_ray", () ->
                     EntityType.Builder.<ScouringRayEntity>of(ScouringRayEntity::new, MobCategory.MISC)
                             .sized(0.1F, 0.1F)
-                            .clientTrackingRange(64)
-                            .setShouldReceiveVelocityUpdates(false)
                             .noSummon()
                             .build("scouring_ray")
             );

@@ -80,10 +80,6 @@ public class ScouringEyeUtils {
                                 && !EntityUtils.isAlliedTo(player, entity))
                 .toList();
 
-//        for (LivingEntity targetOther : targetsToHurt) {
-//            targetOther.hurt(level.damageSources().magic(), damage);
-//        }
-
         sendHurtParticles(level, target, targetsToHurt, fromPos, toPos, damage);
     }
 

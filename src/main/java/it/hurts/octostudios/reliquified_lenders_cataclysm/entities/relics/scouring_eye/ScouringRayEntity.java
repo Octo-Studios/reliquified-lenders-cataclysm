@@ -17,7 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -59,22 +59,20 @@ public class ScouringRayEntity extends Entity {
             return;
         }
 
+        double distanceTotal = fromPos.distanceTo(toPos);
+        int lifetimeTicks = (int) Math.ceil(distanceTotal / 1.2D);
+
+        if (tickCount > lifetimeTicks) {
+            discard();
+        }
+
         Level level = getCommandSenderWorld();
 
         if (level.isClientSide) {
             return;
         }
 
-        double distanceTotal = fromPos.distanceTo(toPos);
-        int lifetimeTicks = (int) Math.ceil(distanceTotal / 1.2D);
-
-        double currentProgress = (double) tickCount / lifetimeTicks;
-
-        if (currentProgress > 1D) {
-            discard();
-
-            return;
-        }
+        double currentProgress = (tickCount - 1D) / lifetimeTicks;
 
         Vec3 direction = toPos.subtract(fromPos).normalize();
         Vec3 up = new Vec3(0, 1, 0);
