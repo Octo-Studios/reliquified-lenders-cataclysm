@@ -14,7 +14,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
-import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -94,13 +93,12 @@ public class ScouringEyeItem extends RECItem {
             return;
         }
 
-        if (target.isDeadOrDying()) {
+        if (target.isDeadOrDying() || !isGlowingTimeInBounds(livingEntity, stack)) {
             resetData(livingEntity, stack);
 
             return;
         }
 
-        // safe tp predicate
         setTeleportSafe(stack, getTeleportPos(livingEntity, target) != null);
 
         // handle glowing time
@@ -142,7 +140,7 @@ public class ScouringEyeItem extends RECItem {
         ItemStack stack = player.getItemInHand(hand);
 
         if (level.isClientSide || !canPlayerUseAbility(player, stack, ABILITY_ID)
-                || getTargetUUID(stack).isEmpty() || !isTeleportAllowed(player, stack)) {
+                || getTargetUUID(stack).isEmpty() || !isTeleportAllowed(player, stack, level)) {
             return InteractionResultHolder.pass(stack);
         }
 
@@ -164,7 +162,7 @@ public class ScouringEyeItem extends RECItem {
             pierceTargets(target, player, level, damage);
         }
 
-        BlockPos teleportPos = getTeleportPos(player, target);
+        Vec3 teleportPos = getTeleportPos(player, target);
 
         // if no safe pos found, reset safe_tp predicate
         if (teleportPos == null) {
@@ -173,8 +171,9 @@ public class ScouringEyeItem extends RECItem {
             return InteractionResultHolder.pass(stack);
         }
 
-        Vec3 teleportMovement = getMovementOnTeleport(teleportPos, target.blockPosition()).scale(0.12D);
-        teleportToTarget(player, target, teleportPos, teleportMovement);
+        Vec3 teleportMotion = new Vec3(target.getX(), 0D, target.getZ())
+                .subtract(teleportPos.x, 0D, teleportPos.z).scale(0.12D);
+        teleportToTarget(player, target, teleportPos, teleportMotion);
 
         player.getCooldowns().addCooldown(this, 20);
 

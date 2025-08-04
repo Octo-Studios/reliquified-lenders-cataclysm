@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -53,20 +54,21 @@ public class ItemUtils {
     }
 
     @Nullable
-    public static BlockPos getValidSpawnPos(Level level, BlockPos initialPos) {
+    public static Vec3 getValidSpawnPos(Level level, Vec3 initialPos) {
         for (int i = 1; i <= 4; i++) {
             for (int j = 1; j <= 4; j++) {
-                double initialY = initialPos.getY();
+                double initialY = initialPos.y;
 
                 // get the nearest blocks at the same height in opposite to target's view direction
                 BlockPos pos = BlockPos.containing(
-                        initialPos.getX() + i, initialY, initialPos.getZ() + i);
+                        initialPos.x + i, initialY, initialPos.z + i);
 
                 BlockPos newPos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos);
 
                 // check for safety & possible height difference
-                if (isBlockSafe(level, newPos) && Math.abs(initialY - newPos.getY()) <= 3.0D) {
-                    return newPos;
+                if (isBlockSafe(level, new Vec3(newPos.getX(), newPos.getY(), newPos.getZ()))
+                        && Math.abs(initialY - newPos.getY()) <= 3.0D) {
+                    return new Vec3(newPos.getX(), newPos.getY(), newPos.getZ());
                 }
             }
         }
@@ -74,13 +76,15 @@ public class ItemUtils {
         return null;
     }
 
-    public static boolean isBlockSafe(Level level, BlockPos pos) {
-        BlockState blockState = level.getBlockState(pos);
-        BlockState blockStateBelow = level.getBlockState(pos.below());
-        BlockState blockStateAbove = level.getBlockState(pos.above());
+    public static boolean isBlockSafe(Level level, Vec3 pos) {
+        BlockPos blockPos = BlockPos.containing(pos);
+
+        BlockState blockState = level.getBlockState(blockPos);
+        BlockState blockStateBelow = level.getBlockState(blockPos.below());
+        BlockState blockStateAbove = level.getBlockState(blockPos.above());
 
         return blockStateAbove.isAir() // player's head must be in air
-                && (blockState.isAir() || !blockState.isCollisionShapeFullBlock(level, pos))
+                && (blockState.isAir() || !blockState.isCollisionShapeFullBlock(level, blockPos))
                 && blockStateBelow.isSolid() // BlockState.isSolid() - deprecated
                 && !(blockStateBelow.getBlock() instanceof LiquidBlock);
     }

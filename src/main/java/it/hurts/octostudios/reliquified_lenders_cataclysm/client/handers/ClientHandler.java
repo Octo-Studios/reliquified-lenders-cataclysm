@@ -5,7 +5,6 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer.entiti
 import it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer.entities.VoidVortexModifiedRenderer;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECEntities;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils;
 import it.hurts.sskirillss.relics.client.renderer.entities.NullRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -22,7 +21,7 @@ public class ClientHandler {
     public static void clientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             ItemProperties.register(RECItems.SCOURING_EYE.get(), ResourceLocation.fromNamespaceAndPath(ReliquifiedLendersCataclysm.MOD_ID, "targeted"),
-                    (stack, level, entity, id) -> ScouringEyeUtils.getTargetUUID(stack).isEmpty() ? 0 : 1);
+                    (stack, level, entity, id) -> !ScouringEyeUtils.getTargetUUID(stack).isEmpty() ? 1 : 0);
         });
     }
 

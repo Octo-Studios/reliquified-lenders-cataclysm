@@ -130,14 +130,14 @@ public class FlameKindlerRingItem extends RECItem {
             double z = targetEntity.getZ() + motion.z + randomizedAround(sourceEntity, inaccuracy);
 
             // ensure that potential spawn pos of jet is valid
-            BlockPos spawnPos = ItemUtils.getValidSpawnPos(level, BlockPos.containing(x, y, z));
+            Vec3 spawnPos = ItemUtils.getValidSpawnPos(level, new Vec3(x, y, z));
 
             if (spawnPos == null) {
                 continue;
             }
 
             FlameJetModifiedEntity flameJet = new FlameJetModifiedEntity(level,
-                    spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(),
+                    spawnPos.x, spawnPos.y, spawnPos.z,
                     targetEntity.getYRot(), i + 2, getDamageStat(targetEntity, stack), sourceEntity);
 
             level.addFreshEntity(flameJet);

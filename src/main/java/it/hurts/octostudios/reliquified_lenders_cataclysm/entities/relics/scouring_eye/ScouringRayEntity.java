@@ -5,6 +5,10 @@ import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import lombok.Getter;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -14,23 +18,27 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 public class ScouringRayEntity extends Entity {
+    private static final EntityDataAccessor<Vector3f> FROM_POS = SynchedEntityData.defineId(ScouringRayEntity.class, EntityDataSerializers.VECTOR3);
+    private static final EntityDataAccessor<Vector3f> TO_POS = SynchedEntityData.defineId(ScouringRayEntity.class, EntityDataSerializers.VECTOR3);
+    private static final EntityDataAccessor<Float> WIDTH = SynchedEntityData.defineId(ScouringRayEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> DAMAGE = SynchedEntityData.defineId(ScouringRayEntity.class, EntityDataSerializers.FLOAT);
+
     private final double progress = 0.0D;
 
     private final Color startColor = new Color(139, 0, 105);
     private final Color endColor = new Color(47, 0, 97);
 
     private List<LivingEntity> targets;
-    private Vec3 fromPos;
-    private Vec3 toPos;
-    private double width;
-    private float damage;
 
     public ScouringRayEntity(EntityType<ScouringRayEntity> type, Level level) {
         super(type, level);
@@ -38,27 +46,26 @@ public class ScouringRayEntity extends Entity {
         this.noPhysics = true;
     }
 
-    public ScouringRayEntity(Level level, List<LivingEntity> targets, Vec3 fromPos, Vec3 toPos, double width, float damage) {
+    public ScouringRayEntity(Level level, List<LivingEntity> targets, Vec3 fromPos, Vec3 toPos, float width, float damage) {
         this(RECEntities.SCOURING_RAY.get(), level);
 
         this.targets = targets;
-        this.fromPos = fromPos;
-        this.toPos = toPos;
-        this.width = width;
-        this.damage = damage;
+
+        setFromPos(fromPos);
+        setToPos(toPos);
+        setWidth(width);
+        setDamage(damage);
     }
 
     @Override
     public void tick() {
         super.tick();
 
-        if (toPos == null) {
-            discard();
-
+        if (getFromPos() == null || getToPos() == null) {
             return;
         }
 
-        double distanceTotal = fromPos.distanceTo(toPos);
+        double distanceTotal = getFromPos().distanceTo(getToPos());
         int lifetimeTicks = (int) Math.ceil(distanceTotal / 1.2D);
 
         if (tickCount > lifetimeTicks) {
@@ -75,7 +82,7 @@ public class ScouringRayEntity extends Entity {
 
         double currentProgress = (double) tickCount / lifetimeTicks;
 
-        Vec3 direction = toPos.subtract(fromPos).normalize();
+        Vec3 direction = getToPos().subtract(getFromPos()).normalize();
         Vec3 up = new Vec3(0, 1, 0);
 
         if (Math.abs(direction.dot(up)) > 0.99D) {
@@ -95,15 +102,14 @@ public class ScouringRayEntity extends Entity {
             }
 
             double distance = progressFrac * distanceTotal;
-
             double angle = 2 * Math.PI * distanceTotal * progressFrac;
 
-            double spiralRadius = Math.sin(Math.PI * progressFrac) * width;
+            double spiralRadius = Math.sin(Math.PI * progressFrac) * getWidth();
             double dx = Math.cos(angle) * spiralRadius;
             double dz = Math.sin(angle) * spiralRadius;
 
             Vec3 offset = right.scale(dx).add(perpendicular.scale(dz));
-            Vec3 pos = fromPos.add(direction.scale(distance)).add(offset);
+            Vec3 pos = getFromPos().add(direction.scale(distance)).add(offset);
 
             ((ServerLevel) level).sendParticles(
                     getParticle(currentProgress),
@@ -113,15 +119,15 @@ public class ScouringRayEntity extends Entity {
 
         // targets hitboxes
 
-        if (targets.isEmpty()) {
+        if (getTargets().isEmpty()) {
             return;
         }
 
         double distanceCurrent = currentProgress * distanceTotal;
         double boxOffset = 0.5D;
 
-        for (LivingEntity entity : targets) {
-            double distanceTarget = fromPos.distanceTo(entity.getBoundingBox().getCenter());
+        for (LivingEntity entity : getTargets()) {
+            double distanceTarget = getFromPos().distanceTo(entity.getBoundingBox().getCenter());
             double delta = Math.abs(distanceCurrent - distanceTarget);
 
             if (delta <= boxOffset) {
@@ -133,7 +139,7 @@ public class ScouringRayEntity extends Entity {
     }
 
     private void hurtEntity(Level level, LivingEntity entity, AABB box, double progress) {
-        entity.hurt(level.damageSources().magic(), damage);
+        entity.hurt(level.damageSources().magic(), getDamage());
 
         drawEntityBox(level, box, progress);
     }
@@ -186,21 +192,100 @@ public class ScouringRayEntity extends Entity {
     }
 
     private Color getCurrentColor(double progress) {
-        int r = (int) (startColor.getRed() - progress * Math.abs(startColor.getRed() - endColor.getRed()));
-        int b = (int) (startColor.getBlue() - progress * Math.abs(startColor.getBlue() - endColor.getBlue()));
+        int r = (int) (getStartColor().getRed() - progress * Math.abs(getStartColor().getRed() - getEndColor().getRed()));
+        int b = (int) (getStartColor().getBlue() - progress * Math.abs(getStartColor().getBlue() - getEndColor().getBlue()));
 
         return new Color(r, 0, b);
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
+        builder.define(FROM_POS, Vec3.ZERO.toVector3f());
+        builder.define(TO_POS, Vec3.ZERO.toVector3f());
+        builder.define(WIDTH, 0F);
+        builder.define(DAMAGE, 0F);
     }
 
     @Override
     protected void readAdditionalSaveData(@NotNull CompoundTag tag) {
+        setFromPos(new Vec3(tag.getDouble("fromX"), tag.getDouble("fromY"), tag.getDouble("fromZ")));
+        setToPos(new Vec3(tag.getDouble("toX"), tag.getDouble("toY"), tag.getDouble("toZ")));
+
+        setWidth(tag.getFloat("width"));
+        setWidth(tag.getFloat("damage"));
+
+        this.targets = new ArrayList<>();
+
+        if (getCommandSenderWorld() instanceof ServerLevel level) {
+            ListTag targetsUUIDList = tag.getList("targets", Tag.TAG_COMPOUND);
+
+            for (var targetTag : targetsUUIDList) {
+                CompoundTag uuidTag = (CompoundTag) targetTag;
+
+                if (level.getEntity(uuidTag.getUUID("uuid")) instanceof LivingEntity target) {
+                    targets.add(target);
+                }
+            }
+        }
     }
 
     @Override
     protected void addAdditionalSaveData(@NotNull CompoundTag tag) {
+        tag.putDouble("fromX", getFromPos().x);
+        tag.putDouble("fromY", getFromPos().y);
+        tag.putDouble("fromZ", getFromPos().z);
+        tag.putDouble("toX", getToPos().x);
+        tag.putDouble("toY", getToPos().y);
+        tag.putDouble("toZ", getToPos().z);
+
+        tag.putFloat("width", getWidth());
+        tag.putFloat("damage", getDamage());
+
+        ListTag targetsUUIDList = new ListTag();
+
+        for (LivingEntity entity : getTargets()) {
+            if (entity == null) {
+                continue;
+            }
+
+            CompoundTag targetTag = new CompoundTag();
+            targetTag.putUUID("uuid", entity.getUUID());
+
+            targetsUUIDList.add(targetTag);
+        }
+
+        tag.put("targets", targetsUUIDList);
+    }
+
+    public void setFromPos(Vec3 pos) {
+        this.getEntityData().set(FROM_POS, pos.toVector3f());
+    }
+
+    public Vec3 getFromPos() {
+        return new Vec3(this.getEntityData().get(FROM_POS));
+    }
+
+    public void setToPos(Vec3 pos) {
+        this.getEntityData().set(TO_POS, pos.toVector3f());
+    }
+
+    public Vec3 getToPos() {
+        return new Vec3(this.getEntityData().get(TO_POS));
+    }
+
+    public void setWidth(float width) {
+        this.getEntityData().set(WIDTH, width);
+    }
+
+    public float getWidth() {
+        return this.getEntityData().get(WIDTH);
+    }
+
+    public void setDamage(float damage) {
+        this.getEntityData().set(DAMAGE, damage);
+    }
+
+    public float getDamage() {
+        return this.getEntityData().get(DAMAGE);
     }
 }

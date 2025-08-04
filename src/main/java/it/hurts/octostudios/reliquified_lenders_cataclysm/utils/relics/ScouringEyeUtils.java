@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ScouringEyeUtils {
     public static final String ABILITY_ID = "glowing_scour";
@@ -78,51 +79,41 @@ public class ScouringEyeUtils {
         targetsToHurt = targetsToHurt.stream().filter(entity ->
                         !entity.equals(player) && entity.isAlive()
                                 && !EntityUtils.isAlliedTo(player, entity))
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
 
-        sendHurtParticles(level, target, targetsToHurt, fromPos, toPos, damage);
-    }
+        if (!targetsToHurt.contains(target)) {
+            targetsToHurt.add(target);
+        }
 
-    public static void sendHurtParticles(Level level, LivingEntity targetFinal, List<LivingEntity> targets, Vec3 fromPos, Vec3 toPos, float damage) {
-        ScouringRayEntity rayEntity = new ScouringRayEntity(level, targets, fromPos, toPos, targetFinal.getBbWidth(), damage);
+        ScouringRayEntity rayEntity = new ScouringRayEntity(level, targetsToHurt, fromPos, toPos, target.getBbWidth(), damage);
         rayEntity.setPos(fromPos);
 
         level.addFreshEntity(rayEntity);
     }
 
-    public static void teleportToTarget(Player player, LivingEntity target, BlockPos pos, Vec3 motion) {
-        Vec3 posCenter = pos.getBottomCenter();
-        player.teleportTo(posCenter.x, pos.getY() + 1.0D, posCenter.z);
-        player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition().add(0D, 0.5D, 0D));
+    public static void teleportToTarget(Player player, LivingEntity target, Vec3 pos, Vec3 motion) {
+        player.teleportTo(pos.x, pos.y + 1.0D, pos.z);
+        player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition().add(0D, 1.0D, 0D));
 
         // set player movement
         NetworkHandler.sendToClient(new S2CSetEntityMotion(player.getId(), motion.toVector3f()), (ServerPlayer) player);
 
         target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 30), player);
 
-        player.getCommandSenderWorld().playSound(null, pos,
+        player.getCommandSenderWorld().playSound(null, BlockPos.containing(pos),
                 SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 
     @Nullable
-    public static BlockPos getTeleportPos(LivingEntity entity, LivingEntity target) {
+    public static Vec3 getTeleportPos(LivingEntity entity, LivingEntity target) {
         Level level = entity.getCommandSenderWorld();
+        Vec3 pos = target.position().subtract(target.getViewVector(0F).scale(3.0F));
 
-        Vec3 pos = target.position().add(target.getViewVector(1.0F).scale(-3.0F));
-        BlockPos blockPos = BlockPos.containing(pos.x, pos.y, pos.z);
-
-        // firstly check initial pos for safety
-        if (!ItemUtils.isBlockSafe(level, blockPos)) {
-            // then find nearest safe pos (there may be null if no safe pos found)
-            return ItemUtils.getValidSpawnPos(level, blockPos);
+        if (ItemUtils.isBlockSafe(level, pos)) {
+            return pos;
         }
 
-        return blockPos;
-    }
-
-    public static Vec3 getMovementOnTeleport(BlockPos teleportPos, BlockPos targetPos) {
-        return new Vec3(targetPos.getX(), 0.0D, targetPos.getZ())
-                .subtract(teleportPos.getX(), 0.0D, teleportPos.getZ());
+        return ItemUtils.getValidSpawnPos(level, pos); // null if no safe pos found
     }
 
     @Nullable
@@ -161,9 +152,9 @@ public class ScouringEyeUtils {
         return isGlowingTimeInBounds(entity, stack) && getStackTime(stack) >= level.getGameTime() - 1;
     }
 
-    public static boolean isTeleportAllowed(LivingEntity entity, ItemStack stack) {
+    public static boolean isTeleportAllowed(LivingEntity entity, ItemStack stack, Level level) {
         return stack.getOrDefault(RECDataComponents.TP_SAFE, false)
-                && isGlowingTimeInBounds(entity, stack)
+                && isGlowingTimeTicking(entity, stack, level)
                 && !stack.getOrDefault(RECDataComponents.PLAYER_DIED, false);
     }
 
