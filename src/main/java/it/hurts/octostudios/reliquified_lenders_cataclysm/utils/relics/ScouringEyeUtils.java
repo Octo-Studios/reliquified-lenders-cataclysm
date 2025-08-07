@@ -1,6 +1,5 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics;
 
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.scouring_eye.ScouringRayEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
@@ -9,6 +8,7 @@ import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
+import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -27,6 +27,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.http.annotation.Experimental;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -41,11 +42,11 @@ public class ScouringEyeUtils {
         setTeleportSafe(stack, false);
     }
 
-    public static void pierceTargets(LivingEntity target, Player player, Level level, float damage) {
+    public static void pierceTargets(LivingEntity targetFinal, Player player, Level level, float damage) {
         Vec3 fromPos = player.position().add(0, player.getEyeHeight(), 0);
-        Vec3 toPos = target.position().add(0, target.getBbHeight() / 2D, 0);
+        Vec3 toPos = targetFinal.position().add(0, targetFinal.getBbHeight() / 2D, 0);
 
-        double radius = target.getBbWidth() / 2D;
+        double radius = targetFinal.getBbWidth() / 2D;
 
         List<LivingEntity> targetsPotential = level.getEntitiesOfClass(LivingEntity.class,
                 new AABB(fromPos, toPos).inflate(radius),
@@ -56,8 +57,8 @@ public class ScouringEyeUtils {
         Vec3 direction = toPos.subtract(fromPos);
         Vec3 normalized = direction.normalize();
 
-        for (LivingEntity targetOther : targetsPotential) {
-            AABB box = targetOther.getBoundingBox();
+        for (LivingEntity target : targetsPotential) {
+            AABB box = target.getBoundingBox();
             Vec3 centerPos = box.getCenter();
             double proj = centerPos.subtract(fromPos).dot(normalized);
 
@@ -72,7 +73,7 @@ public class ScouringEyeUtils {
             double dz = Math.max(0, Math.abs(centerPos.z - nearestPos.z) - box.getZsize() / 2D);
 
             if (Math.pow(dx, 2) + Math.pow(dy, 2) + Math.pow(dz, 2) <= Math.pow(radius, 2)) {
-                targetsToHurt.add(targetOther);
+                targetsToHurt.add(target);
             }
         }
 
@@ -81,14 +82,95 @@ public class ScouringEyeUtils {
                                 && !EntityUtils.isAlliedTo(player, entity))
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        if (!targetsToHurt.contains(target)) {
-            targetsToHurt.add(target);
+        if (!targetsToHurt.contains(targetFinal)) {
+            targetsToHurt.add(targetFinal);
         }
 
-        ScouringRayEntity rayEntity = new ScouringRayEntity(level, targetsToHurt, fromPos, toPos, target.getBbWidth(), damage);
-        rayEntity.setPos(fromPos);
+        drawRay(level, fromPos, toPos, targetFinal.getBbWidth());
 
-        level.addFreshEntity(rayEntity);
+        for (var target : targetsToHurt) {
+            target.hurt(level.damageSources().magic(), damage);
+
+            drawEntityBox(level, target, targetFinal, toPos);
+        }
+    }
+
+    private static void drawRay(Level level, Vec3 fromPos, Vec3 toPos, double width) {
+        double distanceTotal = fromPos.distanceTo(toPos);
+
+        Vec3 direction = toPos.subtract(fromPos).normalize();
+        Vec3 up = new Vec3(0, 1, 0);
+
+        if (Math.abs(direction.dot(up)) > 0.99D) {
+            up = new Vec3(1, 0, 0);
+        }
+
+        Vec3 right = direction.cross(up).normalize();
+        Vec3 perpendicular = direction.cross(right).normalize();
+
+        Color startColor = new Color(139, 0, 105);
+        Color endColor = new Color(47, 0, 97);
+
+        int particleLifetime = (int) (distanceTotal * 5);
+        int particlesNum = 64;
+
+        for (int i = 0; i <= particlesNum - 1; i++) {
+            double progress = (double) i / particlesNum;
+
+            double angle = 2 * Math.PI * distanceTotal * progress;
+            double spiralRadius = Math.sin(Math.PI * progress) * width;
+
+            double dx = Math.cos(angle) * spiralRadius;
+            double dz = Math.sin(angle) * spiralRadius;
+
+            Vec3 offset = right.scale(dx).add(perpendicular.scale(dz));
+            Vec3 pos = fromPos.add(direction.scale(progress * distanceTotal)).add(offset);
+
+            Color color;
+
+            if (i % 8 == 0) {
+                color = new Color(255, 58, 204);
+            } else if (progress <= 0D) {
+                color = startColor;
+            } else if (progress >= 1D) {
+                color = endColor;
+            } else {
+                int r = (int) (startColor.getRed() + (endColor.getRed() - startColor.getRed()) * progress);
+                int g = (int) (startColor.getGreen() + (endColor.getGreen() - startColor.getGreen()) * progress);
+                int b = (int) (startColor.getBlue() + (endColor.getBlue() - startColor.getBlue()) * progress);
+
+                color = new Color(r, g, b);
+            }
+
+            ((ServerLevel) level).sendParticles(
+                    ParticleUtils.constructSimpleSpark(color,
+                            0.9F, particleLifetime, 0.85F),
+                    pos.x, pos.y, pos.z,
+                    1, 0, 0, 0, 0);
+        }
+    }
+
+    private static void drawEntityBox(Level level, LivingEntity target, LivingEntity targetFinal, Vec3 toPos) {
+        AABB box = target.getBoundingBox();
+        Vec3 direction = toPos.subtract(box.getCenter()).normalize();
+
+        int pMin = 20, pMax = 48;
+        int particlesNum = pMin + target.getRandom().nextInt(pMax - pMin + 1);
+
+        for (int i = 0; i < particlesNum; i++) {
+            double px = box.minX + target.getRandom().nextDouble() * (box.maxX - box.minX);
+            double py = box.minY + target.getRandom().nextDouble() * (box.maxY - box.minY);
+            double pz = box.minZ + target.getRandom().nextDouble() * (box.maxZ - box.minZ);
+
+//            Vec3 motion = targetFinal.getBoundingBox().getCenter().subtract(pos).normalize().scale(0.5D);
+            Vec3 motion = direction.normalize().scale(0.05D);
+
+            ((ServerLevel) level).sendParticles(
+                    ParticleUtils.constructSimpleSpark(new Color(255, 255, 255),
+                            0.6F, 40, 0.7F),
+                    px, py, pz,
+                    1, motion.x, motion.y, motion.z, 0);
+        }
     }
 
     public static void teleportToTarget(Player player, LivingEntity target, Vec3 pos, Vec3 motion) {

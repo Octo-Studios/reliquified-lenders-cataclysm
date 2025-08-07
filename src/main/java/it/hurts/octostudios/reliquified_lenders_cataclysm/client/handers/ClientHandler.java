@@ -6,7 +6,6 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer.entiti
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECEntities;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.ScouringEyeUtils;
-import it.hurts.sskirillss.relics.client.renderer.entities.NullRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
@@ -27,7 +26,6 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void entityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(RECEntities.SCOURING_RAY.get(), NullRenderer::new);
         event.registerEntityRenderer(RECEntities.VOID_VORTEX_MODIFIED.get(), VoidVortexModifiedRenderer::new);
         event.registerEntityRenderer(RECEntities.IGNITED_SHIELD.get(), IgnitedShieldRenderer::new);
     }

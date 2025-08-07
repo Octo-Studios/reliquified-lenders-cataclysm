@@ -4,7 +4,6 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCata
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.fire_plate.IgnitedShieldEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.ring_of_the_flame_kindler.FlameJetModifiedEntity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.scouring_eye.ScouringRayEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_bubble.VoidShardModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_vortex_in_bottle.VoidVortexModifiedEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -24,14 +23,6 @@ public class RECEntities {
                             .setUpdateInterval(Integer.MAX_VALUE)
                             .noSummon()
                             .build("screen_shake_sounded")
-            );
-
-    public static final DeferredHolder<EntityType<?>, EntityType<ScouringRayEntity>> SCOURING_RAY =
-            ENTITIES.register("scouring_ray", () ->
-                    EntityType.Builder.<ScouringRayEntity>of(ScouringRayEntity::new, MobCategory.MISC)
-                            .sized(0.1F, 0.1F)
-                            .noSummon()
-                            .build("scouring_ray")
             );
 
     public static final DeferredHolder<EntityType<?>, EntityType<VoidShardModifiedEntity>> VOID_SHARD_MODIFIED =
