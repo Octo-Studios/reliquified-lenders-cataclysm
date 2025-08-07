@@ -1,8 +1,8 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Rune_Entity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
@@ -11,20 +11,18 @@ import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
+import it.hurts.sskirillss.relics.init.RelicsMobEffects;
 import it.hurts.sskirillss.relics.init.RelicsScalingModels;
-import it.hurts.sskirillss.relics.items.relics.base.data.cast.CastData;
-import it.hurts.sskirillss.relics.items.relics.base.data.cast.misc.CastType;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -35,8 +33,7 @@ import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.List;
 
-import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidCloakUtils.spawnSeismicZone;
-import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidCloakUtils.spawnVoidRune;
+import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidCloakUtils.*;
 
 @EventBusSubscriber
 public class VoidCloakItem extends RECItem {
@@ -44,12 +41,11 @@ public class VoidCloakItem extends RECItem {
     public RelicTemplate constructDefaultRelicTemplate() {
         return RelicTemplate.builder()
                 .abilities(AbilitiesTemplate.builder()
-                        .ability(AbilityTemplate.builder("void_invulnerability")
-                                .build())
-                        .ability(AbilityTemplate.builder("void_rune")
-                                .castData(CastData.builder()
-                                        .type(CastType.TOGGLEABLE)
-                                        .build())
+                        .ability(AbilityTemplate.builder(ABILITY_ID)
+                                .rankModifier(1, "stun")
+                                .rankModifier(3, "attraction")
+                                .rankModifier(5, "seismic_zone")
+                                .modes("enabled", "disabled")
                                 .stat(StatTemplate.builder("cooldown")
                                         .initialValue(20D, 16D)
                                         .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), -0.05625D)
@@ -60,10 +56,22 @@ public class VoidCloakItem extends RECItem {
                                         .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.525D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
-                                .build())
-                        .ability(AbilityTemplate.builder("seismic_zone")
-                                .requiredLevel(5)
-                                .stat(StatTemplate.builder("radius")
+                                .stat(StatTemplate.builder("stun_time")
+                                        .initialValue(3D, 5D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.05D)
+                                        .formatValue(RECMathUtils::roundInt)
+                                        .build())
+                                .stat(StatTemplate.builder("attraction_radius")
+                                        .initialValue(6D, 7D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.35D)
+                                        .formatValue(RECMathUtils::roundInt)
+                                        .build())
+                                .stat(StatTemplate.builder("attraction_force")
+                                        .initialValue(6D, 7D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.35D)
+                                        .formatValue(RECMathUtils::roundInt)
+                                        .build())
+                                .stat(StatTemplate.builder("zone_radius")
                                         .initialValue(2D, 3D)
                                         .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.5D)
                                         .formatValue(RECMathUtils::roundInt)
@@ -73,8 +81,8 @@ public class VoidCloakItem extends RECItem {
                                         .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.5D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
-                                .stat(StatTemplate.builder("damage")
-                                        .initialValue(1.4D, 1.76D)
+                                .stat(StatTemplate.builder("zone_damage")
+                                        .initialValue(1.5D, 2D)
                                         .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.525D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
@@ -83,6 +91,7 @@ public class VoidCloakItem extends RECItem {
                 .leveling(LevelingTemplate.builder()
                         .initialCost(100)
                         .step(100)
+                        .maxRank(5)
                         .build())
                 .loot(LootTemplate.builder()
                         .entry(RECLootEntries.CURSED_PYRAMID, RECLootEntries.FROSTED_PRISON,
@@ -102,7 +111,7 @@ public class VoidCloakItem extends RECItem {
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
 
-        if (stack.isEmpty() || !isAbilityTicking(entity, stack, "void_rune")) {
+        if (stack.isEmpty() || isVoidRuneDisabled(entity, stack)) {
             return;
         }
 
@@ -145,98 +154,73 @@ public class VoidCloakItem extends RECItem {
             }
 
             if (runeSpawned) {
-                voidRuneCooldown = ItemUtils.getCooldownStat(entity, stack, "void_rune");
+                voidRuneCooldown = ItemUtils.getCooldownStat(entity, stack, ABILITY_ID);
             }
         }
 
         stack.set(RECDataComponents.VOID_RUNE_TIME, voidRuneCooldown);
     }
 
-    // add relic xp on entity damaged by void rune
     @SubscribeEvent
     public static void onLivingDamage(LivingIncomingDamageEvent event) {
         if (!(event.getSource().getDirectEntity() instanceof Void_Rune_Entity voidRuneEntity)) {
             return;
         }
 
-        LivingEntity entity = voidRuneEntity.getCaster();
+        // rank 1
 
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.VOID_CLOAK.get());
+        LivingEntity caster = voidRuneEntity.getCaster();
+        ItemStack stack = EntityUtils.findEquippedCurio(caster, RECItems.VOID_CLOAK.get());
 
-        if (stack.isEmpty() || !(stack.getItem() instanceof VoidCloakItem relic)) {
+        if (stack.isEmpty() || !isRankModifierUnlocked(caster, stack, "stun")) {
             return;
         }
 
-        relic.spreadRelicExperience(entity, stack, 1);
-    }
+        LivingEntity target = event.getEntity();
 
-    /**
-     * Ability {@code void_invulnerability}: complete suppression of void damage
-     */
-    @SubscribeEvent
-    public static void onPlayerDamage(LivingIncomingDamageEvent event) {
-        LivingEntity entity = event.getEntity();
-
-        if (entity.getCommandSenderWorld().isClientSide) {
-            return;
-        }
-
-        // fix damaging player with his seismic zone after the death
-        if (event.getSource().getDirectEntity() instanceof Void_Rune_Entity voidRuneEntity) {
-            LivingEntity caster = voidRuneEntity.getCaster();
-
-            if (caster != null && caster.getUUID().equals(entity.getUUID())) {
-                event.setCanceled(true);
-            }
-        }
-
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.VOID_CLOAK.get());
-
-        if (stack.isEmpty() || !(stack.getItem() instanceof VoidCloakItem)) {
-            return;
-        }
-
-        if (entity.getY() < entity.getCommandSenderWorld().getMinBuildHeight()) {
+        // fixed damaging entity with its seismic zone after the death
+        if (caster != null && caster.getUUID().equals(target.getUUID())) {
             event.setCanceled(true);
         }
+
+        target.addEffect(new MobEffectInstance(RelicsMobEffects.PARALYSIS, getStunStatTicks(caster, stack)), caster);
     }
 
-    /**
-     * Ability {@code seismic_zone}: spawn seismic zone of void rune if player or entity owned by player dies
-     */
     @SubscribeEvent
     public static void onEntityDeath(LivingDeathEvent event) {
-        LivingEntity entityDead = event.getEntity();
-        LivingEntity entity = null;
-
-        if (entityDead instanceof Player) {
-            entity = entityDead;
-        } else if (entityDead instanceof OwnableEntity ownableEntity) {
-            entity = ownableEntity.getOwner();
-        }
-
-        if (entity == null) {
+        if (!(event.getSource().getDirectEntity() instanceof Void_Rune_Entity voidRuneEntity)) {
             return;
         }
 
-        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.VOID_CLOAK.get());
+        LivingEntity caster = voidRuneEntity.getCaster();
 
-        if (stack.isEmpty() || !(stack.getItem() instanceof VoidCloakItem relic)
-                || !relic.isAbilityUnlocked(entityDead, stack, "seismic_zone")) {
+        if (caster == null) {
             return;
         }
 
-        Level level = entity.getCommandSenderWorld();
+        Level level = caster.getCommandSenderWorld();
 
         if (level.isClientSide) {
             return;
         }
 
-        level.explode(entity, entityDead.getX(), entityDead.getY(), entityDead.getZ(),
+        ItemStack stack = EntityUtils.findEquippedCurio(caster, RECItems.VOID_CLOAK.get());
+
+        if (isVoidRuneDisabled(caster, stack)) {
+            return;
+        }
+
+        // rank 5
+
+        if (stack.isEmpty() || !isRankModifierUnlocked(caster, stack, "seismic_zone")) {
+            return;
+        }
+
+        LivingEntity entityDead = event.getEntity();
+
+        level.explode(caster, entityDead.getX(), entityDead.getY(), entityDead.getZ(),
                 1.0F, false, Level.ExplosionInteraction.NONE);
 
-        spawnSeismicZone(level, entity, entityDead, stack);
-
-        relic.spreadRelicExperience(entity, stack, 5);
+        spawnSeismicZone(level, caster, entityDead, stack);
     }
 }

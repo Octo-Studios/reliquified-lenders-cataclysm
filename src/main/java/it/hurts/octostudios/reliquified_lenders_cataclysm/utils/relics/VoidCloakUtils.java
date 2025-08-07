@@ -3,6 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics;
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Rune_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VoidCloakItem;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import lombok.Getter;
@@ -15,24 +16,27 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.apache.http.annotation.Experimental;
 
 public class VoidCloakUtils {
+    public static final String ABILITY_ID = "void_rune";
+
     @Getter
     private static final int waveTicks = 30;
 
-    public static void spawnVoidRune(Level level, LivingEntity entity, LivingEntity targetEntity, ItemStack stack) {
-        Vec3 mobMovement = targetEntity.getDeltaMovement();
+    public static void spawnVoidRune(Level level, LivingEntity caster, LivingEntity target, ItemStack stack) {
+        Vec3 mobMovement = target.getDeltaMovement();
 
-        if (EntityUtils.isAlliedTo(entity, targetEntity)) {
+        if (EntityUtils.isAlliedTo(caster, target)) {
             return;
         }
 
-        spawnFang(level, entity, targetEntity, targetEntity.getX() + mobMovement.x, targetEntity.getZ() + mobMovement.z,
-                0, -20, getRuneDamageStat(entity, stack));
+        spawnFang(level, caster, target, target.getX() + mobMovement.x, target.getZ() + mobMovement.z,
+                0, -20, getRuneDamageStat(caster, stack));
     }
 
     public static void spawnSeismicZone(Level level, LivingEntity entity, LivingEntity dyingEntity, ItemStack stack) {
-        int wavesNum = ItemUtils.getIntStat(entity, stack, "seismic_zone", "waves");
+        int wavesNum = ItemUtils.getIntStat(entity, stack, ABILITY_ID, "waves");
         int layersSpawned = 0;
 
         for (int i = 0; i < wavesNum; i++) {
@@ -130,15 +134,33 @@ public class VoidCloakUtils {
 
     // simple getters
 
+    @Experimental
+    public static boolean isRankModifierUnlocked(LivingEntity entity, ItemStack stack, String modifier) {
+        if (!(stack.getItem() instanceof ScouringEyeItem relic)) {
+            return false;
+        }
+
+        return relic.isAbilityRankModifierUnlocked(entity, stack, ABILITY_ID, modifier);
+    }
+
+    @Experimental
+    public static boolean isVoidRuneDisabled(LivingEntity entity, ItemStack stack) {
+        return ((VoidCloakItem) stack.getItem()).getAbilityMode(entity, stack, ABILITY_ID).equals("disabled");
+    }
+
+    public static int getStunStatTicks(LivingEntity entity, ItemStack stack) {
+        return ItemUtils.getTickStat(entity, stack, ABILITY_ID, "stun");
+    }
+
     private static float getRuneDamageStat(LivingEntity entity, ItemStack stack) {
-        return (float) ((VoidCloakItem) stack.getItem()).getStatValue(entity, stack, "void_rune", "damage");
+        return (float) ((VoidCloakItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "damage");
     }
 
     private static float getZoneDamageStat(LivingEntity entity, ItemStack stack) {
-        return (float) ((VoidCloakItem) stack.getItem()).getStatValue(entity, stack, "seismic_zone", "damage");
+        return (float) ((VoidCloakItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "zone_damage");
     }
 
     public static int getRadiusStat(LivingEntity entity, ItemStack stack) {
-        return ItemUtils.getIntStat(entity, stack, "seismic_zone", "radius");
+        return ItemUtils.getIntStat(entity, stack, ABILITY_ID, "zone_radius");
     }
 }

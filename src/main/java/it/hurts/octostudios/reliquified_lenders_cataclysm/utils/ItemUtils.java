@@ -85,7 +85,7 @@ public class ItemUtils {
 
         return blockStateAbove.isAir() // player's head must be in air
                 && (blockState.isAir() || !blockState.isCollisionShapeFullBlock(level, blockPos))
-                && blockStateBelow.isSolid() // BlockState.isSolid() - deprecated
+                && blockStateBelow.isSolid()
                 && !(blockStateBelow.getBlock() instanceof LiquidBlock);
     }
 
