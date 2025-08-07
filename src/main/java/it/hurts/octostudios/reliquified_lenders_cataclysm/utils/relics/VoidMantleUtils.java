@@ -2,7 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Rune_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VoidCloakItem;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VoidMantleItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.http.annotation.Experimental;
 
-public class VoidCloakUtils {
+public class VoidMantleUtils {
     public static final String ABILITY_ID = "void_rune";
 
     @Getter
@@ -145,7 +145,7 @@ public class VoidCloakUtils {
 
     @Experimental
     public static boolean isVoidRuneDisabled(LivingEntity entity, ItemStack stack) {
-        return ((VoidCloakItem) stack.getItem()).getAbilityMode(entity, stack, ABILITY_ID).equals("disabled");
+        return ((VoidMantleItem) stack.getItem()).getAbilityMode(entity, stack, ABILITY_ID).equals("disabled");
     }
 
     public static int getStunStatTicks(LivingEntity entity, ItemStack stack) {
@@ -153,11 +153,11 @@ public class VoidCloakUtils {
     }
 
     private static float getRuneDamageStat(LivingEntity entity, ItemStack stack) {
-        return (float) ((VoidCloakItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "damage");
+        return (float) ((VoidMantleItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "damage");
     }
 
     private static float getZoneDamageStat(LivingEntity entity, ItemStack stack) {
-        return (float) ((VoidCloakItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "zone_damage");
+        return (float) ((VoidMantleItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "zone_damage");
     }
 
     public static int getRadiusStat(LivingEntity entity, ItemStack stack) {

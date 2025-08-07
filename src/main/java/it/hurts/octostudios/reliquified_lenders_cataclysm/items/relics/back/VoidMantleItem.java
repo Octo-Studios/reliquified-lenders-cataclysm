@@ -33,10 +33,10 @@ import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.List;
 
-import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidCloakUtils.*;
+import static it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidMantleUtils.*;
 
 @EventBusSubscriber
-public class VoidCloakItem extends RECItem {
+public class VoidMantleItem extends RECItem {
     @Override
     public RelicTemplate constructDefaultRelicTemplate() {
         return RelicTemplate.builder()
@@ -170,7 +170,7 @@ public class VoidCloakItem extends RECItem {
         // rank 1
 
         LivingEntity caster = voidRuneEntity.getCaster();
-        ItemStack stack = EntityUtils.findEquippedCurio(caster, RECItems.VOID_CLOAK.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(caster, RECItems.VOID_MANTLE.get());
 
         if (stack.isEmpty() || !isRankModifierUnlocked(caster, stack, "stun")) {
             return;
@@ -204,7 +204,7 @@ public class VoidCloakItem extends RECItem {
             return;
         }
 
-        ItemStack stack = EntityUtils.findEquippedCurio(caster, RECItems.VOID_CLOAK.get());
+        ItemStack stack = EntityUtils.findEquippedCurio(caster, RECItems.VOID_MANTLE.get());
 
         if (isVoidRuneDisabled(caster, stack)) {
             return;

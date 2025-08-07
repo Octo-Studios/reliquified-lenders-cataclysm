@@ -2,7 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.entities;
 
 import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.init.ModSounds;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidCloakUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidMantleUtils;
 import lombok.Getter;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
@@ -20,7 +20,7 @@ public class ScreenShakeSoundedEntity extends ScreenShake_Entity {
     public ScreenShakeSoundedEntity(Level level, Vec3 pos, int radius,
                                     int layersSpawned, int wavesNum, int fadeDuration) {
         super(level, pos, radius, 1.0F / wavesNum,
-                wavesNum * VoidCloakUtils.getWaveTicks(), fadeDuration);
+                wavesNum * VoidMantleUtils.getWaveTicks(), fadeDuration);
 
         this.layersSpawned = layersSpawned;
     }
