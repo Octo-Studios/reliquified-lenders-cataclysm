@@ -106,9 +106,6 @@ public class ScouringEyeUtils {
             up = new Vec3(1, 0, 0);
         }
 
-        Vec3 right = direction.cross(up).normalize();
-        Vec3 perpendicular = direction.cross(right).normalize();
-
         Color startColor = new Color(139, 0, 105);
         Color endColor = new Color(47, 0, 97);
 
