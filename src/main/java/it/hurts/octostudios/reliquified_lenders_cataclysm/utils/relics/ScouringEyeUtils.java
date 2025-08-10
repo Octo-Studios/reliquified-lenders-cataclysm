@@ -9,6 +9,7 @@ import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.ParticleUtils;
+import it.hurts.sskirillss.relics.utils.ServerScheduler;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -91,7 +92,7 @@ public class ScouringEyeUtils {
         for (var target : targetsToHurt) {
             target.hurt(level.damageSources().magic(), damage);
 
-            drawEntityBox(level, target, targetFinal, toPos);
+            drawEntityBox(level, targetsToHurt, target);
         }
     }
 
@@ -114,22 +115,34 @@ public class ScouringEyeUtils {
         int particleLifetime = (int) (distanceTotal * 5);
         int particlesNum = 64;
 
-        for (int i = 0; i <= particlesNum - 1; i++) {
-            double progress = (double) i / particlesNum;
+        for (int i = 0; i <= particlesNum; i++) {
+            double progress = (double) i / (particlesNum - 1);
 
-            double angle = 2 * Math.PI * distanceTotal * progress;
+            // drawing the spiral
+
+            double angle = 2 * Math.PI * 1.2D * distanceTotal * progress;
             double spiralRadius = Math.sin(Math.PI * progress) * width;
 
-            double dx = Math.cos(angle) * spiralRadius;
-            double dz = Math.sin(angle) * spiralRadius;
+            Vec3 pDirection = toPos.subtract(fromPos).normalize();
+            Vec3 pos = fromPos.add(pDirection.scale(i * distanceTotal / particlesNum));
 
-            Vec3 offset = right.scale(dx).add(perpendicular.scale(dz));
-            Vec3 pos = fromPos.add(direction.scale(progress * distanceTotal)).add(offset);
+            Vec3 rightVec = pDirection.cross(new Vec3(0, 1, 0)).normalize();
+
+            if (rightVec.length() == 0) {
+                rightVec = new Vec3(1, 0, 0);
+            }
+
+            Vec3 upVec = pDirection.cross(rightVec).normalize();
+
+            pos = pos.add(rightVec.scale(spiralRadius * Math.cos(angle)))
+                    .add(upVec.scale(spiralRadius * Math.sin(angle)));
+
+            // coloring the spiral
 
             Color color;
 
             if (i % 8 == 0) {
-                color = new Color(255, 58, 204);
+                color = getSpecialColor();
             } else if (progress <= 0D) {
                 color = startColor;
             } else if (progress >= 1D) {
@@ -142,6 +155,8 @@ public class ScouringEyeUtils {
                 color = new Color(r, g, b);
             }
 
+            // sending
+
             ((ServerLevel) level).sendParticles(
                     ParticleUtils.constructSimpleSpark(color,
                             0.9F, particleLifetime, 0.85F),
@@ -150,26 +165,44 @@ public class ScouringEyeUtils {
         }
     }
 
-    private static void drawEntityBox(Level level, LivingEntity target, LivingEntity targetFinal, Vec3 toPos) {
-        AABB box = target.getBoundingBox();
-        Vec3 direction = toPos.subtract(box.getCenter()).normalize();
+    private static void drawEntityBox(Level level, List<LivingEntity> targets, LivingEntity target) {
+        LivingEntity targetFinal = targets.getLast();
 
-        int pMin = 20, pMax = 48;
+        Vec3 targetPos = target.position();
+        Vec3 finalPos = targetFinal.position();
+
+        int pMin = 12, pMax = 32;
         int particlesNum = pMin + target.getRandom().nextInt(pMax - pMin + 1);
 
+        int ticksTotal = 16;
+
         for (int i = 0; i < particlesNum; i++) {
-            double px = box.minX + target.getRandom().nextDouble() * (box.maxX - box.minX);
-            double py = box.minY + target.getRandom().nextDouble() * (box.maxY - box.minY);
-            double pz = box.minZ + target.getRandom().nextDouble() * (box.maxZ - box.minZ);
+            double px = (target.getRandom().nextDouble()) * target.getBbWidth();
+            double py = (target.getRandom().nextDouble()) * target.getBbHeight();
+            double pz = (target.getRandom().nextDouble()) * target.getBbWidth();
 
-//            Vec3 motion = targetFinal.getBoundingBox().getCenter().subtract(pos).normalize().scale(0.5D);
-            Vec3 motion = direction.normalize().scale(0.05D);
+            Vec3 pos = targetPos.add(px, py, pz);
+            Vec3 toPos;
 
-            ((ServerLevel) level).sendParticles(
-                    ParticleUtils.constructSimpleSpark(new Color(255, 255, 255),
-                            0.6F, 40, 0.7F),
-                    px, py, pz,
-                    1, motion.x, motion.y, motion.z, 0);
+            if (target.equals(targetFinal)) {
+                Entity targetPrev = targets.size() > 1 ? targets.get(targets.size() - 2) : targetFinal;
+
+                toPos = pos.add(finalPos.subtract(targetPrev.position()).normalize().scale(1.0D));
+            } else {
+                toPos = pos.add(finalPos.subtract(targetPos).normalize().scale(1.0D));
+            }
+
+            for (int ticks = 1; ticks <= ticksTotal; ticks++) {
+                double ticksProgress = (double) ticks / ticksTotal;
+                Vec3 spawnPos = pos.add(toPos.subtract(pos).scale(ticksProgress));
+//                Vec3 motion = toPos.subtract(spawnPos).scale(1.0D / (ticksTotal + 5));
+
+                ServerScheduler.schedule(ticks, () -> ((ServerLevel) level).sendParticles(
+                        ParticleUtils.constructSimpleSpark(getSpecialColor(),
+                                0.25F, ticksTotal + 20, 0.25F),
+                        spawnPos.x, spawnPos.y, spawnPos.z,
+                        1, 0, 0, 0, 0));
+            }
         }
     }
 
@@ -305,5 +338,9 @@ public class ScouringEyeUtils {
         }
 
         return inventoryRelics;
+    }
+
+    private static Color getSpecialColor() {
+        return new Color(255, 58, 204);
     }
 }

@@ -29,7 +29,9 @@ public class ScreenShakeSoundedEntity extends ScreenShake_Entity {
     public void tick() {
         super.tick();
 
-        if (level().isClientSide || tickCount > getDuration()) {
+        Level level = getCommandSenderWorld();
+
+        if (level.isClientSide || tickCount > getDuration()) {
             this.discard();
         }
 
@@ -40,7 +42,7 @@ public class ScreenShakeSoundedEntity extends ScreenShake_Entity {
             // set an interval to imitate the sound of each layer of fangs (3 ticks so far)
             if ((tickCount % 3 == 0 && tickCountDecreased >= 1 && tickCountDecreased <= (getRadius() - 1) * 3)
                     || tickCount == 1) {
-                level().playSound(null, this.blockPosition(),
+                level.playSound(null, this.blockPosition(),
                         ModSounds.VOID_RUNE_RISING.get(), SoundSource.NEUTRAL, 1F, 1F);
 
                 break;
