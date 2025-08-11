@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -92,25 +93,18 @@ public class ScouringEyeUtils {
         for (var target : targetsToHurt) {
             target.hurt(level.damageSources().magic(), damage);
 
-            drawEntityBox(level, targetsToHurt, target);
+            drawEntityBox((ServerLevel) level, player, targetsToHurt, target);
         }
     }
 
     private static void drawRay(Level level, Vec3 fromPos, Vec3 toPos, double width) {
         double distanceTotal = fromPos.distanceTo(toPos);
 
-        Vec3 direction = toPos.subtract(fromPos).normalize();
-        Vec3 up = new Vec3(0, 1, 0);
-
-        if (Math.abs(direction.dot(up)) > 0.99D) {
-            up = new Vec3(1, 0, 0);
-        }
-
-        Color startColor = new Color(139, 0, 105);
-        Color endColor = new Color(47, 0, 97);
+        Color startColor = getStartColor();
+        Color endColor = getEndCclor();
 
         int particleLifetime = (int) (distanceTotal * 5);
-        int particlesNum = 64;
+        int particlesNum = (int) (distanceTotal * 10);
 
         for (int i = 0; i <= particlesNum; i++) {
             double progress = (double) i / (particlesNum - 1);
@@ -162,43 +156,38 @@ public class ScouringEyeUtils {
         }
     }
 
-    private static void drawEntityBox(Level level, List<LivingEntity> targets, LivingEntity target) {
+    private static void drawEntityBox(ServerLevel level, LivingEntity source, List<LivingEntity> targets, LivingEntity target) {
         LivingEntity targetFinal = targets.getLast();
 
         Vec3 targetPos = target.position();
-        Vec3 finalPos = targetFinal.position();
 
-        int pMin = 12, pMax = 32;
+        RandomSource random = target.getRandom();
+
+        int pMin = 16, pMax = 32;
         int particlesNum = pMin + target.getRandom().nextInt(pMax - pMin + 1);
-
-        int ticksTotal = 16;
+        int particleLifetime = 10;
 
         for (int i = 0; i < particlesNum; i++) {
-            double px = (target.getRandom().nextDouble()) * target.getBbWidth();
-            double py = (target.getRandom().nextDouble()) * target.getBbHeight();
-            double pz = (target.getRandom().nextDouble()) * target.getBbWidth();
+            double px = (random.nextDouble() - 0.5D) * target.getBbWidth();
+            double py = random.nextDouble() * target.getBbHeight();
+            double pz = (random.nextDouble() - 0.5D) * target.getBbWidth();
 
-            Vec3 pos = targetPos.add(px, py, pz);
-            Vec3 toPos;
+            Vec3 spawnPos = targetPos.add(px, py, pz);
 
-            if (target.equals(targetFinal)) {
-                Entity targetPrev = targets.size() > 1 ? targets.get(targets.size() - 2) : targetFinal;
+            Vec3 fromPos = target.equals(targetFinal) ? source.position() : targetPos;
+            Vec3 toPos = spawnPos.add(targetFinal.position().subtract(fromPos).normalize().scale(1D));
 
-                toPos = pos.add(finalPos.subtract(targetPrev.position()).normalize().scale(1.0D));
-            } else {
-                toPos = pos.add(finalPos.subtract(targetPos).normalize().scale(1.0D));
-            }
+            for (int ticks = 1; ticks <= particleLifetime; ticks++) {
+                double progress = (double) ticks / particleLifetime;
 
-            for (int ticks = 1; ticks <= ticksTotal; ticks++) {
-                double ticksProgress = (double) ticks / ticksTotal;
-                Vec3 spawnPos = pos.add(toPos.subtract(pos).scale(ticksProgress));
-//                Vec3 motion = toPos.subtract(spawnPos).scale(1.0D / (ticksTotal + 5));
+                Vec3 pos = spawnPos.add(toPos.subtract(spawnPos).scale(progress));
+                Vec3 motion = toPos.subtract(pos).scale(2D / Math.max(1, (particleLifetime - ticks + 1)));
 
-                ServerScheduler.schedule(ticks, () -> ((ServerLevel) level).sendParticles(
-                        ParticleUtils.constructSimpleSpark(getSpecialColor(),
-                                0.25F, ticksTotal + 20, 0.25F),
-                        spawnPos.x, spawnPos.y, spawnPos.z,
-                        1, 0, 0, 0, 0));
+                ServerScheduler.schedule(ticks, () -> level.sendParticles(
+                        ParticleUtils.constructSimpleSpark(getBoxColor(pos, target.getBoundingBox()),
+                                0.25F, particleLifetime, 0.45F),
+                        pos.x, pos.y, pos.z,
+                        0, motion.x, motion.y, motion.z, 1D));
             }
         }
     }
@@ -335,6 +324,26 @@ public class ScouringEyeUtils {
         }
 
         return inventoryRelics;
+    }
+
+    private static Color getBoxColor(Vec3 pos, AABB box) {
+        double distance = pos.distanceTo(box.getBottomCenter());
+
+        if (distance <= 1D / distance) {
+            return getEndCclor();
+        } else if (distance >= 2D / distance) {
+            return getSpecialColor();
+        } else {
+            return getStartColor();
+        }
+    }
+
+    private static Color getStartColor() {
+        return new Color(139, 0, 105);
+    }
+
+    private static Color getEndCclor() {
+        return new Color(47, 0, 97);
     }
 
     private static Color getSpecialColor() {
