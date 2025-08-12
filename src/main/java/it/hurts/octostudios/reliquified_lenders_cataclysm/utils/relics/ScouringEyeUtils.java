@@ -3,6 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ranks.IRankModifier;
 import it.hurts.sskirillss.relics.init.RelicsDataComponents;
 import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
@@ -10,6 +11,7 @@ import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import it.hurts.sskirillss.relics.utils.ServerScheduler;
+import lombok.Getter;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -237,25 +239,21 @@ public class ScouringEyeUtils {
     // simple getters & setters
 
     @Experimental
-    public static boolean isRankModifierUnlocked(LivingEntity entity, ItemStack stack, String modifier) {
+    public static boolean isRankModifierUnlocked(LivingEntity entity, ItemStack stack, int rank) {
         if (!(stack.getItem() instanceof ScouringEyeItem relic)) {
             return false;
         }
 
-        return relic.isAbilityRankModifierUnlocked(entity, stack, ABILITY_ID, modifier);
+        return relic.isAbilityRankModifierUnlocked(entity, stack, ABILITY_ID, RankModifier.getModifierByRank(rank));
     }
 
     public static boolean isGlowingTimeInBounds(LivingEntity entity, ItemStack stack) {
         return getGlowingTime(stack) > 0 && getGlowingTime(stack) <= getGlowingTimeStat(entity, stack);
     }
 
-    public static boolean isGlowingTimeTicking(LivingEntity entity, ItemStack stack, Level level) {
-        return isGlowingTimeInBounds(entity, stack) && getStackTime(stack) >= level.getGameTime() - 1;
-    }
-
     public static boolean isTeleportAllowed(LivingEntity entity, ItemStack stack, Level level) {
         return stack.getOrDefault(RECDataComponents.TP_SAFE, false)
-                && isGlowingTimeTicking(entity, stack, level)
+                && isGlowingTimeInBounds(entity, stack) && getStackTime(stack) >= level.getGameTime() - 1
                 && !stack.getOrDefault(RECDataComponents.PLAYER_DIED, false);
     }
 
@@ -348,5 +346,22 @@ public class ScouringEyeUtils {
 
     private static Color getSpecialColor() {
         return new Color(255, 58, 204);
+    }
+
+    @Getter
+    public enum RankModifier implements IRankModifier {
+        A(new RankModifierData("glowing", 1)),
+        B(new RankModifierData("paralysis", 3)),
+        C(new RankModifierData("glowing_attack", 5));
+
+        private final RankModifierData data;
+
+        RankModifier(RankModifierData data) {
+            this.data = data;
+        }
+
+        public static String getModifierByRank(int rank) {
+            return IRankModifier.getModifierByRank(RankModifier.class, rank);
+        }
     }
 }

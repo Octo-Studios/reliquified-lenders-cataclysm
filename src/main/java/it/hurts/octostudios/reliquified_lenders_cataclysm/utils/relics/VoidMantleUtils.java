@@ -4,6 +4,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSo
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_mantle.VoidRuneModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VoidMantleItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ranks.IRankModifier;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -167,22 +168,19 @@ public class VoidMantleUtils {
     }
 
     @Getter
-    private enum RankModifier {
-        A("stun", 1),
-        B("attraction", 3),
-        C("seismic_zone", 5);
+    public enum RankModifier implements IRankModifier {
+        A(new RankModifierData("stun", 1)),
+        B(new RankModifierData("attraction", 3)),
+        C(new RankModifierData("seismic_zone", 5));
 
-        private final String modifier;
-        private final int rank;
+        private final RankModifierData data;
 
-        RankModifier(String modifier, int rank) {
-            this.modifier = modifier;
-            this.rank = rank;
+        RankModifier(RankModifierData data) {
+            this.data = data;
         }
 
         public static String getModifierByRank(int rank) {
-            return Arrays.stream(values()).filter(rankModifier -> rankModifier.getRank() == rank)
-                    .toList().getFirst().getModifier();
+            return IRankModifier.getModifierByRank(RankModifier.class, rank);
         }
     }
 }

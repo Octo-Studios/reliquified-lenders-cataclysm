@@ -14,7 +14,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
-import it.hurts.sskirillss.relics.utils.ClientScheduler;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -42,9 +41,9 @@ public class ScouringEyeItem extends RECItem {
         return RelicTemplate.builder()
                 .abilities(AbilitiesTemplate.builder()
                         .ability(AbilityTemplate.builder(ABILITY_ID)
-                                .rankModifier(1, "glowing")
-                                .rankModifier(3, "paralysis")
-                                .rankModifier(5, "glowing_attack")
+                                .rankModifier(1, RankModifier.getModifierByRank(1))
+                                .rankModifier(3, RankModifier.getModifierByRank(3))
+                                .rankModifier(5, RankModifier.getModifierByRank(5))
                                 .stat(StatTemplate.builder("glowing_time")
                                         .initialValue(10D, 12D)
                                         .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.02D)
@@ -152,12 +151,12 @@ public class ScouringEyeItem extends RECItem {
         }
 
         // rank 3
-        if (isRankModifierUnlocked(target, stack, "paralysis")) {
+        if (isRankModifierUnlocked(target, stack, 3)) {
             target.addEffect(new MobEffectInstance(RelicsMobEffects.PARALYSIS, getParalysisStatTicks(player, stack)), player);
         }
 
         // rank 5
-        if (isRankModifierUnlocked(target, stack, "glowing_attack")) {
+        if (isRankModifierUnlocked(target, stack, 5)) {
             float damage = (float) (getLastDamage(stack) * getDamagePercent(player, stack));
 
             pierceTargets(target, player, level, damage);

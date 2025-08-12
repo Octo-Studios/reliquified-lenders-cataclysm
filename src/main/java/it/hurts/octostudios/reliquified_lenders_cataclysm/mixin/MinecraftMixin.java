@@ -34,7 +34,7 @@ public class MinecraftMixin {
 
             if (livingEntity.getUUID().toString().equals(getTargetUUID(stack))
                     && ScouringEyeUtils.isGlowingTimeInBounds(livingEntity, stack)
-                    && isRankModifierUnlocked(livingEntity, stack, "glowing")) { // rank 1
+                    && isRankModifierUnlocked(livingEntity, stack, 1)) { // rank 1
                 cir.setReturnValue(true);
             }
         }
