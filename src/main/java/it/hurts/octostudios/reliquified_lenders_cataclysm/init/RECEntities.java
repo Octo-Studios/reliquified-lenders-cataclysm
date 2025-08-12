@@ -5,6 +5,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSo
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.fire_plate.IgnitedShieldEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.ring_of_the_flame_kindler.FlameJetModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_bubble.VoidShardModifiedEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_mantle.VoidRuneModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_vortex_in_bottle.VoidVortexModifiedEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
@@ -43,6 +44,16 @@ public class RECEntities {
                             .clientTrackingRange(10)
                             .fireImmune()
                             .build("void_vortex_modified")
+            );
+
+    public static final DeferredHolder<EntityType<?>, EntityType<VoidRuneModifiedEntity>> VOID_RUNE_MODIFIED =
+            ENTITIES.register("void_rune_modified", () ->
+                    EntityType.Builder.<VoidRuneModifiedEntity>of(VoidRuneModifiedEntity::new, MobCategory.MISC)
+                            .sized(0.6F, 1.95F)
+                            .setUpdateInterval(2)
+                            .clientTrackingRange(6)
+                            .fireImmune()
+                            .build("void_rune_modified")
             );
 
     public static final DeferredHolder<EntityType<?>, EntityType<FlameJetModifiedEntity>> FLAME_JET_MODIFIED =

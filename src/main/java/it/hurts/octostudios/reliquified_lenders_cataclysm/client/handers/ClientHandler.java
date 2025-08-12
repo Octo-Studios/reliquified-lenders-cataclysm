@@ -1,5 +1,6 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.client.handers;
 
+import com.github.L_Ender.cataclysm.client.render.entity.Void_Rune_Renderer;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.ReliquifiedLendersCataclysm;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer.entities.IgnitedShieldRenderer;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.client.renderer.entities.VoidVortexModifiedRenderer;
@@ -27,6 +28,7 @@ public class ClientHandler {
     @SubscribeEvent
     public static void entityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(RECEntities.VOID_VORTEX_MODIFIED.get(), VoidVortexModifiedRenderer::new);
+        event.registerEntityRenderer(RECEntities.VOID_RUNE_MODIFIED.get(), Void_Rune_Renderer::new);
         event.registerEntityRenderer(RECEntities.IGNITED_SHIELD.get(), IgnitedShieldRenderer::new);
     }
 }

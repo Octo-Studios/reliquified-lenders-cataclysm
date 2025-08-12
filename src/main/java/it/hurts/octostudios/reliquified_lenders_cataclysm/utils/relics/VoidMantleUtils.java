@@ -1,9 +1,8 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics;
 
-import com.github.L_Ender.cataclysm.entity.projectile.Void_Rune_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_mantle.VoidRuneModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VoidMantleItem;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory.ScouringEyeItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import lombok.Getter;
@@ -17,6 +16,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.http.annotation.Experimental;
+
+import java.util.Arrays;
 
 public class VoidMantleUtils {
     public static final String ABILITY_ID = "void_rune";
@@ -86,9 +87,9 @@ public class VoidMantleUtils {
         return layersSpawned;
     }
 
-    public static boolean spawnFang(Level level, LivingEntity caster, LivingEntity entity,
-                                  double posX, double posZ, float yRot, int delayTicks, float damage, boolean silent) {
-        BlockPos pos = BlockPos.containing(posX, entity.getY() + 1.0D, posZ);
+    public static boolean spawnFang(Level level, LivingEntity caster, LivingEntity target,
+                                    double posX, double posZ, float yRot, int delayTicks, float damage, boolean silent) {
+        BlockPos pos = BlockPos.containing(posX, target.getY() + 1.0D, posZ);
         double shiftY = 0.0D;
         boolean canFangSpawn = false;
 
@@ -112,16 +113,17 @@ public class VoidMantleUtils {
             }
 
             pos = pos.below();
-        } while (pos.getY() >= Math.floor(entity.getY() - 1));
+        } while (pos.getY() >= Math.floor(target.getY() - 1));
 
         // spawn rune without sound (the sound is playing with modified screen shake entity)
         if (canFangSpawn) {
-            Void_Rune_Entity voidRuneEntity = new Void_Rune_Entity(level,
-                    posX, pos.getY() + shiftY, posZ, yRot, delayTicks, damage, caster);
-            voidRuneEntity.setSilent(silent);
-            voidRuneEntity.setCaster(caster);
+            VoidRuneModifiedEntity runeEntity = new VoidRuneModifiedEntity(level,
+                    posX, pos.getY() + shiftY, posZ, yRot, delayTicks, damage, caster, target);
 
-            level.addFreshEntity(voidRuneEntity);
+            runeEntity.setSilent(silent);
+            runeEntity.setCaster(caster);
+
+            level.addFreshEntity(runeEntity);
         }
 
         return canFangSpawn;
@@ -132,15 +134,15 @@ public class VoidMantleUtils {
         return spawnFang(level, caster, entity, posX, posZ, yRot, delayTicks, damage, false);
     }
 
-    // simple getters
+    // simple getters & stuff
 
     @Experimental
-    public static boolean isRankModifierUnlocked(LivingEntity entity, ItemStack stack, String modifier) {
-        if (!(stack.getItem() instanceof ScouringEyeItem relic)) {
+    public static boolean isRankModifierUnlocked(LivingEntity entity, ItemStack stack, int rank) {
+        if (!(stack.getItem() instanceof VoidMantleItem relic)) {
             return false;
         }
 
-        return relic.isAbilityRankModifierUnlocked(entity, stack, ABILITY_ID, modifier);
+        return relic.isAbilityRankModifierUnlocked(entity, stack, ABILITY_ID, RankModifier.getModifierByRank(rank));
     }
 
     @Experimental
@@ -149,7 +151,7 @@ public class VoidMantleUtils {
     }
 
     public static int getStunStatTicks(LivingEntity entity, ItemStack stack) {
-        return ItemUtils.getTickStat(entity, stack, ABILITY_ID, "stun");
+        return ItemUtils.getTickStat(entity, stack, ABILITY_ID, "stun_time");
     }
 
     private static float getRuneDamageStat(LivingEntity entity, ItemStack stack) {
@@ -162,5 +164,25 @@ public class VoidMantleUtils {
 
     public static int getRadiusStat(LivingEntity entity, ItemStack stack) {
         return ItemUtils.getIntStat(entity, stack, ABILITY_ID, "zone_radius");
+    }
+
+    @Getter
+    private enum RankModifier {
+        A("stun", 1),
+        B("attraction", 3),
+        C("seismic_zone", 5);
+
+        private final String modifier;
+        private final int rank;
+
+        RankModifier(String modifier, int rank) {
+            this.modifier = modifier;
+            this.rank = rank;
+        }
+
+        public static String getModifierByRank(int rank) {
+            return Arrays.stream(values()).filter(rankModifier -> rankModifier.getRank() == rank)
+                    .toList().getFirst().getModifier();
+        }
     }
 }

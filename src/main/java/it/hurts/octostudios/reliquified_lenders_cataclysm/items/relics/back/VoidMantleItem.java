@@ -1,6 +1,7 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Rune_Entity;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_mantle.VoidRuneModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
@@ -47,43 +48,43 @@ public class VoidMantleItem extends RECItem {
                                 .rankModifier(5, "seismic_zone")
                                 .modes("enabled", "disabled")
                                 .stat(StatTemplate.builder("cooldown")
-                                        .initialValue(20D, 16D)
-                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), -0.05625D)
+                                        .initialValue(30D, 28D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), -0.0234D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatTemplate.builder("damage")
-                                        .initialValue(1.4D, 1.76D)
-                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.525D)
+                                        .initialValue(1D, 2D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.2571D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatTemplate.builder("stun_time")
-                                        .initialValue(3D, 5D)
-                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.05D)
+                                        .initialValue(2D, 3D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.1143D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("attraction_radius")
-                                        .initialValue(6D, 7D)
-                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.35D)
+                                        .initialValue(4D, 6D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.2857D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("attraction_force")
-                                        .initialValue(6D, 7D)
-                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.35D)
+                                        .initialValue(0.5D, 1D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.1143D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("zone_radius")
                                         .initialValue(2D, 3D)
-                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.5D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.3714D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("waves")
                                         .initialValue(2D, 3D)
-                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.5D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.3714D)
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("zone_damage")
                                         .initialValue(1.5D, 2D)
-                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.525D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.114D)
                                         .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
@@ -163,16 +164,14 @@ public class VoidMantleItem extends RECItem {
 
     @SubscribeEvent
     public static void onLivingDamage(LivingIncomingDamageEvent event) {
-        if (!(event.getSource().getDirectEntity() instanceof Void_Rune_Entity voidRuneEntity)) {
+        if (!(event.getSource().getDirectEntity() instanceof VoidRuneModifiedEntity runeEntity)) {
             return;
         }
 
-        // rank 1
-
-        LivingEntity caster = voidRuneEntity.getCaster();
+        LivingEntity caster = runeEntity.getCaster();
         ItemStack stack = EntityUtils.findEquippedCurio(caster, RECItems.VOID_MANTLE.get());
 
-        if (stack.isEmpty() || !isRankModifierUnlocked(caster, stack, "stun")) {
+        if (stack.isEmpty()) {
             return;
         }
 
@@ -183,16 +182,25 @@ public class VoidMantleItem extends RECItem {
             event.setCanceled(true);
         }
 
-        target.addEffect(new MobEffectInstance(RelicsMobEffects.PARALYSIS, getStunStatTicks(caster, stack)), caster);
+        // rank 1
+        if (isRankModifierUnlocked(caster, stack, 1)) {
+            target.addEffect(new MobEffectInstance(RelicsMobEffects.PARALYSIS, getStunStatTicks(caster, stack)), caster);
+        }
+
+        // rank 3
+        if (isRankModifierUnlocked(caster, stack, 3)) {
+            // activate rune attraction
+            runeEntity.setAttractionActivated(true);
+        }
     }
 
     @SubscribeEvent
     public static void onEntityDeath(LivingDeathEvent event) {
-        if (!(event.getSource().getDirectEntity() instanceof Void_Rune_Entity voidRuneEntity)) {
+        if (!(event.getSource().getDirectEntity() instanceof Void_Rune_Entity runeEntity)) {
             return;
         }
 
-        LivingEntity caster = voidRuneEntity.getCaster();
+        LivingEntity caster = runeEntity.getCaster();
 
         if (caster == null) {
             return;
@@ -206,13 +214,10 @@ public class VoidMantleItem extends RECItem {
 
         ItemStack stack = EntityUtils.findEquippedCurio(caster, RECItems.VOID_MANTLE.get());
 
-        if (isVoidRuneDisabled(caster, stack)) {
-            return;
-        }
-
         // rank 5
 
-        if (stack.isEmpty() || !isRankModifierUnlocked(caster, stack, "seismic_zone")) {
+        if (stack.isEmpty() || !isRankModifierUnlocked(caster, stack, 5)
+                || isVoidRuneDisabled(caster, stack)) {
             return;
         }
 
