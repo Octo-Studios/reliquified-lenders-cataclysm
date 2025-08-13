@@ -176,8 +176,7 @@ public class ScouringEyeUtils {
 
             Vec3 spawnPos = targetPos.add(px, py, pz);
 
-            Vec3 fromPos = target.equals(targetFinal) ? source.position() : targetPos;
-            Vec3 toPos = spawnPos.add(targetFinal.position().subtract(fromPos).normalize().scale(1D));
+            Vec3 toPos = spawnPos.add(targetFinal.position().subtract(source.position()).normalize().scale(1D));
 
             for (int ticks = 1; ticks <= particleLifetime; ticks++) {
                 double progress = (double) ticks / particleLifetime;

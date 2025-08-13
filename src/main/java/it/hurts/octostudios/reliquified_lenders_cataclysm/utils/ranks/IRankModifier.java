@@ -1,7 +1,5 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ranks;
 
-import org.openjdk.nashorn.internal.objects.annotations.Getter;
-
 import java.util.Arrays;
 
 public interface IRankModifier {
