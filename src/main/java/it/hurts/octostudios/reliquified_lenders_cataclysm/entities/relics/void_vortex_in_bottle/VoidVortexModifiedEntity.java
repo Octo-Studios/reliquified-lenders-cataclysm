@@ -5,7 +5,7 @@ import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.init.ModSounds;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECEntities;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VoidVortexParticlesPacket;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECEntityUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.MathRandomUtils;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
@@ -248,7 +248,7 @@ public class VoidVortexModifiedEntity extends Entity {
         AABB damageBox = new AABB(getX() - radius, getY(), getZ() - radius,
                 getX() + radius, getY() + getHeight(), getZ() + radius);
 
-        for (LivingEntity entity : ItemUtils.getEntitiesInArea(getOwner(), level(), damageBox)) {
+        for (LivingEntity entity : RECEntityUtils.getEntitiesInArea(getOwner(), level(), damageBox)) {
             Vec3 deltaMovement = position().subtract(entity.position()).normalize();
             Vec3 motion = entity.getDeltaMovement().subtract(deltaMovement);
 

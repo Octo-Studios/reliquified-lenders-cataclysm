@@ -4,7 +4,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_b
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
@@ -104,7 +104,7 @@ public class VoidBubbleItem extends RECItem {
         }
 
         if (getAbilityCooldown(entity, stack, ABILITY_ID) == 1) {
-            ItemUtils.playCooldownSound(level, entity);
+            RECItemUtils.playCooldownSound(level, entity);
         }
     }
 
@@ -162,7 +162,7 @@ public class VoidBubbleItem extends RECItem {
 
     private void spawnShards(LivingEntity caster, ItemStack stack) {
         Level level = caster.getCommandSenderWorld();
-        int projectilesNum = ItemUtils.getIntStat(caster, stack, ABILITY_ID, "projectiles");
+        int projectilesNum = RECItemUtils.getIntStat(caster, stack, ABILITY_ID, "projectiles");
 
         List<Vec3> movementVecs = getShootVectors(caster.getRandom(), projectilesNum);
 
@@ -222,6 +222,6 @@ public class VoidBubbleItem extends RECItem {
     }
 
     private static void setCooldown(RelicItem relic, LivingEntity entity, ItemStack stack) {
-        relic.setAbilityCooldown(entity, stack, ABILITY_ID, ItemUtils.getCooldownStat(entity, stack, ABILITY_ID));
+        relic.setAbilityCooldown(entity, stack, ABILITY_ID, RECItemUtils.getCooldownStat(entity, stack, ABILITY_ID));
     }
 }

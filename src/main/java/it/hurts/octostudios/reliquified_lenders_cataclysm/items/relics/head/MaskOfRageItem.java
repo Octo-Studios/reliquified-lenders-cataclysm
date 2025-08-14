@@ -3,7 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.head;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.MaskOfRageMotionPacket;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
@@ -101,7 +101,7 @@ public class MaskOfRageItem extends RECItem {
             return;
         }
 
-        if (getEntitySpeed(entity) >= ItemUtils.getSpeedStat(entity, stack, ABILITY_ID)) {
+        if (getEntitySpeed(entity) >= RECItemUtils.getSpeedStat(entity, stack, ABILITY_ID)) {
             setRamModeTicks(getRamModeTicks() + 1);
 
             AABB entityBox = entity.getBoundingBox();

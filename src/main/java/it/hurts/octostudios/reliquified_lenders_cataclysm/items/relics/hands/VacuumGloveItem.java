@@ -4,7 +4,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VacuumGloveParticlesPacket;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECEntityUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
@@ -92,7 +92,7 @@ public class VacuumGloveItem extends RECItem {
         }
 
         // apply slowdown on mobs inside the area
-        for (LivingEntity entityOther : ItemUtils.getEntitiesInArea(entity, level, getRadiusStat(entity, stack))) {
+        for (LivingEntity entityOther : RECEntityUtils.getEntitiesInArea(entity, level, getRadiusStat(entity, stack))) {
             UUID id = entityOther.getUUID();
             Vec3 posPrev = positionsPrev.getOrDefault(id, entityOther.position());
             positionsPrev.put(id, entityOther.position());
@@ -109,7 +109,7 @@ public class VacuumGloveItem extends RECItem {
             if (dotProduct > 0.0D && distanceNext > distanceCurrent) {
                 float modifier = getModifierValue(entity, stack, entityBaseSpeed, entity.distanceTo(entityOther));
 
-                ItemUtils.resetMovementAttribute(entityOther, stack, modifier);
+                RECEntityUtils.resetMovementAttribute(entityOther, stack, modifier);
                 slowedEntities.add(entityOther.getUUID());
 
                 // particles of circle segment
@@ -151,7 +151,7 @@ public class VacuumGloveItem extends RECItem {
     }
 
     private static void removeSlowdown(List<UUID> slowedEntities, LivingEntity entity, ItemStack stack) {
-        ItemUtils.removeMovementAttribute(entity, stack);
+        RECEntityUtils.removeMovementAttribute(entity, stack);
         slowedEntities.remove(entity.getUUID());
     }
 
@@ -196,7 +196,7 @@ public class VacuumGloveItem extends RECItem {
                 continue;
             }
 
-            ItemUtils.removeMovementAttribute(target, stack);
+            RECEntityUtils.removeMovementAttribute(target, stack);
         }
 
         stack.set(RECDataComponents.SLOWED_ENTITIES, new ArrayList<>());

@@ -6,7 +6,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VolcanoParticlesPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.server.VolcanoOperationPacket;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.sskirillss.relics.api.events.common.ContainerSlotClickEvent;
 import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
@@ -185,7 +185,7 @@ public class VolcanoItem extends RECItem {
         Vec3 motion = player.getDeltaMovement();
 
         player.setDeltaMovement(
-                motion.x, ItemUtils.getSpeedStat(player, stack, ABILITY_ID) * stacksEquipped.size(), motion.z);
+                motion.x, RECItemUtils.getSpeedStat(player, stack, ABILITY_ID) * stacksEquipped.size(), motion.z);
         // toggled = true
         NetworkHandler.sendToServer(new VolcanoOperationPacket(stacksEquipped.indexOf(stack), 0, true));
 

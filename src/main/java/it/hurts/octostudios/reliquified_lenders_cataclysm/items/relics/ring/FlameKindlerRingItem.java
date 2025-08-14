@@ -3,7 +3,8 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.ring;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.ring_of_the_flame_kindler.FlameJetModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECEntityUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
@@ -17,7 +18,6 @@ import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -86,7 +86,7 @@ public class FlameKindlerRingItem extends RECItem {
             return;
         }
 
-        List<LivingEntity> entitiesAround = ItemUtils.getEntitiesInArea(entity, level, getRadiusStat(entity, stack));
+        List<LivingEntity> entitiesAround = RECEntityUtils.getEntitiesInArea(entity, level, getRadiusStat(entity, stack));
 
         for (LivingEntity target : entitiesAround) {
             if (!target.wasOnFire && target.isOnFire()) {
@@ -130,7 +130,7 @@ public class FlameKindlerRingItem extends RECItem {
             double z = targetEntity.getZ() + motion.z + randomizedAround(sourceEntity, inaccuracy);
 
             // ensure that potential spawn pos of jet is valid
-            Vec3 spawnPos = ItemUtils.getValidSpawnPos(level, new Vec3(x, y, z));
+            Vec3 spawnPos = RECItemUtils.getValidSpawnPos(level, new Vec3(x, y, z));
 
             if (spawnPos == null) {
                 continue;

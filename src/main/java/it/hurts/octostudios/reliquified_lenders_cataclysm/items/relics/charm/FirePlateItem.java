@@ -2,10 +2,11 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.charm;
 
 import com.github.L_Ender.cataclysm.entity.projectile.Blazing_Bone_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.fire_plate.IgnitedShieldEntity;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECEntityUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
@@ -101,7 +102,7 @@ public class FirePlateItem extends RECItem {
         int cooldownTicks = getCooldown(stack);
 
         if (cooldownTicks == 1) {
-            ItemUtils.playCooldownSound(level, entity);
+            RECItemUtils.playCooldownSound(level, entity);
         }
 
         if (cooldownTicks > 0) {
@@ -210,7 +211,7 @@ public class FirePlateItem extends RECItem {
         }
 
         List<IgnitedShieldEntity> shieldsAround =
-                level.getEntities(player, ItemUtils.getSphereArea(player, 4D)).stream()
+                level.getEntities(player, RECEntityUtils.getSphereArea(player, 4D)).stream()
                         .map(entity -> entity instanceof IgnitedShieldEntity shield && shield.getOwner() != null
                                 && shield.getOwner().equals(player) ? shield : null)
                         .filter(Objects::nonNull).toList();
@@ -315,7 +316,7 @@ public class FirePlateItem extends RECItem {
     }
 
     private int getRegenTimeStat(LivingEntity entity, ItemStack stack) {
-        return ItemUtils.getIntStat(entity, stack, ABILITY_ID, "regeneration_time") * 20;
+        return RECItemUtils.getIntStat(entity, stack, ABILITY_ID, "regeneration_time") * 20;
     }
 
     private static float getHealthStat(LivingEntity entity, ItemStack stack) {
@@ -323,7 +324,7 @@ public class FirePlateItem extends RECItem {
     }
 
     private int getProjectilesStat(LivingEntity entity, ItemStack stack) {
-        return ItemUtils.getIntStat(entity, stack, ABILITY_ID, "projectiles");
+        return RECItemUtils.getIntStat(entity, stack, ABILITY_ID, "projectiles");
     }
 
     private static float getDamageStat(LivingEntity entity, ItemStack stack) {

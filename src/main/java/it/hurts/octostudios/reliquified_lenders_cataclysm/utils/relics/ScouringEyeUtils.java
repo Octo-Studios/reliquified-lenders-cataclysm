@@ -2,7 +2,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.inventory.ScouringEyeItem;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ranks.IRankModifier;
 import it.hurts.sskirillss.relics.init.RelicsDataComponents;
 import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
@@ -211,11 +211,11 @@ public class ScouringEyeUtils {
         Level level = entity.getCommandSenderWorld();
         Vec3 pos = target.position().subtract(target.getViewVector(0F).scale(3.0F));
 
-        if (ItemUtils.isBlockSafe(level, pos)) {
+        if (RECItemUtils.isBlockSafe(level, pos)) {
             return pos;
         }
 
-        return ItemUtils.getValidSpawnPos(level, pos); // null if no safe pos found
+        return RECItemUtils.getValidSpawnPos(level, pos); // null if no safe pos found
     }
 
     @Nullable
@@ -297,11 +297,11 @@ public class ScouringEyeUtils {
     }
 
     public static int getGlowingTimeStat(LivingEntity entity, ItemStack stack) {
-        return ItemUtils.getTickStat(entity, stack, ABILITY_ID, "glowing_time");
+        return RECItemUtils.getTickStat(entity, stack, ABILITY_ID, "glowing_time");
     }
 
     public static int getParalysisStatTicks(LivingEntity entity, ItemStack stack) {
-        return ItemUtils.getTickStat(entity, stack, ABILITY_ID, "paralysis_time");
+        return RECItemUtils.getTickStat(entity, stack, ABILITY_ID, "paralysis_time");
     }
 
     public static double getDamagePercent(LivingEntity entity, ItemStack stack) {

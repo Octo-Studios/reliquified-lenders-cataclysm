@@ -5,7 +5,7 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
@@ -88,7 +88,7 @@ public class VoidVortexInBottleItem extends RECItem {
         if (cooldownCurrent > 0) {
             // play sound on cooldown ending
             if (cooldownCurrent == 1) {
-                ItemUtils.playCooldownSound(level, entity);
+                RECItemUtils.playCooldownSound(level, entity);
             }
 
             reduceVortexCooldown(stack);
@@ -113,7 +113,7 @@ public class VoidVortexInBottleItem extends RECItem {
 
             VoidVortexModifiedEntity voidVortexEntity = new VoidVortexModifiedEntity(level,
                     target.getX(), target.getY(), target.getZ(), entity.getYRot(), entity, 100,
-                    ItemUtils.getIntStat(entity, stack, ABILITY_ID, "height"), relic.getDamageStat(entity, stack));
+                    RECItemUtils.getIntStat(entity, stack, ABILITY_ID, "height"), relic.getDamageStat(entity, stack));
             voidVortexEntity.setOwner(entity);
 
             level.addFreshEntity(voidVortexEntity);
@@ -136,6 +136,6 @@ public class VoidVortexInBottleItem extends RECItem {
     }
 
     private void setVortexCooldown(LivingEntity entity, ItemStack stack) {
-        stack.set(RECDataComponents.COOLDOWN, ItemUtils.getCooldownStat(entity, stack, ABILITY_ID));
+        stack.set(RECDataComponents.COOLDOWN, RECItemUtils.getCooldownStat(entity, stack, ABILITY_ID));
     }
 }
