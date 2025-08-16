@@ -6,7 +6,8 @@ import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECEntityUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
 import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
@@ -68,9 +69,14 @@ public class VoidMantleItem extends RECItem {
                                         .formatValue(RECMathUtils::roundInt)
                                         .build())
                                 .stat(StatTemplate.builder("attraction_force")
-                                        .initialValue(0.5D, 1D)
-                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.1143D)
+                                        .initialValue(2D, 2.5D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.0857D)
                                         .formatValue(RECMathUtils::roundInt)
+                                        .build())
+                                .stat(StatTemplate.builder("zone_damage")
+                                        .initialValue(1.5D, 2D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.114D)
+                                        .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .stat(StatTemplate.builder("zone_radius")
                                         .initialValue(2D, 3D)
@@ -81,11 +87,6 @@ public class VoidMantleItem extends RECItem {
                                         .initialValue(2D, 3D)
                                         .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.3714D)
                                         .formatValue(RECMathUtils::roundInt)
-                                        .build())
-                                .stat(StatTemplate.builder("zone_damage")
-                                        .initialValue(1.5D, 2D)
-                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.114D)
-                                        .formatValue(RECMathUtils::roundOneDigit)
                                         .build())
                                 .build())
                         .build())
@@ -127,7 +128,7 @@ public class VoidMantleItem extends RECItem {
         if (voidRuneCooldown > 0) {
             voidRuneCooldown--;
         } else {
-            List<LivingEntity> entitiesInArea = ItemUtils.getEntitiesInArea(entity, level, 10D);
+            List<LivingEntity> entitiesInArea = RECEntityUtils.getEntitiesInArea(entity, level, 10D);
 
             boolean runeSpawned = false;
 
@@ -155,7 +156,7 @@ public class VoidMantleItem extends RECItem {
             }
 
             if (runeSpawned) {
-                voidRuneCooldown = ItemUtils.getCooldownStat(entity, stack, ABILITY_ID);
+                voidRuneCooldown = RECItemUtils.getCooldownStat(entity, stack, ABILITY_ID);
             }
         }
 
@@ -190,7 +191,8 @@ public class VoidMantleItem extends RECItem {
         // rank 3
         if (isRankModifierUnlocked(caster, stack, 3)) {
             // activate rune attraction
-            runeEntity.setAttractionActivated(true);
+            runeEntity.setAttractionRadius(RECItemUtils.getIntStat(caster, stack, ABILITY_ID, "attraction_radius"));
+            runeEntity.setAttractionForce(RECItemUtils.getIntStat(caster, stack, ABILITY_ID, "attraction_force"));
         }
     }
 

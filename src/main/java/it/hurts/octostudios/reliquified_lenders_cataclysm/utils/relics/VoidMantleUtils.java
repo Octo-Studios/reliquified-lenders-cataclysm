@@ -3,7 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.ScreenShakeSoundedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_mantle.VoidRuneModifiedEntity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.back.VoidMantleItem;
-import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ItemUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECItemUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ranks.IRankModifier;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import lombok.Getter;
@@ -17,8 +17,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.http.annotation.Experimental;
-
-import java.util.Arrays;
 
 public class VoidMantleUtils {
     public static final String ABILITY_ID = "void_rune";
@@ -38,7 +36,7 @@ public class VoidMantleUtils {
     }
 
     public static void spawnSeismicZone(Level level, LivingEntity entity, LivingEntity dyingEntity, ItemStack stack) {
-        int wavesNum = ItemUtils.getIntStat(entity, stack, ABILITY_ID, "waves");
+        int wavesNum = RECItemUtils.getIntStat(entity, stack, ABILITY_ID, "waves");
         int layersSpawned = 0;
 
         for (int i = 0; i < wavesNum; i++) {
@@ -46,7 +44,7 @@ public class VoidMantleUtils {
         }
 
         if (layersSpawned > 0) {
-            level.addFreshEntity(new ScreenShakeSoundedEntity(level, dyingEntity.position(), getRadiusStat(entity, stack),
+            level.addFreshEntity(new ScreenShakeSoundedEntity(level, dyingEntity.position(), getZoneRadiusStat(entity, stack),
                     layersSpawned, wavesNum, 40));
         }
     }
@@ -60,7 +58,7 @@ public class VoidMantleUtils {
         int delayTicks = 3;
         int layersSpawned = 0;
 
-        for (int r = 0; r < getRadiusStat(entity, stack); r++) {
+        for (int r = 0; r < getZoneRadiusStat(entity, stack); r++) {
             int fangsNum = 6;
             boolean fangSpawned = false;
 
@@ -152,7 +150,7 @@ public class VoidMantleUtils {
     }
 
     public static int getStunStatTicks(LivingEntity entity, ItemStack stack) {
-        return ItemUtils.getTickStat(entity, stack, ABILITY_ID, "stun_time");
+        return RECItemUtils.getTickStat(entity, stack, ABILITY_ID, "stun_time");
     }
 
     private static float getRuneDamageStat(LivingEntity entity, ItemStack stack) {
@@ -163,8 +161,8 @@ public class VoidMantleUtils {
         return (float) ((VoidMantleItem) stack.getItem()).getStatValue(entity, stack, ABILITY_ID, "zone_damage");
     }
 
-    public static int getRadiusStat(LivingEntity entity, ItemStack stack) {
-        return ItemUtils.getIntStat(entity, stack, ABILITY_ID, "zone_radius");
+    public static int getZoneRadiusStat(LivingEntity entity, ItemStack stack) {
+        return RECItemUtils.getIntStat(entity, stack, ABILITY_ID, "zone_radius");
     }
 
     @Getter

@@ -32,7 +32,7 @@
   "tooltip.relics.void_mantle.leveling_source.seismic_zone.title": "Final Cry",
   "tooltip.relics.void_mantle.leveling_source.seismic_zone.description": "+%1$s XP for each activation of the %2$s ability.",
   "tooltip.relics.void_mantle.ability.void_rune.rank_modifier.stun": "stun time: %3$s",
-  "tooltip.relics.void_mantle.ability.void_rune.rank_modifier.attraction": "attraction radius: %4$s, force: %5$s",
+  "tooltip.relics.void_mantle.ability.void_rune.rank_modifier.attraction": "attraction radius: %4$s, max force: %5$s blocks/sec",
   "tooltip.relics.void_mantle.ability.void_rune.rank_modifier.seismic_zone": "zone radius: %6$s, waves: %7$s, damage: %8$s",
 
   "item.reliquified_lenders_cataclysm.vacuum_glove": "Vacuum Glove",

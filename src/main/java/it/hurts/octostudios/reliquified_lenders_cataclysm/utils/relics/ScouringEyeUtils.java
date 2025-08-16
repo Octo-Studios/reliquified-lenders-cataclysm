@@ -9,6 +9,7 @@ import it.hurts.sskirillss.relics.items.relics.base.RelicItem;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
+import it.hurts.sskirillss.relics.utils.MathUtils;
 import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import it.hurts.sskirillss.relics.utils.ServerScheduler;
 import lombok.Getter;
@@ -165,8 +166,7 @@ public class ScouringEyeUtils {
 
         RandomSource random = target.getRandom();
 
-        int pMin = 16, pMax = 32;
-        int particlesNum = pMin + target.getRandom().nextInt(pMax - pMin + 1);
+        int particlesNum = MathUtils.randomBetween(target.getRandom(), 16, 32);
         int particleLifetime = 10;
 
         for (int i = 0; i < particlesNum; i++) {

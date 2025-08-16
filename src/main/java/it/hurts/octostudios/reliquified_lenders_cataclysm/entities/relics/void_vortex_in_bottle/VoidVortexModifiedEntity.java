@@ -253,7 +253,7 @@ public class VoidVortexModifiedEntity extends Entity {
             Vec3 motion = entity.getDeltaMovement().subtract(deltaMovement);
 
             if (entity instanceof ServerPlayer player && !player.equals(getOwner())) {
-                NetworkHandler.sendToClient(new S2CSetEntityMotion(player.getId(), motion.toVector3f()  ), player);
+                NetworkHandler.sendToClient(new S2CSetEntityMotion(player.getId(), motion.toVector3f()), player);
             } else {
                 entity.setDeltaMovement(motion);
             }
