@@ -3,6 +3,7 @@ package it.hurts.octostudios.reliquified_lenders_cataclysm.entities.relics.void_
 import com.github.L_Ender.cataclysm.entity.projectile.Void_Rune_Entity;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECEntities;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECEntityUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.relics.VoidMantleUtils;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
 import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
@@ -33,6 +34,8 @@ import java.util.UUID;
 @Getter
 @Setter
 public class VoidRuneModifiedEntity extends Void_Rune_Entity {
+    private final int TOTAL_LIFETIME_TICKS = 34;
+
     private int warmupDelayTicks;
     private int lifeTicks;
     private float attractionRadius = 0F;
@@ -40,17 +43,17 @@ public class VoidRuneModifiedEntity extends Void_Rune_Entity {
 
     private boolean sentSpikeEvent;
     private boolean clientSideAttackStarted;
+    private boolean summonedWithZone = false;
 
     private LivingEntity targetCached;
     private UUID targetUUID;
 
-    private int arcProgress;
-    private int lastTargetId = -1;
+    private int attractionParticleProgress = 0;
 
     public VoidRuneModifiedEntity(EntityType<? extends Void_Rune_Entity> type, Level level) {
         super(type, level);
 
-        setLifeTicks(34);
+        setLifeTicks(TOTAL_LIFETIME_TICKS);
     }
 
     public VoidRuneModifiedEntity(Level level, double x, double y, double z, float yRot, int delayTicks, float damage,
@@ -77,7 +80,7 @@ public class VoidRuneModifiedEntity extends Void_Rune_Entity {
 
         Level level = getCommandSenderWorld();
 
-        if (getAttractionRadius() > 0F && level instanceof ServerLevel serverLevel) {
+        if (!level.isClientSide && getAttractionRadius() > 0F) {
             LivingEntity targetFinal = getTarget();
 
             if (targetFinal == null) {
@@ -96,11 +99,11 @@ public class VoidRuneModifiedEntity extends Void_Rune_Entity {
                     entity.setDeltaMovement(motion);
 
                     if (entity.horizontalCollision) {
-                        targetFinal.addDeltaMovement(new Vec3(0D, 0.25D, 0D));
+                        entity.addDeltaMovement(new Vec3(0D, 0.25D, 0D));
                     }
                 }
 
-                drawLineParticle(serverLevel, entity);
+                sendAttractionParticle((ServerLevel) level, entity);
             }
         }
 
@@ -114,7 +117,7 @@ public class VoidRuneModifiedEntity extends Void_Rune_Entity {
 
                 int i;
 
-                if (lifeTicks == 33) {
+                if (lifeTicks == TOTAL_LIFETIME_TICKS - 1) {
                     for (i = 0; i < 80; ++i) {
                         BlockState block = level.getBlockState(blockPosition().below());
 
@@ -143,7 +146,7 @@ public class VoidRuneModifiedEntity extends Void_Rune_Entity {
 
                         level.addParticle(
                                 ParticleUtils.constructSimpleSpark(new Color(randomized(50, 100), 0, randomized(150, 200)),
-                                        0.5F, 20, 1.0F),
+                                        0.25F, 20, 1.0F),
                                 x, y, z, ox, oy, oz);
                     }
                 }
@@ -162,6 +165,7 @@ public class VoidRuneModifiedEntity extends Void_Rune_Entity {
 
             if (!sentSpikeEvent) {
                 level.broadcastEntityEvent(this, (byte) 4);
+
                 sentSpikeEvent = true;
             }
 
@@ -171,23 +175,30 @@ public class VoidRuneModifiedEntity extends Void_Rune_Entity {
         }
     }
 
-    // todo: make sth else, not just a line
-    private void drawLineParticle(ServerLevel level, LivingEntity target) {
-        Vec3 from = getBoundingBox().getCenter();
-        Vec3 delta = from.subtract(target.getBoundingBox().getCenter());
+    private void sendAttractionParticle(ServerLevel level, LivingEntity target) {
+        Vec3 from = getBoundingBox().getBottomCenter();
+        Vec3 delta = from.subtract(target.getBoundingBox().getBottomCenter());
 
-        int particlesNum = (int) (this.distanceTo(target) * 4);
+        int particlesNum = (int) (Math.ceil(this.distanceTo(target)) * 4);
 
-        for (int i = 0; i <= particlesNum; i++) {
-            double progress = i / (double) particlesNum;
+        double width = target.getBbWidth();
+        double length = 2 * Math.PI / (width * 2);
+        double amplitude = width * 0.3D;
+
+        for (int i = 0; i < width * 8; i++) {
+            double progress = Math.min((attractionParticleProgress + i) / (double) particlesNum, 1D);
             Vec3 pos = from.add(delta.scale(progress));
 
+            double yOffset = 0.1D + Math.sin(i * length + attractionParticleProgress * 0.3D) * amplitude;
+
             level.sendParticles(
-                    ParticleUtils.constructSimpleSpark(new Color(randomized(50, 120), 0, randomized(150, 220)),
-                            0.5F, 20, 0.5F),
-                    pos.x, pos.y, pos.z,
+                    ParticleUtils.constructSimpleSpark(VoidMantleUtils.getRuneColor(),
+                            0.15F, 20, 0.9F),
+                    pos.x, pos.y + yOffset, pos.z,
                     1, 0, 0, 0, 0);
         }
+
+        attractionParticleProgress = (attractionParticleProgress + 1) % (particlesNum + 1);
     }
 
     private void damage(LivingEntity target) {
