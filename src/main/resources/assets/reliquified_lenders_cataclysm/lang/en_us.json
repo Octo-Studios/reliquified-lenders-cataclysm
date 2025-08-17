@@ -45,7 +45,7 @@
   "item.reliquified_lenders_cataclysm.void_bubble": "Void Bubble",
   "tooltip.relics.void_bubble.description": "A fragile yet durable device that protects the head, body, and mind all at once.",
   "tooltip.relics.void_bubble.ability.protective_bubble": "Protective Bubble",
-  "tooltip.relics.void_bubble.ability.protective_bubble.description": "Encases the player's head in a protective bubble, completely eliminating the need for air. The bubble also blocks up to %1$s incoming attacks before exploding, scattering %2$s shards in all directions, each dealing %3$s damage. It regenerates 1 shard per %4$s seconds.",
+  "tooltip.relics.void_bubble.ability.protective_bubble.description": "Encases the player's head in a protective bubble, completely eliminating the need for air. The bubble also blocks up to %1$s incoming attacks before exploding, scattering %2$s shards in all directions, each dealing %3$s damage. It regenerates 1 attack block per %4$s seconds.",
   "tooltip.relics.void_bubble.leveling_source.protective_bubble.title": "Protective Bubble",
   "tooltip.relics.void_bubble.leveling_source.protective_bubble.description": "+%1$s XP for each attack blocked by the %2$s ability.",
   "tooltip.relics.void_bubble.ability.protective_bubble.rank_modifier.infinite_breath": "swallow the air endlessly",
