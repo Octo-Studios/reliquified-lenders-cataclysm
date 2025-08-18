@@ -19,7 +19,9 @@ import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
+import it.hurts.sskirillss.relics.utils.ParticleUtils;
 import lombok.Getter;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -33,10 +35,12 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import org.apache.http.annotation.Experimental;
 import top.theillusivec4.curios.api.SlotContext;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,7 +128,9 @@ public class VoidBubbleItem extends RECItem {
             setAttackBlocks(stack, attackBlocks - 1);
             reduceCooldown(stack);
 
-            RECItemUtils.playCooldownSound(level, entity);
+            if (attackBlocks == getAttackBlocksStat(entity, stack)) {
+                RECItemUtils.playCooldownSound(level, entity);
+            }
         } else if (cooldown == 0 && attackBlocks > 0) {
             setCooldown(entity, stack);
         }
@@ -145,7 +151,21 @@ public class VoidBubbleItem extends RECItem {
     }
 
     @SubscribeEvent
-    public static void onLivingDamage(LivingIncomingDamageEvent event) {
+    public static void onLivingDamage(LivingDamageEvent.Pre event) {
+        LivingEntity entity = event.getEntity();
+        Level level = entity.getCommandSenderWorld();
+
+        if (level.isClientSide) {
+            return;
+        }
+
+        if (protect((ServerLevel) level, entity, event.getOriginalDamage())) {
+            event.setNewDamage(0);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
         LivingEntity entity = event.getEntity();
         Level level = entity.getCommandSenderWorld();
 
@@ -155,17 +175,34 @@ public class VoidBubbleItem extends RECItem {
             return;
         }
 
+        Entity directEntity = event.getSource().getDirectEntity();
+
         // rank 5 - tremor effect on void shard hit
-        if (event.getSource().getDirectEntity() instanceof VoidShardModifiedEntity
-                && event.getSource().getEntity() instanceof LivingEntity caster
-                && isRankModifierUnlocked(entity, stack, 5)) {
+        if (isRankModifierUnlocked(entity, stack, 5)
+                && directEntity instanceof VoidShardModifiedEntity
+                && event.getSource().getEntity() instanceof LivingEntity source) {
             entity.addEffect(new MobEffectInstance(RelicsMobEffects.TREMOR,
-                    relic.getTremorTicksStat(caster, stack)), caster);
+                    relic.getTremorTicksStat(source, stack)), source);
         }
 
+        float damage = event.getAmount();
+
         // rank 3 - reduce damage on bubble cooldown
-        if (isRankModifierUnlocked(entity, stack, 3) && getAttackBlocks(stack) == 0) {
-            event.setAmount(event.getAmount() * relic.getDamageReductionStat(entity, stack));
+        if (isRankModifierUnlocked(entity, stack, 3)
+                && relic.getCooldown(stack) > RECItemUtils.getCooldownStat(entity, stack, ABILITY_ID)) {
+            event.setAmount(damage * relic.getDamageReductionStat(entity, stack));
+        }
+
+        if (protect((ServerLevel) level, entity, damage)) {
+            event.setCanceled(true);
+        }
+    }
+
+    private static boolean protect(ServerLevel level, LivingEntity entity, float damage) {
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.VOID_BUBBLE.get());
+
+        if (stack.isEmpty() || !(stack.getItem() instanceof VoidBubbleItem relic)) {
+            return false;
         }
 
         int attackBlocks = getAttackBlocks(stack);
@@ -174,14 +211,74 @@ public class VoidBubbleItem extends RECItem {
         if (attackBlocks < attackBlocksStat) {
             if (attackBlocks == attackBlocksStat - 1) {
                 relic.spawnShards(entity, stack);
+
                 relic.setBubbleCooldown(entity, stack);
             }
 
+            relic.setAttackBlocks(stack, attackBlocks + 1);
+
             level.playSound(null, entity.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS);
 
-            event.setCanceled(true);
+            sendProtectionParticles(level, entity, damage, attackBlocks);
 
-            relic.setAttackBlocks(stack, attackBlocks + 1);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void sendProtectionParticles(ServerLevel level, LivingEntity entity, float damage, int attackBlocks) {
+        RandomSource random = entity.getRandom();
+
+        Vec3 lookVec = entity.getLookAngle().normalize();
+        Vec3 upVec = new Vec3(0, 1, 0);
+        Vec3 rightVec = lookVec.cross(upVec).normalize();
+
+        Vec3 crackCenter = entity.position()
+                .add(0, entity.getEyeHeight(), 0).add(lookVec.scale(0.6D));
+
+        int cracksNum = Math.max(1, attackBlocks / 3);
+        int particlesNum = 2 + attackBlocks / 4 + random.nextInt(3);
+
+        for (int crack = 0; crack < cracksNum; crack++) {
+            double angle = 2 * Math.PI * random.nextDouble();
+
+            Vec3 rightRotated = rightVec.scale(Math.cos(angle)).add(upVec.scale(Math.sin(angle)));
+            Vec3 upRotated = upVec.scale(Math.cos(angle)).subtract(rightVec.scale(Math.sin(angle)));
+
+            Vec3 crackPrev = crackCenter;
+
+            for (int i = 0; i < particlesNum; i++) {
+                double dx = (random.nextDouble() - 0.5D) * 0.3D;
+                double dy = (random.nextDouble() - 0.2D) * 0.3D;
+
+                Vec3 offset = rightRotated.scale(dx).add(upRotated.scale(dy));
+                Vec3 crackNext = crackPrev.add(offset);
+
+                int particlesSegmentNum = 2 + attackBlocks / 5 + random.nextInt(2);
+
+                for (int j = 0; j < particlesSegmentNum; j++) {
+                    double progress = (double) j / particlesSegmentNum;
+                    Vec3 pos = crackPrev.add(crackNext.subtract(crackPrev).scale(progress));
+
+                    // 161, 83, 254
+                    // 87, 0, 191
+                    int r = 87 + random.nextInt(74);
+                    int g = random.nextInt(83);
+                    int b = 191 + random.nextInt(65);
+
+                    float diameter = 0.05F + random.nextFloat() * damage * 0.02F;
+
+                    level.sendParticles(
+                            ParticleUtils.constructSimpleSpark(
+                                    new Color(r, g, b), diameter,
+                                    10 + random.nextInt(10), 0.9F),
+                            pos.x, pos.y, pos.z,
+                            1, 0, 0, 0, 0);
+                }
+
+                crackPrev = crackNext;
+            }
         }
     }
 

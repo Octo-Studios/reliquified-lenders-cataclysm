@@ -9,7 +9,6 @@ import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
 import it.hurts.sskirillss.relics.utils.ParticleUtils;
-import it.hurts.sskirillss.relics.utils.ServerScheduler;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.particles.BlockParticleOption;
