@@ -171,7 +171,7 @@ public class VoidMantleUtils {
 
             level.sendParticles(ParticleUtils.constructSimpleSpark(
                             new Color(r, g, b),
-                            0.15F, progress < 1D ? 10 : 35, 0.85F),
+                            0.15F, progress < 1D ? 10 : 35, 0.8F),
                     px + 0.5D * Math.cos(angle), py, pz + 0.5D * Math.sin(angle),
                     1, 0, 0, 0, 0);
         }

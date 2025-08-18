@@ -9,6 +9,7 @@ import it.hurts.sskirillss.relics.network.packets.S2CSetEntityMotion;
 import it.hurts.sskirillss.relics.utils.EntityUtils;
 import it.hurts.sskirillss.relics.utils.MathUtils;
 import it.hurts.sskirillss.relics.utils.ParticleUtils;
+import it.hurts.sskirillss.relics.utils.ServerScheduler;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -17,6 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -80,7 +82,7 @@ public class VoidRuneModifiedEntity extends Void_Rune_Entity {
 
         Level level = getCommandSenderWorld();
 
-        if (!level.isClientSide && getAttractionRadius() > 0F) {
+        if (lifeTicks >= 14 && !level.isClientSide && getAttractionRadius() > 0F) {
             LivingEntity targetFinal = getTarget();
 
             if (targetFinal == null) {
@@ -159,7 +161,7 @@ public class VoidRuneModifiedEntity extends Void_Rune_Entity {
             if (warmupDelayTicks < -10 && warmupDelayTicks > -30) {
                 for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class,
                         getBoundingBox().inflate(0.2D, 0, 0.2D))) {
-                    damage(entity);
+                    damage((ServerLevel) level, entity);
                 }
             }
 
@@ -172,6 +174,40 @@ public class VoidRuneModifiedEntity extends Void_Rune_Entity {
             if (--lifeTicks < 0) {
                 discard();
             }
+        }
+    }
+
+    private void damage(ServerLevel level, LivingEntity target) {
+        LivingEntity caster = getCaster();
+
+        if (target.isAlive() && !target.isInvulnerable() && !target.equals(caster) && tickCount % 5 == 0) {
+            if (caster == null) {
+                target.hurt(damageSources().magic(), getDamage());
+            } else if (!EntityUtils.isAlliedTo(caster, target)) {
+                target.hurt(damageSources().indirectMagic(this, caster), getDamage());
+            }
+
+            spawnDamageParticles(level, target);
+        }
+    }
+
+    private void spawnDamageParticles(ServerLevel level, LivingEntity target) {
+        RandomSource random = target.getRandom();
+
+        int particlesNum = MathUtils.randomBetween(random, 16, 32);
+
+        for (int i = 0; i < particlesNum; i++) {
+            double px = (random.nextDouble() - 0.5D) * target.getBbWidth();
+            double py = random.nextDouble() * target.getBbHeight() + 0.5D;
+            double pz = (random.nextDouble() - 0.5D) * target.getBbWidth();
+
+            Vec3 pos = target.position().add(px, py, pz);
+
+            level.sendParticles(
+                    ParticleUtils.constructSimpleSpark(new Color(193, 0, 58),
+                            0.4F, 40, 0.8F),
+                    pos.x, pos.y, pos.z,
+                    0, 0, 0, 0, 1D);
         }
     }
 
@@ -199,18 +235,6 @@ public class VoidRuneModifiedEntity extends Void_Rune_Entity {
         }
 
         attractionParticleProgress = (attractionParticleProgress + 1) % (particlesNum + 1);
-    }
-
-    private void damage(LivingEntity target) {
-        LivingEntity caster = getCaster();
-
-        if (target.isAlive() && !target.isInvulnerable() && !target.equals(caster) && tickCount % 5 == 0) {
-            if (caster == null) {
-                target.hurt(damageSources().magic(), getDamage());
-            } else if (!EntityUtils.isAlliedTo(caster, target)) {
-                target.hurt(damageSources().indirectMagic(this, caster), getDamage());
-            }
-        }
     }
 
     private int randomized(int min, int max) {

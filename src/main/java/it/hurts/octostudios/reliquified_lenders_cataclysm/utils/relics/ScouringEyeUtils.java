@@ -166,7 +166,7 @@ public class ScouringEyeUtils {
 
         RandomSource random = target.getRandom();
 
-        int particlesNum = MathUtils.randomBetween(target.getRandom(), 16, 32);
+        int particlesNum = MathUtils.randomBetween(random, 16, 32);
         int particleLifetime = 10;
 
         for (int i = 0; i < particlesNum; i++) {
