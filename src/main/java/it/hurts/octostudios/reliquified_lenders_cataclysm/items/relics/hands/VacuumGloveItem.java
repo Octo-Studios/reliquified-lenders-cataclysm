@@ -1,16 +1,17 @@
 package it.hurts.octostudios.reliquified_lenders_cataclysm.items.relics.hands;
 
 import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECDataComponents;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.init.RECItems;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.RECItem;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.items.base.data.RECLootEntries;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.network.packets.client.VacuumGloveParticlesPacket;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.RECEntityUtils;
 import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.math.RECMathUtils;
+import it.hurts.octostudios.reliquified_lenders_cataclysm.utils.ranks.IRankModifier;
 import it.hurts.sskirillss.relics.api.relics.RelicTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilitiesTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.AbilityTemplate;
 import it.hurts.sskirillss.relics.api.relics.abilities.stats.StatTemplate;
-import it.hurts.sskirillss.relics.init.RelicsDataComponents;
 import it.hurts.sskirillss.relics.init.RelicsScalingModels;
 import it.hurts.sskirillss.relics.items.relics.base.data.leveling.LevelingTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.loot.LootTemplate;
@@ -18,12 +19,18 @@ import it.hurts.sskirillss.relics.items.relics.base.data.loot.misc.LootEntries;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.StyleTemplate;
 import it.hurts.sskirillss.relics.items.relics.base.data.style.TooltipData;
 import it.hurts.sskirillss.relics.network.NetworkHandler;
+import it.hurts.sskirillss.relics.utils.EntityUtils;
+import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import org.apache.http.annotation.Experimental;
 import top.theillusivec4.curios.api.SlotContext;
 
 import java.util.ArrayList;
@@ -31,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+@EventBusSubscriber
 public class VacuumGloveItem extends RECItem {
     private static final String ABILITY_ID = "vacuum_slowdown";
 
@@ -41,21 +49,45 @@ public class VacuumGloveItem extends RECItem {
         return RelicTemplate.builder()
                 .abilities(AbilitiesTemplate.builder()
                         .ability(AbilityTemplate.builder(ABILITY_ID)
+                                .rankModifier(1, RankModifier.getModifierByRank(1))
+                                .rankModifier(3, RankModifier.getModifierByRank(3))
+                                .rankModifier(5, RankModifier.getModifierByRank(5))
                                 .stat(StatTemplate.builder("slowdown")
-                                        .initialValue(0.28D, 0.34D)
-                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.15D)
+                                        .initialValue(0.1D, 0.15D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.01D)
                                         .formatValue(RECMathUtils::roundPercents)
                                         .build())
                                 .stat(StatTemplate.builder("radius")
                                         .initialValue(6D, 6.5D)
-                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.35D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.2714D)
                                         .formatValue(RECMathUtils::roundInt)
+                                        .build())
+                                .stat(StatTemplate.builder("attack_range")
+                                        .initialValue(1D, 1.5D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), 0.2429D)
+                                        .formatValue(RECMathUtils::roundInt)
+                                        .build())
+                                .stat(StatTemplate.builder("slowdown_power")
+                                        .initialValue(0.05D, 0.07D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.0939D)
+                                        .formatValue(RECMathUtils::roundPercents)
+                                        .build())
+                                .stat(StatTemplate.builder("check_radius")
+                                        .initialValue(10D, 9.5D)
+                                        .upgradeModifier(RelicsScalingModels.ADDITIVE.get(), -0.2143D)
+                                        .formatValue(RECMathUtils::roundInt)
+                                        .build())
+                                .stat(StatTemplate.builder("damage_reduction")
+                                        .initialValue(0.1D, 0.12D)
+                                        .upgradeModifier(RelicsScalingModels.MULTIPLICATIVE_BASE.get(), 0.09D)
+                                        .formatValue(RECMathUtils::roundPercents)
                                         .build())
                                 .build())
                         .build())
                 .leveling(LevelingTemplate.builder()
                         .initialCost(100)
                         .step(100)
+                        .maxRank(5)
                         .build())
                 .loot(LootTemplate.builder()
                         .entry(RECLootEntries.CURSED_PYRAMID, LootEntries.THE_END)
@@ -92,32 +124,38 @@ public class VacuumGloveItem extends RECItem {
         }
 
         // apply slowdown on mobs inside the area
-        for (LivingEntity entityOther : RECEntityUtils.getEntitiesInArea(entity, level, getRadiusStat(entity, stack))) {
-            UUID id = entityOther.getUUID();
-            Vec3 posPrev = positionsPrev.getOrDefault(id, entityOther.position());
-            positionsPrev.put(id, entityOther.position());
+        for (LivingEntity target : RECEntityUtils.getEntitiesInArea(entity, level, getRadiusStat(entity, stack))) {
+            UUID id = target.getUUID();
+            Vec3 posPrev = positionsPrev.getOrDefault(id, target.position());
+            positionsPrev.put(id, target.position());
 
-            Vec3 motion = entityOther.position().subtract(posPrev);
-            Vec3 directionVector = entityOther.position().subtract(entity.position()).normalize();
+            Vec3 motion = target.position().subtract(posPrev);
+            Vec3 direction = target.position().subtract(entity.position()).normalize();
 
-            double distanceCurrent = directionVector.length();
-            double distanceNext = entity.position().subtract(entityOther.position().add(motion)).length();
+            double distanceCurrent = direction.length();
+            double distanceNext = entity.position().subtract(target.position().add(motion)).length();
 
-            double dotProduct = motion.normalize().dot(directionVector);
-            float entityBaseSpeed = (float) entityOther.getAttributeBaseValue(Attributes.MOVEMENT_SPEED);
+            double dot = motion.normalize().dot(direction);
+            float baseSpeed = (float) target.getAttributeBaseValue(Attributes.MOVEMENT_SPEED);
 
-            if (dotProduct > 0.0D && distanceNext > distanceCurrent) {
-                float modifier = getModifierValue(entity, stack, entityBaseSpeed, entity.distanceTo(entityOther));
+            if (dot > 0.0D && distanceNext > distanceCurrent) {
+                float movementModifier = getMovementModifierValue(entity, stack, baseSpeed, entity.distanceTo(target));
 
-                RECEntityUtils.resetMovementAttribute(entityOther, stack, modifier);
-                slowedEntities.add(entityOther.getUUID());
+                // rank 3 - slowdown power increases if no other entities in radius
+                if (isRankModifierUnlocked(entity, stack, 3) && RECEntityUtils.getEntitiesInArea(target, level,
+                        getStatValue(entity, stack, ABILITY_ID, "check_radius")).isEmpty()) {
+                    movementModifier *= (float) (1F + getStatValue(entity, stack, ABILITY_ID, "slowdown_power"));
+                }
+
+                RECEntityUtils.resetMovementAttribute(target, stack, movementModifier);
+                slowedEntities.add(target.getUUID());
 
                 // particles of circle segment
                 NetworkHandler.sendToClientsTrackingEntityAndSelf(
-                        new VacuumGloveParticlesPacket(getRadiusStat(entity, stack), entityOther.getId(),
-                                entity.getX(), entity.getY(), entity.getZ()), entityOther);
+                        new VacuumGloveParticlesPacket(getRadiusStat(entity, stack), target.getId(),
+                                entity.getX(), entity.getY(), entity.getZ()), target);
             } else {
-                removeSlowdown(slowedEntities, entityOther, stack);
+                removeSlowdown(slowedEntities, target, stack);
             }
         }
 
@@ -129,14 +167,14 @@ public class VacuumGloveItem extends RECItem {
 
         // leveling
 
-        int ticks = stack.getOrDefault(RelicsDataComponents.TIME, 0);
-
-        // +1 for each 10 s of slowdown
-        if (ticks % 200 == 0) {
-            spreadRelicExperience(entity, stack, 1);
-        }
-
-        stack.set(RelicsDataComponents.TIME, ticks + 1);
+//        int ticks = stack.getOrDefault(RelicsDataComponents.TIME, 0);
+//
+//        // +1 for each 10 s of slowdown
+//        if (ticks % 200 == 0) {
+//            spreadRelicExperience(entity, stack, 1);
+//        }
+//
+//        stack.set(RelicsDataComponents.TIME, ticks + 1);
     }
 
     @Override
@@ -150,12 +188,36 @@ public class VacuumGloveItem extends RECItem {
         resetSlowedEntities(slotContext.entity().level(), stack);
     }
 
+    // rank 5 - decrease incoming damage
+    @SubscribeEvent
+    public static void onLivingDamage(LivingIncomingDamageEvent event) {
+        LivingEntity entity = event.getEntity();
+        Level level = entity.getCommandSenderWorld();
+        ItemStack stack = EntityUtils.findEquippedCurio(entity, RECItems.VACUUM_GLOVE.get());
+
+        if (level.isClientSide || stack.isEmpty() || !isRankModifierUnlocked(entity, stack, 5)
+                || !(event.getSource().getEntity() instanceof LivingEntity source)) {
+            return;
+        }
+
+        var relic = (VacuumGloveItem) stack.getItem();
+        float radius = relic.getRadiusStat(entity, stack);
+        float distance = entity.distanceTo(source);
+
+        if (distance > radius) {
+            return;
+        }
+
+        event.setAmount((float) (event.getAmount()
+                * (1 - relic.getStatValue(entity, stack, ABILITY_ID, "damage_reduction")) * distance / radius));
+    }
+
     private static void removeSlowdown(List<UUID> slowedEntities, LivingEntity entity, ItemStack stack) {
         RECEntityUtils.removeMovementAttribute(entity, stack);
         slowedEntities.remove(entity.getUUID());
     }
 
-    public float getModifierValue(LivingEntity entity, ItemStack stack, float speed, float distance) {
+    public float getMovementModifierValue(LivingEntity entity, ItemStack stack, float speed, float distance) {
         float radius = getRadiusStat(entity, stack);
 
         if (distance == 0.0F || speed == 0.0F || distance > radius) {
@@ -165,7 +227,7 @@ public class VacuumGloveItem extends RECItem {
         float minSpeed = getSlowdownStat(entity, stack) * speed;
         float slowdownSpeed = minSpeed + (radius - distance) * (speed - minSpeed) / radius;
 
-        return (slowdownSpeed - speed);
+        return slowdownSpeed - speed;
     }
 
     private float getSlowdownStat(LivingEntity entity, ItemStack stack) {
@@ -200,5 +262,31 @@ public class VacuumGloveItem extends RECItem {
         }
 
         stack.set(RECDataComponents.SLOWED_ENTITIES, new ArrayList<>());
+    }
+
+    @Experimental
+    public static boolean isRankModifierUnlocked(LivingEntity entity, ItemStack stack, int rank) {
+        if (!(stack.getItem() instanceof VacuumGloveItem relic)) {
+            return false;
+        }
+
+        return relic.isAbilityRankModifierUnlocked(entity, stack, ABILITY_ID, RankModifier.getModifierByRank(rank));
+    }
+
+    @Getter
+    public enum RankModifier implements IRankModifier {
+        A(new RankModifierData("attack_range", 1)),
+        B(new RankModifierData("slowdown_power", 3)),
+        C(new RankModifierData("border_damage", 5));
+
+        private final RankModifierData data;
+
+        RankModifier(RankModifierData data) {
+            this.data = data;
+        }
+
+        public static String getModifierByRank(int rank) {
+            return IRankModifier.getModifierByRank(RankModifier.class, rank);
+        }
     }
 }

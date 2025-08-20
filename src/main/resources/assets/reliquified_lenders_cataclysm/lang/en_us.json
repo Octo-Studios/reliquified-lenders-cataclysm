@@ -41,6 +41,9 @@
   "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.description": "Creates an area around the player with a radius of %2$s blocks that slows all targets trying to escape it by %1$s%% at the edge. The slowdown increases the closer a target is to the boundary.",
   "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.title": "The Edge",
   "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.description": "+%1$s XP for every 10 seconds of slowdown from the %2$s ability.",
+  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.rank_modifier.attack_range": "attack range increased by: %3$s",
+  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.rank_modifier.slowdown_power": "slowdown increased by: %4$s%, check radius: %5$s",
+  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.rank_modifier.border_damage": "damage reduction: %6$s%",
 
   "item.reliquified_lenders_cataclysm.void_bubble": "Void Bubble",
   "tooltip.relics.void_bubble.description": "A fragile yet durable device that protects the head, body, and mind all at once.",

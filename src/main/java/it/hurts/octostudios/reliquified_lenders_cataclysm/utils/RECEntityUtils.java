@@ -19,8 +19,7 @@ public class RECEntityUtils {
     }
 
     public static void removeMovementAttribute(LivingEntity entity, ItemStack stack) {
-        EntityUtils.removeAttribute(entity, stack, Attributes.MOVEMENT_SPEED,
-                AttributeModifier.Operation.ADD_VALUE);
+        EntityUtils.removeAttribute(entity, stack, Attributes.MOVEMENT_SPEED, AttributeModifier.Operation.ADD_VALUE);
     }
 
     public static List<LivingEntity> getEntitiesInArea(LivingEntity caster, Level level, AABB area) {
