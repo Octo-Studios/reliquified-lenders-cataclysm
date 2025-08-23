@@ -1,0 +1,46 @@
+{
+  "item.reliquified_lenders_cataclysm.scouring_eye": "Olho Devastador",
+  "tooltip.relics.scouring_eye.description": "Um olho arrancado da órbita de um dos lendários monstros do End. Apesar dos anos que se passaram, ele ainda está vivo e procurando por um alvo para sua próxima batalha...",
+  "tooltip.relics.scouring_eye.ability.glowing_scour": "Perseguição",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.description": "Lembra-se do último alvo atacado pelo jogador por %2$s segundos. Quando a habilidade é ativada, o jogador é teleportado atrás do alvo lembrado e a habilidade entra em recarga por %1$s segundos.",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.target": "Alvo Selecionado",
+  "tooltip.relics.scouring_eye.ability.glowing_scour.predicate.tp_allowed": "Condições de Teleporte Atendidas",
+  "tooltip.relics.scouring_eye.leveling_source.glowing_scour.title": "Perseguição",
+  "tooltip.relics.scouring_eye.leveling_source.glowing_scour.description": "+%1$s XP para cada teleporte até um alvo usando a habilidade %2$s.",
+
+  "item.reliquified_lenders_cataclysm.void_vortex_in_bottle": "Vórtice do Vazio em uma Garrafa",
+  "tooltip.relics.void_vortex_in_bottle.description": "Um trabalho de casa de um estudante da infame escola de magia onde os alunos enfrentam provas mortais, capturando relâmpagos, nuvens ou vórtices em frascos...",
+  "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex": "Tornado do Vazio",
+  "tooltip.relics.void_vortex_in_bottle.ability.spawn_vortex.description": "Ao matar um alvo, invoca um vórtice do vazio com %1$s blocos de altura que puxa os alvos próximos e entra em recarga por %3$s segundos. Após 5 segundos, o vórtice explode, causando %2$s de dano a todos os alvos próximos. Se um vórtice mais fraco ou igual estiver próximo, ele o absorve, aumentando de tamanho e estendendo sua duração.",
+  "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.title": "Tornado do Vazio",
+  "tooltip.relics.void_vortex_in_bottle.leveling_source.spawn_vortex.description": "+%1$s XP para cada vórtice do vazio criado pela habilidade %2$s.",
+
+  "item.reliquified_lenders_cataclysm.void_cloak": "Manto do Vazio",
+  "tooltip.relics.void_cloak.description": "Um manto pertencente a um mago que, segundo a lenda, viveu sob a bedrock de qualquer mundo conhecido. Lá, ele dominou uma magia inédita de runas do vazio e derrotou uma enorme besta do End, cujo olho ainda vagueia em busca de batalha.",
+  "tooltip.relics.void_cloak.ability.void_invulnerability": "Invulnerabilidade",
+  "tooltip.relics.void_cloak.ability.void_invulnerability.description": "Concede imunidade completa ao dano do vazio.",
+  "tooltip.relics.void_cloak.ability.void_rune": "Chamado do Vazio",
+  "tooltip.relics.void_cloak.ability.void_rune.description": "A cada %1$s segundos, invoca uma runa do vazio sob um alvo aleatório próximo, causando %2$s de dano.",
+  "tooltip.relics.void_cloak.ability.seismic_zone": "Grito Final",
+  "tooltip.relics.void_cloak.ability.seismic_zone.description": "Na morte do jogador ou de sua criatura controlada, invoca uma zona sísmica no local da morte com um raio de %1$s blocos, ativando runas do vazio até %2$s vezes, cada uma causando %3$s de dano.",
+  "tooltip.relics.void_cloak.leveling_source.void_rune.title": "Chamado do Vazio",
+  "tooltip.relics.void_cloak.leveling_source.void_rune.description": "+%1$s XP para cada ativação da habilidade %2$s.",
+  "tooltip.relics.void_cloak.leveling_source.seismic_zone.title": "Grito Final",
+  "tooltip.relics.void_cloak.leveling_source.seismic_zone.description": "+%1$s XP para cada ativação da habilidade %2$s.",
+
+  "item.reliquified_lenders_cataclysm.vacuum_glove": "Luva do Vácuo",
+  "tooltip.relics.vacuum_glove.description": "Uma das ferramentas mais imundas, não empunhada por guerreiros ou magos, mas por 'açougueiros'. Sua aura liquefaz o ar ao redor, prejudicando tanto o movimento quanto a mente.",
+  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown": "A Borda",
+  "tooltip.relics.vacuum_glove.ability.vacuum_slowdown.description": "Cria uma área ao redor do jogador com raio de %2$s blocos que retarda em %1$s%% todos os alvos tentando escapar dela na borda. A desaceleração aumenta quanto mais próximo o alvo estiver do limite.",
+  "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.title": "A Borda",
+  "tooltip.relics.vacuum_glove.leveling_source.vacuum_slowdown.description": "+%1$s XP para cada 10 segundos de desaceleração da habilidade %2$s.",
+
+  "item.reliquified_lenders_cataclysm.void_bubble": "Bolha do Vazio",
+  "tooltip.relics.void_bubble.description": "Um dispositivo frágil, porém resistente, que protege a cabeça, o corpo e a mente de uma só vez.",
+  "tooltip.relics.void_bubble.ability.protective_bubble": "Bolha Protetora",
+  "tooltip.relics.void_bubble.ability.protective_bubble.description": "Envolve a cabeça do jogador em uma bolha protetora, eliminando completamente a necessidade de ar. A bolha também bloqueia até %1$s ataques recebidos antes de explodir, espalhando %2$s fragmentos em todas as direções, cada um causando %3$s de dano. Em seguida, ela se regenera após %4$s segundos.",
+  "tooltip.relics.void_bubble.leveling_source.protective_bubble.title": "Bolha Protetora",
+  "tooltip.relics.void_bubble.leveling_source.protective_bubble.description": "+%1$s XP para cada ataque bloqueado pela habilidade %2$s.",
+
+  "explosion.sub": "Explosão"
+}
